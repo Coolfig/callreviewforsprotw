@@ -6,6 +6,8 @@ import RulePanel from "./RulePanel";
 import VotingSection from "./VotingSection";
 import CommentSection from "./CommentSection";
 
+type VideoSource = "native" | "youtube" | "twitter" | "tiktok" | "instagram";
+
 interface PlayCardProps {
   id: string;
   title: string;
@@ -17,6 +19,8 @@ interface PlayCardProps {
   isHot?: boolean;
   voteCount?: number;
   commentCount?: number;
+  embedUrl?: string;
+  videoSource?: VideoSource;
 }
 
 const PlayCard = ({
@@ -30,6 +34,8 @@ const PlayCard = ({
   isHot = true,
   voteCount = 12847,
   commentCount = 47,
+  embedUrl,
+  videoSource = "native",
 }: PlayCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -80,7 +86,7 @@ const PlayCard = ({
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Video + Voting */}
           <div className="lg:col-span-2 space-y-6">
-            <VideoPlayer />
+            <VideoPlayer embedUrl={embedUrl} source={videoSource} />
             <VotingSection totalVotes={voteCount} />
           </div>
 

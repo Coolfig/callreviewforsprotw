@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Play, Pause, SkipBack, SkipForward, ZoomIn, Maximize2, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import EmbedPlayer from "./EmbedPlayer";
 
 interface TimelineMarker {
   time: number;
@@ -9,13 +10,17 @@ interface TimelineMarker {
   user: string;
 }
 
+type VideoSource = "native" | "youtube" | "twitter" | "tiktok" | "instagram";
+
 interface VideoPlayerProps {
   videoUrl?: string;
   thumbnailUrl?: string;
   markers?: TimelineMarker[];
+  embedUrl?: string;
+  source?: VideoSource;
 }
 
-const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [] }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [], embedUrl, source = "native" }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(35);
   const [duration] = useState(100);
@@ -25,8 +30,12 @@ const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [] }: VideoPlayerProps)
     { time: 48, label: "Defender position", user: "HoopsAnalyst" },
     { time: 72, label: "Ball release", user: "GameTape" },
   ];
-
   const activeMarkers = markers.length > 0 ? markers : defaultMarkers;
+
+  // If we have an embed URL, render the EmbedPlayer instead
+  if (embedUrl && source !== "native") {
+    return <EmbedPlayer url={embedUrl} platform={source} />;
+  }
 
   return (
     <div className="rounded-xl overflow-hidden bg-secondary/50 border border-border">
