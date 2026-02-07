@@ -56,6 +56,8 @@ const FeedSection = () => {
             isHot={true}
             voteCount={12847}
             commentCount={47}
+            embedUrl="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            videoSource="youtube"
           />
           
           <PlayCard 
@@ -69,6 +71,8 @@ const FeedSection = () => {
             isHot={true}
             voteCount={28391}
             commentCount={156}
+            embedUrl="https://x.com/NFL/status/1234567890"
+            videoSource="twitter"
           />
         </div>
 
