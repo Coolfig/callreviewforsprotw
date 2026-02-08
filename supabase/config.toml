@@ -1,1 +1,7 @@
 project_id = "rubrttlaitstladaukpd"
+
+[functions.verify-content]
+verify_jwt = false
+
+[functions.detect-controversy]
+verify_jwt = false

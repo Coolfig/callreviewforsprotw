@@ -14,9 +14,37 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_filters: {
+        Row: {
+          created_at: string
+          filter_type: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          filter_type: string
+          id?: string
+          is_active?: boolean
+          keywords: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          filter_type?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       flagged_moments: {
         Row: {
           bucket_count: number
+          content_verified: boolean | null
           created_at: string
           detected_at: string
           emotion_keywords: string[]
@@ -37,9 +65,11 @@ export type Database = {
           status: Database["public"]["Enums"]["detection_status"]
           teams: string[]
           updated_at: string
+          verification_reason: string | null
         }
         Insert: {
           bucket_count?: number
+          content_verified?: boolean | null
           created_at?: string
           detected_at?: string
           emotion_keywords?: string[]
@@ -60,9 +90,11 @@ export type Database = {
           status?: Database["public"]["Enums"]["detection_status"]
           teams: string[]
           updated_at?: string
+          verification_reason?: string | null
         }
         Update: {
           bucket_count?: number
+          content_verified?: boolean | null
           created_at?: string
           detected_at?: string
           emotion_keywords?: string[]
@@ -83,6 +115,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["detection_status"]
           teams?: string[]
           updated_at?: string
+          verification_reason?: string | null
         }
         Relationships: []
       }

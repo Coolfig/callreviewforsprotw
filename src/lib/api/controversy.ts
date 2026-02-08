@@ -13,6 +13,39 @@ export interface SocialPost {
   engagement_count?: number;
 }
 
+export interface ContentToVerify {
+  url: string;
+  title?: string;
+  description?: string;
+  caption?: string;
+  platform: Platform;
+}
+
+export interface VerificationResult {
+  url: string;
+  is_valid: boolean;
+  sports_signals: {
+    teams_found: string[];
+    leagues_found: string[];
+    rule_keywords_found: string[];
+  };
+  rejection_signals: {
+    meme_keywords: string[];
+    music_signals: string[];
+    entertainment_signals: string[];
+    spam_signals: string[];
+  };
+  rejection_reason: string | null;
+  confidence_score: number;
+}
+
+export interface VerificationResponse {
+  total: number;
+  valid_count: number;
+  invalid_count: number;
+  results: VerificationResult[];
+}
+
 export interface FlaggedMoment {
   id: string;
   detected_at: string;
@@ -31,6 +64,8 @@ export interface FlaggedMoment {
   status: DetectionStatus;
   league: string | null;
   created_at: string;
+  content_verified?: boolean;
+  verification_reason?: string | null;
 }
 
 export interface DetectionResponse {
@@ -46,7 +81,23 @@ export interface DetectionResponse {
   };
 }
 
-// Submit posts for controversy detection
+// Verify content before allowing into controversy pipeline
+export async function verifyContent(
+  content: ContentToVerify[]
+): Promise<VerificationResponse> {
+  const { data, error } = await supabase.functions.invoke('verify-content', {
+    body: { content },
+  });
+
+  if (error) {
+    console.error('Verification error:', error);
+    throw new Error(error.message || 'Failed to verify content');
+  }
+
+  return data;
+}
+
+// Submit posts for controversy detection (only verified content should reach here)
 export async function detectControversy(
   posts: SocialPost[],
   windowMinutes: number = 3
@@ -61,6 +112,52 @@ export async function detectControversy(
   }
 
   return data;
+}
+
+// Full pipeline: verify then detect
+export async function verifyAndDetect(
+  posts: Array<SocialPost & { title?: string; description?: string; caption?: string }>
+): Promise<{
+  verification: VerificationResponse;
+  detection: DetectionResponse | null;
+  rejected_posts: SocialPost[];
+}> {
+  // First, verify all content
+  const contentToVerify: ContentToVerify[] = posts.map(post => ({
+    url: post.post_url || '',
+    title: post.title,
+    description: post.description,
+    caption: post.caption,
+    platform: post.platform,
+  }));
+
+  const verification = await verifyContent(contentToVerify);
+
+  // Filter to only valid posts
+  const validUrls = new Set(
+    verification.results.filter(r => r.is_valid).map(r => r.url)
+  );
+
+  const validPosts = posts.filter(p => validUrls.has(p.post_url || ''));
+  const rejectedPosts = posts.filter(p => !validUrls.has(p.post_url || ''));
+
+  // If no valid posts, skip detection
+  if (validPosts.length === 0) {
+    return {
+      verification,
+      detection: null,
+      rejected_posts: rejectedPosts,
+    };
+  }
+
+  // Run controversy detection on valid posts only
+  const detection = await detectControversy(validPosts);
+
+  return {
+    verification,
+    detection,
+    rejected_posts: rejectedPosts,
+  };
 }
 
 // Fetch flagged moments for review queue
