@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      clips: {
+        Row: {
+          clip_title: string
+          created_at: string
+          end_seconds: number
+          id: string
+          notes: string | null
+          start_seconds: number
+          tags: string[] | null
+          video_id: string
+        }
+        Insert: {
+          clip_title: string
+          created_at?: string
+          end_seconds: number
+          id?: string
+          notes?: string | null
+          start_seconds: number
+          tags?: string[] | null
+          video_id: string
+        }
+        Update: {
+          clip_title?: string
+          created_at?: string
+          end_seconds?: number
+          id?: string
+          notes?: string | null
+          start_seconds?: number
+          tags?: string[] | null
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clips_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_filters: {
         Row: {
           created_at: string
@@ -223,6 +264,30 @@ export type Database = {
           is_active?: boolean
           league?: string
           team_name?: string
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          created_at: string
+          id: string
+          title: string | null
+          youtube_id: string
+          youtube_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          youtube_id: string
+          youtube_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          youtube_id?: string
+          youtube_url?: string
         }
         Relationships: []
       }
