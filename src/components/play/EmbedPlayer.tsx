@@ -18,18 +18,34 @@ const detectPlatform = (url: string): EmbedPlatform | null => {
 };
 
 const getYouTubeEmbedUrl = (url: string): string => {
+  // If already an embed URL with params, return as-is
+  if (url.includes("youtube.com/embed/")) {
+    return url;
+  }
+
   let videoId = "";
+  let extraParams = "";
   
   if (url.includes("youtu.be/")) {
-    videoId = url.split("youtu.be/")[1]?.split("?")[0] || "";
+    const parts = url.split("youtu.be/")[1] || "";
+    videoId = parts.split("?")[0] || "";
+    const query = parts.split("?")[1];
+    if (query) {
+      const params = new URLSearchParams(query);
+      if (params.get("t")) extraParams = `?start=${params.get("t")}`;
+    }
   } else if (url.includes("youtube.com/watch")) {
     const urlParams = new URLSearchParams(url.split("?")[1]);
     videoId = urlParams.get("v") || "";
-  } else if (url.includes("youtube.com/embed/")) {
-    videoId = url.split("youtube.com/embed/")[1]?.split("?")[0] || "";
+    const start = urlParams.get("t") || urlParams.get("start");
+    const end = urlParams.get("end");
+    const parts: string[] = [];
+    if (start) parts.push(`start=${start}`);
+    if (end) parts.push(`end=${end}`);
+    if (parts.length) extraParams = `?${parts.join("&")}`;
   }
   
-  return `https://www.youtube.com/embed/${videoId}`;
+  return `https://www.youtube.com/embed/${videoId}${extraParams}`;
 };
 
 const getTwitterEmbedId = (url: string): string => {

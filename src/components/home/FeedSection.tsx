@@ -18,12 +18,12 @@ const sportsVideos = [
     isHot: true,
     voteCount: 45892,
     commentCount: 312,
-    embedUrl: "https://www.youtube.com/watch?v=1khK6is-Bfs",
+    embedUrl: "https://www.youtube.com/embed/B0gDD0YYsb8?start=22&end=55",
     videoSource: "youtube" as const,
   },
   {
     id: "2",
-    title: "LeBron James Blocking Foul vs Charge Debate",
+    title: "LeBron James Chase-Down Block on Iguodala",
     description: "LeBron's chase-down block on Andre Iguodala in the 2016 Finals sparked massive debate. Was he in the restricted area? Did he establish position? One of the most analyzed plays in NBA history.",
     league: "NBA",
     teams: "Cavaliers vs Warriors",
@@ -32,7 +32,7 @@ const sportsVideos = [
     isHot: true,
     voteCount: 38421,
     commentCount: 245,
-    embedUrl: "https://www.youtube.com/watch?v=wgVOgGLtPtc",
+    embedUrl: "https://www.youtube.com/embed/wgVOgGLtPtc?start=0&end=30",
     videoSource: "youtube" as const,
   },
   {
@@ -46,7 +46,7 @@ const sportsVideos = [
     isHot: false,
     voteCount: 67234,
     commentCount: 489,
-    embedUrl: "https://www.youtube.com/watch?v=GMuUBZ_DAeM",
+    embedUrl: "https://www.youtube.com/embed/dHIXFKrrUhg?start=10&end=45",
     videoSource: "youtube" as const,
   },
   {
@@ -60,7 +60,7 @@ const sportsVideos = [
     isHot: false,
     voteCount: 29847,
     commentCount: 178,
-    embedUrl: "https://www.youtube.com/watch?v=vq8G81oOHhY",
+    embedUrl: "https://www.youtube.com/embed/vq8G81oOHhY?start=5&end=40",
     videoSource: "youtube" as const,
   },
   {
@@ -74,7 +74,7 @@ const sportsVideos = [
     isHot: false,
     voteCount: 21456,
     commentCount: 134,
-    embedUrl: "https://www.youtube.com/watch?v=vCkGD9_pNUM",
+    embedUrl: "https://www.youtube.com/embed/vCkGD9_pNUM?start=15&end=50",
     videoSource: "youtube" as const,
   },
   {
@@ -88,7 +88,7 @@ const sportsVideos = [
     isHot: true,
     voteCount: 52341,
     commentCount: 387,
-    embedUrl: "https://www.youtube.com/watch?v=Kl_VvJTyMwo",
+    embedUrl: "https://www.youtube.com/embed/Kl_VvJTyMwo?start=8&end=42",
     videoSource: "youtube" as const,
   },
 ];
