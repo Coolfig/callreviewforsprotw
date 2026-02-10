@@ -37,6 +37,23 @@ const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [], embedUrl, source = 
     return <EmbedPlayer url={embedUrl} platform={source} />;
   }
 
+  // Native mp4 video player
+  if (videoUrl && source === "native") {
+    return (
+      <div className="rounded-xl overflow-hidden bg-secondary/50 border border-border">
+        <div className="relative aspect-video bg-black">
+          <video
+            src={videoUrl}
+            className="w-full h-full object-contain"
+            controls
+            playsInline
+            preload="metadata"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl overflow-hidden bg-secondary/50 border border-border">
       {/* Video Area */}

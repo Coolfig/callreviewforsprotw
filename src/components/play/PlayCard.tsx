@@ -20,6 +20,7 @@ interface PlayCardProps {
   voteCount?: number;
   commentCount?: number;
   embedUrl?: string;
+  videoUrl?: string;
   videoSource?: VideoSource;
 }
 
@@ -35,6 +36,7 @@ const PlayCard = ({
   voteCount = 12847,
   commentCount = 47,
   embedUrl,
+  videoUrl,
   videoSource = "native",
 }: PlayCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -86,7 +88,7 @@ const PlayCard = ({
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Video + Voting */}
           <div className="lg:col-span-2 space-y-6">
-            <VideoPlayer embedUrl={embedUrl} source={videoSource} />
+            <VideoPlayer embedUrl={embedUrl} videoUrl={videoUrl} source={videoSource} />
             <VotingSection totalVotes={voteCount} />
           </div>
 
