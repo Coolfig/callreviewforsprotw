@@ -2,6 +2,7 @@ import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PlayCard from "@/components/play/PlayCard";
+import type { RulePanelProps } from "@/components/play/RulePanel";
 
 const leagues = ["All", "NFL", "NBA", "MLB", "NHL"];
 
@@ -20,6 +21,25 @@ const sportsVideos = [
     commentCount: 312,
     videoUrl: "/videos/dez-bryant-catch.mp4",
     videoSource: "native" as const,
+    ruleData: {
+      season: "2014-15 Season",
+      rules: [
+        {
+          ruleNumber: "Rule 3, Section 2, Article 7",
+          ruleTitle: "Player Possession — Going to the Ground",
+          ruleText: "A player who goes to the ground in the process of attempting to secure possession of a loose ball… must maintain control of the ball throughout the process of contacting the ground. If he loses control of the ball, and the ball touches the ground before he regains control, there is no possession.",
+          highlightedPart: "must maintain control of the ball throughout the process of contacting the ground",
+        },
+        {
+          ruleNumber: "Rule 8 — Catch Definition",
+          ruleTitle: "Completing a Catch",
+          ruleText: "If the ball touches the ground after the player secures control of it, it is a catch, provided that the player continues to maintain control.",
+          highlightedPart: "continues to maintain control",
+        },
+      ],
+      keyInterpretation: "Because Dez Bryant was falling as he reached for the ball, officials ruled he was 'going to the ground in the process of the catch' and therefore had to maintain control through ground contact. When the ball shifted upon hitting the turf, the catch was overturned — despite Bryant appearing to have possession mid-air.",
+      rulebookPdfUrl: "/docs/2014-nfl-rulebook.pdf",
+    },
   },
   {
     id: "2",
@@ -34,6 +54,18 @@ const sportsVideos = [
     commentCount: 245,
     videoUrl: "/videos/warriors-rockets-oob.mp4",
     videoSource: "native" as const,
+    ruleData: {
+      season: "2024-25 Season",
+      rules: [
+        {
+          ruleNumber: "Rule 8, Section XIII",
+          ruleTitle: "Out-of-Bounds — Player & Ball",
+          ruleText: "A player is out-of-bounds when any part of his body is touching the floor on or outside the boundary line. The ball is out-of-bounds when it touches a player who is out-of-bounds or any other person, the floor, or any object on, above, or outside of a boundary.",
+          highlightedPart: "any part of his body is touching the floor on or outside the boundary line",
+        },
+      ],
+      keyInterpretation: "The question is whether the player's foot was on the line before or during the dribble. If the foot touched the line before releasing the ball, the play should have been whistled dead.",
+    },
   },
   {
     id: "3",
@@ -48,6 +80,18 @@ const sportsVideos = [
     commentCount: 178,
     videoUrl: "/videos/cleveland-detroit-out.mp4",
     videoSource: "native" as const,
+    ruleData: {
+      season: "2024 Season",
+      rules: [
+        {
+          ruleNumber: "Rule 7.09(e)",
+          ruleTitle: "Tag and Force Outs",
+          ruleText: "Any runner is out when he fails to reach the next base before a fielder tags him or the base after he has been forced to advance by reason of the batter becoming a runner.",
+          highlightedPart: "before a fielder tags him or the base",
+        },
+      ],
+      keyInterpretation: "The timing of the tag vs. the runner reaching the base is razor-thin. Replay angles were inconclusive, making the umpire's real-time judgment the deciding factor.",
+    },
   },
   {
     id: "4",
@@ -62,6 +106,18 @@ const sportsVideos = [
     commentCount: 387,
     videoUrl: "/videos/fail-mary.mp4",
     videoSource: "native" as const,
+    ruleData: {
+      season: "2012 Season",
+      rules: [
+        {
+          ruleNumber: "Rule 8, Section 1, Article 3",
+          ruleTitle: "Simultaneous Catch",
+          ruleText: "If a pass is caught simultaneously by two eligible opponents, and both players retain it, the ball belongs to the passers. It is not a simultaneous catch if a player gains control first and an opponent subsequently gains joint control.",
+          highlightedPart: "the ball belongs to the passers",
+        },
+      ],
+      keyInterpretation: "The rule states the ball goes to the offense (passers) on a simultaneous catch — but the debate is whether M.D. Jennings had sole possession first, which would make it an interception, not a simultaneous catch.",
+    },
   },
   {
     id: "5",
@@ -149,6 +205,7 @@ const FeedSection = () => {
               embedUrl={'embedUrl' in video ? (video as any).embedUrl : undefined}
               videoUrl={'videoUrl' in video ? (video as any).videoUrl : undefined}
               videoSource={video.videoSource}
+              ruleData={'ruleData' in video ? (video as any).ruleData : undefined}
             />
           ))}
         </div>

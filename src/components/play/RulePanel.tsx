@@ -1,89 +1,167 @@
-import { BookOpen, ExternalLink, ChevronDown } from "lucide-react";
+import { BookOpen, ExternalLink, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface RulePanelProps {
-  league?: string;
-  ruleNumber?: string;
-  ruleTitle?: string;
-  ruleText?: string;
+interface RuleSection {
+  ruleNumber: string;
+  ruleTitle: string;
+  ruleText: string;
   highlightedPart?: string;
 }
 
-const RulePanel = ({ 
-  league = "NBA", 
-  ruleNumber = "Rule 12B, Section II",
-  ruleTitle = "Blocking Fouls",
-  ruleText = "A blocking foul is committed when a defender impedes the progress of an offensive player who has the ball and who is moving in a legal manner. The defender must establish legal guarding position before contact occurs. Legal guarding position is established when the defender is facing the opponent with both feet on the floor.",
-  highlightedPart = "establish legal guarding position before contact occurs"
+export interface RulePanelProps {
+  league?: string;
+  season?: string;
+  rules?: RuleSection[];
+  keyInterpretation?: string;
+  rulebookPdfUrl?: string;
+}
+
+const RulePanel = ({
+  league = "NFL",
+  season = "2014-15 Season",
+  rules = [],
+  keyInterpretation,
+  rulebookPdfUrl,
 }: RulePanelProps) => {
-  // Split text to highlight the relevant part
-  const parts = ruleText.split(highlightedPart);
-  
+
+  const renderHighlightedText = (text: string, highlight?: string) => {
+    if (!highlight) return <span>{text}</span>;
+    const parts = text.split(highlight);
+    if (parts.length <= 1) return <span>{text}</span>;
+    return (
+      <>
+        {parts[0]}
+        <strong className="text-foreground">{highlight}</strong>
+        {parts[1]}
+      </>
+    );
+  };
+
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden h-full">
-      {/* Header */}
-      <div className="p-4 border-b border-border flex items-center justify-between">
+    <div className="bg-card rounded-2xl border border-border overflow-hidden h-full">
+      {/* Compact header */}
+      <div className="p-5 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-accent" />
+          <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+            <BookOpen className="w-4 h-4 text-accent" />
           </div>
           <div>
             <div className="text-sm font-medium text-foreground">Official Rulebook</div>
-            <div className="text-xs text-muted-foreground">{league} 2024-25 Season</div>
+            <div className="text-xs text-muted-foreground">{league} {season}</div>
           </div>
         </div>
         <Badge variant="outline" className="text-xs">{league}</Badge>
       </div>
 
-      {/* Rule content */}
-      <div className="p-4">
-        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-          {ruleNumber}
-        </div>
-        <h3 className="text-lg font-semibold mb-4">{ruleTitle}</h3>
-        
-        <div className="text-sm text-secondary-foreground leading-relaxed">
-          {parts.length > 1 ? (
-            <>
-              {parts[0]}
-              <span className="rule-highlight font-medium text-foreground">
-                {highlightedPart}
-              </span>
-              {parts[1]}
-            </>
-          ) : (
-            ruleText
-          )}
-        </div>
+      {/* Accordion rule content */}
+      <div className="p-5">
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="rulebook" className="border-none">
+            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+              Rulebook Explanation
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-5 pt-1">
+                {rules.map((rule, i) => (
+                  <div key={i}>
+                    <div className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">
+                      {rule.ruleNumber}
+                    </div>
+                    <h4 className="text-sm font-semibold mb-2">{rule.ruleTitle}</h4>
+                    <div className="p-4 rounded-xl bg-secondary/40 text-xs text-muted-foreground leading-relaxed">
+                      {renderHighlightedText(rule.ruleText, rule.highlightedPart)}
+                    </div>
+                  </div>
+                ))}
 
-        {/* Additional context */}
-        <div className="mt-6 p-4 rounded-lg bg-secondary/50">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-            <span className="text-xs font-medium text-accent">Key Interpretation</span>
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            The phrase "before contact occurs" is crucial. Officials must determine the exact moment 
-            of contact and whether the defender had both feet planted at that instant.
-          </p>
-        </div>
+                {/* Key interpretation */}
+                {keyInterpretation && (
+                  <div className="p-4 rounded-xl bg-accent/5 border border-accent/10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                      <span className="text-[11px] font-medium text-accent uppercase tracking-wider">Key Interpretation</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {keyInterpretation}
+                    </p>
+                  </div>
+                )}
 
-        {/* Related rules */}
-        <div className="mt-4">
-          <button className="flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
-            <span>Related Rules (3)</span>
-            <ChevronDown className="w-4 h-4" />
-          </button>
-        </div>
+                {/* View full rule — opens Sheet */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button className="flex items-center gap-2 text-xs text-primary hover:underline mt-2 transition-colors">
+                      <ExternalLink className="w-3 h-3" />
+                      View full rule in rulebook →
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-full sm:max-w-lg p-0">
+                    <SheetHeader className="p-6 pb-4 border-b border-border">
+                      <SheetTitle className="flex items-center gap-3 text-base">
+                        <BookOpen className="w-4 h-4 text-accent" />
+                        {league} Official Rulebook
+                      </SheetTitle>
+                      <p className="text-xs text-muted-foreground">{season}</p>
+                    </SheetHeader>
+                    <ScrollArea className="h-[calc(100vh-140px)]">
+                      <div className="p-6 space-y-8">
+                        {rules.map((rule, i) => (
+                          <div key={i}>
+                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">
+                              {rule.ruleNumber}
+                            </div>
+                            <h3 className="text-lg font-semibold mb-3">{rule.ruleTitle}</h3>
+                            <div className="p-5 rounded-xl bg-secondary/40 text-sm text-muted-foreground leading-relaxed">
+                              {renderHighlightedText(rule.ruleText, rule.highlightedPart)}
+                            </div>
+                          </div>
+                        ))}
 
-        {/* Source link */}
-        <a 
-          href="#" 
-          className="mt-4 flex items-center gap-2 text-xs text-primary hover:underline"
-        >
-          <ExternalLink className="w-3 h-3" />
-          View full rule in official rulebook
-        </a>
+                        {keyInterpretation && (
+                          <div className="p-5 rounded-xl bg-accent/5 border border-accent/10">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                              <span className="text-xs font-medium text-accent">Key Interpretation</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {keyInterpretation}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Download PDF */}
+                        {rulebookPdfUrl && (
+                          <a
+                            href={rulebookPdfUrl}
+                            download
+                            className="flex items-center gap-2 text-sm text-primary hover:underline transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                            Download full rulebook (PDF)
+                          </a>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );
