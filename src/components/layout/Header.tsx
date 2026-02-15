@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, Scale, Search } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Scale, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, username, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: "Feed", href: "#feed" },
@@ -12,6 +15,11 @@ const Header = () => {
     { name: "Leaderboard", href: "#leaderboard" },
     { name: "About", href: "#about" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
@@ -45,12 +53,23 @@ const Header = () => {
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <Search className="w-5 h-5" />
             </Button>
-            <Button variant="outline" size="sm">
-              Sign In
-            </Button>
-            <Button size="sm">
-              Join Now
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-foreground">{username || "User"}</span>
+                <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+                  Sign In
+                </Button>
+                <Button size="sm" onClick={() => navigate("/auth")}>
+                  Join Now
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -58,11 +77,7 @@ const Header = () => {
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
@@ -81,12 +96,20 @@ const Header = () => {
                 </a>
               ))}
               <div className="flex gap-3 pt-4 border-t border-border/50">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Sign In
-                </Button>
-                <Button size="sm" className="flex-1">
-                  Join Now
-                </Button>
+                {user ? (
+                  <Button variant="outline" size="sm" className="flex-1" onClick={handleSignOut}>
+                    Sign Out ({username})
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}>
+                      Sign In
+                    </Button>
+                    <Button size="sm" className="flex-1" onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}>
+                      Join Now
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

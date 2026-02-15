@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { MessageSquare, ThumbsUp, Clock, BookOpen, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Comment {
   id: string;
@@ -74,6 +76,8 @@ const moreComments: Comment[] = [
 type SortMode = "top" | "recent" | "debated";
 
 const CommentSection = () => {
+  const { user, username: authUsername } = useAuth();
+  const navigate = useNavigate();
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [expandedReplies, setExpandedReplies] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -86,6 +90,15 @@ const CommentSection = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
 
+  const requireAuth = (action: () => void) => {
+    if (!user) {
+      toast({ title: "Sign up to participate", description: "You need an account to comment and like." });
+      navigate("/auth");
+      return;
+    }
+    action();
+  };
+
   const toggleReplies = (commentId: string) => {
     setExpandedReplies(prev =>
       prev.includes(commentId)
@@ -95,6 +108,11 @@ const CommentSection = () => {
   };
 
   const handleLike = useCallback((commentId: string, isReply?: boolean, parentId?: string) => {
+    if (!user) {
+      toast({ title: "Sign up to participate", description: "You need an account to like comments." });
+      navigate("/auth");
+      return;
+    }
     setComments(prev => prev.map(c => {
       if (isReply && parentId && c.id === parentId && c.replies) {
         return {
@@ -111,17 +129,24 @@ const CommentSection = () => {
       }
       return c;
     }));
-  }, []);
+  }, [user, navigate]);
 
   const handlePost = () => {
+    if (!user) {
+      toast({ title: "Sign up to participate", description: "You need an account to comment." });
+      navigate("/auth");
+      return;
+    }
     if (!newComment.trim()) {
       toast({ title: "Empty comment", description: "Write something before posting.", variant: "destructive" });
       return;
     }
+    const displayName = authUsername || "You";
+    const initials = displayName.slice(0, 2).toUpperCase();
     const comment: Comment = {
       id: Date.now().toString(),
-      user: "You",
-      avatar: "YO",
+      user: displayName,
+      avatar: initials,
       timestamp: "Just now",
       content: newComment.trim(),
       likes: 0,
@@ -138,11 +163,17 @@ const CommentSection = () => {
   };
 
   const handleReply = (parentId: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
     if (!replyText.trim()) return;
+    const displayName = authUsername || "You";
+    const initials = displayName.slice(0, 2).toUpperCase();
     const reply: Comment = {
       id: Date.now().toString(),
-      user: "You",
-      avatar: "YO",
+      user: displayName,
+      avatar: initials,
       timestamp: "Just now",
       content: replyText.trim(),
       likes: 0,
@@ -214,7 +245,7 @@ const CommentSection = () => {
             </button>
             {!isReply && (
               <button
-                onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                onClick={() => requireAuth(() => setReplyingTo(replyingTo === comment.id ? null : comment.id))}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 Reply
