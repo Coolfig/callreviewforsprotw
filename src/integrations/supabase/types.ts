@@ -293,6 +293,51 @@ export type Database = {
         }
         Relationships: []
       }
+      rules: {
+        Row: {
+          created_at: string
+          example_play_ids: string[]
+          id: string
+          league: string
+          official_text: string
+          plain_english_summary: string
+          rule_id: string
+          rule_number: string
+          season: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          example_play_ids?: string[]
+          id?: string
+          league: string
+          official_text: string
+          plain_english_summary: string
+          rule_id: string
+          rule_number: string
+          season?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          example_play_ids?: string[]
+          id?: string
+          league?: string
+          official_text?: string
+          plain_english_summary?: string
+          rule_id?: string
+          rule_number?: string
+          season?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           author: string | null
