@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Calendar, Users, ChevronRight, Clock, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VideoPlayer from "./VideoPlayer";
-import RulePanel from "./RulePanel";
+import RulePanel, { type RulePanelProps } from "./RulePanel";
 import VotingSection from "./VotingSection";
 import CommentSection from "./CommentSection";
 
@@ -22,6 +22,7 @@ interface PlayCardProps {
   embedUrl?: string;
   videoUrl?: string;
   videoSource?: VideoSource;
+  ruleData?: Omit<RulePanelProps, 'league'>;
 }
 
 const PlayCard = ({
@@ -38,6 +39,7 @@ const PlayCard = ({
   embedUrl,
   videoUrl,
   videoSource = "native",
+  ruleData,
 }: PlayCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -94,7 +96,7 @@ const PlayCard = ({
 
           {/* Rule Panel */}
           <div className="lg:col-span-1">
-            <RulePanel league={league} />
+            <RulePanel league={league} {...ruleData} />
           </div>
         </div>
 
