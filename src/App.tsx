@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
+import Feed from "./pages/Feed";
+import Rulebook from "./pages/Rulebook";
+import Leaderboard from "./pages/Leaderboard";
+import About from "./pages/About";
 import Admin from "./pages/Admin";
 import AdminClipper from "./pages/AdminClipper";
 import Clips from "./pages/Clips";
@@ -22,6 +26,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/rulebook" element={<Rulebook />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/clipper" element={<AdminClipper />} />

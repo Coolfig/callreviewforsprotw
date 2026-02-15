@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Scale, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,12 +8,13 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, username, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navLinks = [
-    { name: "Feed", href: "#feed" },
-    { name: "Rulebook", href: "#rulebook" },
-    { name: "Leaderboard", href: "#leaderboard" },
-    { name: "About", href: "#about" },
+    { name: "Feed", href: "/feed" },
+    { name: "Rulebook", href: "/rulebook" },
+    { name: "Leaderboard", href: "/leaderboard" },
+    { name: "About", href: "/about" },
   ];
 
   const handleSignOut = async () => {
@@ -38,13 +39,13 @@ const Header = () => {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                to={link.href}
+                className={`text-sm font-medium transition-colors ${location.pathname === link.href ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -86,14 +87,14 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-border/50 animate-fade-in">
             <nav className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  to={link.href}
+                  className={`text-sm font-medium transition-colors ${location.pathname === link.href ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}
-                </a>
+                </Link>
               ))}
               <div className="flex gap-3 pt-4 border-t border-border/50">
                 {user ? (
