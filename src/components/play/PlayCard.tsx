@@ -102,7 +102,7 @@ const PlayCard = ({
 
         {/* Comments */}
         <div className="mt-6">
-          <CommentSection />
+          <CommentSection playId={id} />
         </div>
       </div>
     </article>
