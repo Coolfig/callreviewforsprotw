@@ -1,22 +1,47 @@
-import { useState } from "react";
-import { Filter } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Filter, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PlayCard from "@/components/play/PlayCard";
 import { sportsVideos } from "@/data/sportsVideos";
 
 const leagues = ["All", "NFL", "NBA", "MLB", "NHL"];
-const INITIAL_COUNT = 10;
+const BATCH_SIZE = 10;
 
 const FeedSection = () => {
   const [activeLeague, setActiveLeague] = useState("All");
-  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [isLoading, setIsLoading] = useState(false);
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   const filtered = activeLeague === "All"
     ? sportsVideos
     : sportsVideos.filter((v) => v.league === activeLeague);
 
   const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  const loadMore = useCallback(() => {
+    if (isLoading || !hasMore) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      setVisibleCount((c) => c + BATCH_SIZE);
+      setIsLoading(false);
+    }, 800);
+  }, [isLoading, hasMore]);
+
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   return (
     <section id="feed" className="py-24 bg-card/50">
@@ -41,17 +66,23 @@ const FeedSection = () => {
                       ? 'bg-primary hover:bg-primary/90' 
                       : 'hover:bg-secondary'
                   }`}
-                  onClick={() => { setActiveLeague(league); setVisibleCount(INITIAL_COUNT); }}
+                  onClick={() => { setActiveLeague(league); setVisibleCount(BATCH_SIZE); }}
                 >
                   {league}
                 </Badge>
               ))}
             </div>
-            
-            <Button variant="outline" size="sm" className="gap-2">
-              <Filter className="w-4 h-4" />
-              Filters
-            </Button>
+
+            <a
+              href="https://forms.gle/SticowSatRJgssuY9"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" size="sm" className="gap-2">
+                <Send className="w-4 h-4" />
+                Submit a Clip
+              </Button>
+            </a>
           </div>
         </div>
 
@@ -78,18 +109,12 @@ const FeedSection = () => {
           ))}
         </div>
 
-        {/* Load more */}
-        {visibleCount < filtered.length && (
-          <div className="text-center mt-12">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setVisibleCount((c) => c + 10)}
-            >
-              Load More Controversies ({filtered.length - visibleCount} remaining)
-            </Button>
-          </div>
-        )}
+        {/* Infinite scroll loader */}
+        <div ref={loaderRef} className="flex justify-center py-12">
+          {isLoading && (
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          )}
+        </div>
       </div>
     </section>
   );

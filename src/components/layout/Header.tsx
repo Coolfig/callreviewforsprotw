@@ -27,14 +27,24 @@ const Header = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <button
+            onClick={() => {
+              if (location.pathname === "/" || location.pathname === "/feed") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                window.location.reload();
+              } else {
+                navigate("/");
+              }
+            }}
+            className="flex items-center gap-2 group"
+          >
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
               <Scale className="w-5 h-5 text-primary" />
             </div>
             <span className="text-lg font-semibold tracking-tight">
               Call<span className="text-primary">Review</span>
             </span>
-          </Link>
+          </button>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
