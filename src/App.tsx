@@ -14,6 +14,7 @@ import AdminClipper from "./pages/AdminClipper";
 import Clips from "./pages/Clips";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/admin/clipper" element={<AdminClipper />} />
             <Route path="/clips" element={<Clips />} />
             <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/community" element={<Community />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
