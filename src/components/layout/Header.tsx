@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Scale, Search, LogOut } from "lucide-react";
+import { Menu, X, Search, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import refereeLogo from "@/assets/referee-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,8 +39,8 @@ const Header = () => {
             }}
             className="flex items-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <Scale className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <img src={refereeLogo} alt="CallReview" className="w-8 h-8 object-contain" />
             </div>
             <span className="text-lg font-semibold tracking-tight">
               Call<span className="text-primary">Review</span>
@@ -66,7 +67,10 @@ const Header = () => {
             </Button>
             {user ? (
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-foreground">{username || "User"}</span>
+                <button onClick={() => navigate(`/profile/${username}`)} className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <User className="w-4 h-4" />
+                  {username || "User"}
+                </button>
                 <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
                   <LogOut className="w-4 h-4" />
                 </Button>

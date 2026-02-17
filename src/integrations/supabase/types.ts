@@ -239,6 +239,27 @@ export type Database = {
         }
         Relationships: []
       }
+      followers: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       keyword_buckets: {
         Row: {
           bucket_name: string
@@ -271,21 +292,33 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          bio: string | null
           created_at: string
+          favorite_teams: string[] | null
           id: string
           updated_at: string
           user_id: string
           username: string
         }
         Insert: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
           created_at?: string
+          favorite_teams?: string[] | null
           id?: string
           updated_at?: string
           user_id: string
           username: string
         }
         Update: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
           created_at?: string
+          favorite_teams?: string[] | null
           id?: string
           updated_at?: string
           user_id?: string

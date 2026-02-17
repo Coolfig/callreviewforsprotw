@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import AdminClipper from "./pages/AdminClipper";
 import Clips from "./pages/Clips";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/clipper" element={<AdminClipper />} />
             <Route path="/clips" element={<Clips />} />
+            <Route path="/profile/:username" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
