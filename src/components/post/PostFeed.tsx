@@ -15,6 +15,8 @@ interface PostWithProfile {
   likes_count: number;
   replies_count: number;
   is_liked: boolean;
+  image_url: string | null;
+  video_url: string | null;
 }
 
 const PostFeed = () => {
@@ -32,57 +34,34 @@ const PostFeed = () => {
 
     if (!postsData) { setLoading(false); return; }
 
-    // Get unique user IDs
     const userIds = [...new Set(postsData.map((p) => p.user_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("user_id, username, avatar_url")
-      .in("user_id", userIds);
-
+    const { data: profiles } = await supabase.from("profiles").select("user_id, username, avatar_url").in("user_id", userIds);
     const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) || []);
 
-    // Get like counts
     const postIds = postsData.map((p) => p.id);
-    const { data: likesData } = await supabase
-      .from("post_likes")
-      .select("post_id")
-      .in("post_id", postIds);
-
+    const { data: likesData } = await supabase.from("post_likes").select("post_id").in("post_id", postIds);
     const likeCounts = new Map<string, number>();
     likesData?.forEach((l) => likeCounts.set(l.post_id, (likeCounts.get(l.post_id) || 0) + 1));
 
-    // Get replies counts
-    const { data: repliesData } = await supabase
-      .from("post_replies")
-      .select("post_id")
-      .in("post_id", postIds);
-
+    const { data: repliesData } = await supabase.from("post_replies").select("post_id").in("post_id", postIds);
     const replyCounts = new Map<string, number>();
     repliesData?.forEach((r) => replyCounts.set(r.post_id, (replyCounts.get(r.post_id) || 0) + 1));
 
-    // Check which posts current user liked
     let userLikes = new Set<string>();
     if (user) {
-      const { data: myLikes } = await supabase
-        .from("post_likes")
-        .select("post_id")
-        .eq("user_id", user.id)
-        .in("post_id", postIds);
+      const { data: myLikes } = await supabase.from("post_likes").select("post_id").eq("user_id", user.id).in("post_id", postIds);
       userLikes = new Set(myLikes?.map((l) => l.post_id) || []);
     }
 
     const enriched: PostWithProfile[] = postsData.map((p) => {
       const profile = profileMap.get(p.user_id);
       return {
-        id: p.id,
-        content: p.content,
-        created_at: p.created_at,
-        user_id: p.user_id,
-        username: profile?.username || "Unknown",
-        avatar_url: profile?.avatar_url || null,
-        likes_count: likeCounts.get(p.id) || 0,
-        replies_count: replyCounts.get(p.id) || 0,
+        id: p.id, content: p.content, created_at: p.created_at, user_id: p.user_id,
+        username: profile?.username || "Unknown", avatar_url: profile?.avatar_url || null,
+        likes_count: likeCounts.get(p.id) || 0, replies_count: replyCounts.get(p.id) || 0,
         is_liked: userLikes.has(p.id),
+        image_url: (p as any).image_url || null,
+        video_url: (p as any).video_url || null,
       };
     });
 
@@ -90,17 +69,11 @@ const PostFeed = () => {
     setLoading(false);
   }, [user]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+  useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
-  // Realtime subscription
   useEffect(() => {
-    const channel = supabase
-      .channel("posts-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, () => {
-        fetchPosts();
-      })
+    const channel = supabase.channel("posts-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, () => fetchPosts())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [fetchPosts]);

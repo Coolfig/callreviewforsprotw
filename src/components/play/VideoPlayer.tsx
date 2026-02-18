@@ -18,9 +18,10 @@ interface VideoPlayerProps {
   markers?: TimelineMarker[];
   embedUrl?: string;
   source?: VideoSource;
+  onError?: () => void;
 }
 
-const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [], embedUrl, source = "native" }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [], embedUrl, source = "native", onError }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(35);
   const [duration] = useState(100);
@@ -34,7 +35,7 @@ const VideoPlayer = ({ videoUrl, thumbnailUrl, markers = [], embedUrl, source = 
 
   // If we have an embed URL, render the EmbedPlayer instead
   if (embedUrl && source !== "native") {
-    return <EmbedPlayer url={embedUrl} platform={source} />;
+    return <EmbedPlayer url={embedUrl} platform={source} onError={onError} />;
   }
 
   // Native mp4 video player

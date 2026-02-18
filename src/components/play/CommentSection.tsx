@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { MessageSquare, ThumbsUp, Clock, BookOpen, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -271,7 +271,7 @@ const CommentSection = ({ playId }: { playId: string }) => {
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-sm">{comment.username}</span>
+              <Link to={`/profile/${comment.username}`} className="font-medium text-sm hover:underline">{comment.username}</Link>
               <span className="text-xs text-muted-foreground">{timeAgo(comment.created_at)}</span>
             </div>
             <div className="flex flex-wrap gap-2 mb-2">

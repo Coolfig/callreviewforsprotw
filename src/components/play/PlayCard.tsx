@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Calendar, Users, ChevronRight, Clock, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VideoPlayer from "./VideoPlayer";
@@ -23,6 +23,7 @@ interface PlayCardProps {
   videoUrl?: string;
   videoSource?: VideoSource;
   ruleData?: Omit<RulePanelProps, 'league'>;
+  onUnavailable?: () => void;
 }
 
 const PlayCard = ({
@@ -40,8 +41,17 @@ const PlayCard = ({
   videoUrl,
   videoSource = "native",
   ruleData,
+  onUnavailable,
 }: PlayCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [hidden, setHidden] = useState(false);
+
+  const handleVideoError = useCallback(() => {
+    setHidden(true);
+    onUnavailable?.();
+  }, [onUnavailable]);
+
+  if (hidden) return null;
 
   return (
     <article className="bg-card rounded-2xl border border-border overflow-hidden">
@@ -90,7 +100,7 @@ const PlayCard = ({
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Video + Voting */}
           <div className="lg:col-span-2 space-y-6">
-            <VideoPlayer embedUrl={embedUrl} videoUrl={videoUrl} source={videoSource} />
+            <VideoPlayer embedUrl={embedUrl} videoUrl={videoUrl} source={videoSource} onError={handleVideoError} />
             <VotingSection totalVotes={voteCount} />
           </div>
 

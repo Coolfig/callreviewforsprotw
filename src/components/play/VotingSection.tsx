@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, X, HelpCircle, Users } from "lucide-react";
+import { Check, X, HelpCircle, Users, ThumbsDown } from "lucide-react";
 
 interface VotingSectionProps {
   totalVotes?: number;
@@ -40,7 +40,7 @@ const VotingSection = ({
       </div>
 
       {/* Vote buttons */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-4 gap-3 mb-6">
         <button
           onClick={() => handleVote('correct')}
           className={`vote-btn vote-btn-correct flex flex-col items-center gap-2 py-4 ${
@@ -48,7 +48,7 @@ const VotingSection = ({
           }`}
         >
           <Check className="w-6 h-6" />
-          <span className="text-sm font-medium">Correct Call</span>
+          <span className="text-sm font-medium">Correct</span>
         </button>
         <button
           onClick={() => handleVote('missed')}
@@ -57,7 +57,16 @@ const VotingSection = ({
           }`}
         >
           <X className="w-6 h-6" />
-          <span className="text-sm font-medium">Missed Call</span>
+          <span className="text-sm font-medium">Missed</span>
+        </button>
+        <button
+          onClick={() => handleVote('dislike')}
+          className={`vote-btn flex flex-col items-center gap-2 py-4 rounded-lg border border-border transition-all ${
+            userVote === 'dislike' ? 'bg-destructive text-white border-destructive' : 'hover:bg-secondary'
+          }`}
+        >
+          <ThumbsDown className="w-6 h-6" />
+          <span className="text-sm font-medium">Dislike</span>
         </button>
         <button
           onClick={() => handleVote('unclear')}
