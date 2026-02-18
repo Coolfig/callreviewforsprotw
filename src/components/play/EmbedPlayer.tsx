@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ExternalLink, Youtube, Twitter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -7,6 +7,7 @@ type EmbedPlatform = "youtube" | "twitter" | "tiktok" | "instagram";
 interface EmbedPlayerProps {
   url: string;
   platform?: EmbedPlatform;
+  onError?: () => void;
 }
 
 const detectPlatform = (url: string): EmbedPlatform | null => {
@@ -60,12 +61,29 @@ const platformConfig: Record<EmbedPlatform, { name: string; color: string; icon:
   instagram: { name: "Instagram", color: "bg-purple-500/20 text-purple-400 border-purple-500/30", icon: null },
 };
 
-const EmbedPlayer = ({ url, platform: explicitPlatform }: EmbedPlayerProps) => {
+const EmbedPlayer = ({ url, platform: explicitPlatform, onError: onErrorProp }: EmbedPlayerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [isUnavailable, setIsUnavailable] = useState(false);
   
   const platform = explicitPlatform || detectPlatform(url);
-  
+
+  // Check YouTube video availability
+  useEffect(() => {
+    if (platform !== "youtube") return;
+    const embedUrl = getYouTubeEmbedUrl(url);
+    const videoId = embedUrl.split("/embed/")[1]?.split("?")[0];
+    if (!videoId) return;
+    
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
+      .then(res => {
+        if (!res.ok) { setIsUnavailable(true); onErrorProp?.(); }
+      })
+      .catch(() => { setIsUnavailable(true); onErrorProp?.(); });
+  }, [url, platform, onErrorProp]);
+
+  if (isUnavailable) return null;
+
   if (!platform) {
     return (
       <div className="rounded-xl overflow-hidden bg-secondary/50 border border-border aspect-video flex items-center justify-center">
@@ -95,8 +113,15 @@ const EmbedPlayer = ({ url, platform: explicitPlatform }: EmbedPlayerProps) => {
             className="w-full h-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            onLoad={() => setIsLoading(false)}
-            onError={() => setHasError(true)}
+            onLoad={(e) => {
+              setIsLoading(false);
+              // Check if iframe loaded YouTube's "unavailable" page
+              try {
+                const iframe = e.target as HTMLIFrameElement;
+                // YouTube embeds that fail will still fire onLoad
+              } catch {}
+            }}
+            onError={() => { setHasError(true); onErrorProp?.(); }}
           />
         );
       

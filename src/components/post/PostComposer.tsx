@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Image, Film, Link2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,39 +16,30 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   const [posting, setPosting] = useState(false);
   const [suggestions, setSuggestions] = useState<MentionSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [mentionQuery, setMentionQuery] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [showLinkInput, setShowLinkInput] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = el.scrollHeight + "px";
-    }
+    if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
   }, [content]);
 
   const handleInput = async (value: string) => {
     setContent(value);
-    // Check for @ mentions
     const cursorPos = textareaRef.current?.selectionStart || 0;
     const textUpToCursor = value.slice(0, cursorPos);
     const mentionMatch = textUpToCursor.match(/@(\w*)$/);
-
-    if (mentionMatch) {
-      const query = mentionMatch[1];
-      setMentionQuery(query);
-      if (query.length >= 1) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("username, avatar_url")
-          .ilike("username", `${query}%`)
-          .limit(5);
-        setSuggestions(data || []);
-        setShowSuggestions(true);
-      } else {
-        setShowSuggestions(false);
-      }
+    if (mentionMatch && mentionMatch[1].length >= 1) {
+      const { data } = await supabase.from("profiles").select("username, avatar_url").ilike("username", `${mentionMatch[1]}%`).limit(5);
+      setSuggestions(data || []);
+      setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
     }
@@ -64,11 +55,75 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
     textareaRef.current?.focus();
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setVideoFile(null); setVideoPreview(null);
+    }
+  };
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setVideoFile(file);
+      setVideoPreview(URL.createObjectURL(file));
+      setImageFile(null); setImagePreview(null);
+    }
+  };
+
   const handlePost = async () => {
-    if (!user || !content.trim()) return;
+    if (!user || (!content.trim() && !imageFile && !videoFile && !linkUrl.trim())) return;
     setPosting(true);
-    await supabase.from("posts").insert({ user_id: user.id, content: content.trim() });
+
+    let imageUrl: string | null = null;
+    let videoUrl: string | null = null;
+
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("post-media").upload(path, imageFile);
+      if (!error) {
+        const { data: urlData } = supabase.storage.from("post-media").getPublicUrl(path);
+        imageUrl = urlData.publicUrl;
+      }
+    }
+
+    if (videoFile) {
+      const ext = videoFile.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("post-media").upload(path, videoFile);
+      if (!error) {
+        const { data: urlData } = supabase.storage.from("post-media").getPublicUrl(path);
+        videoUrl = urlData.publicUrl;
+      }
+    }
+
+    // If user pasted a link, store as video_url (for embeds) or image_url
+    if (linkUrl.trim() && !imageUrl && !videoUrl) {
+      const url = linkUrl.trim();
+      if (url.match(/\.(mp4|webm|mov)$/i) || url.includes("youtube.com") || url.includes("youtu.be")) {
+        videoUrl = url;
+      } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        imageUrl = url;
+      } else {
+        videoUrl = url; // default to video/embed
+      }
+    }
+
+    const postContent = content.trim() || "";
+    await supabase.from("posts").insert({
+      user_id: user.id,
+      content: postContent,
+      image_url: imageUrl,
+      video_url: videoUrl,
+    });
+
     setContent("");
+    setImageFile(null); setImagePreview(null);
+    setVideoFile(null); setVideoPreview(null);
+    setLinkUrl(""); setShowLinkInput(false);
     setPosting(false);
     onPostCreated?.();
   };
@@ -97,11 +152,7 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
           {showSuggestions && suggestions.length > 0 && (
             <div className="absolute left-0 top-full mt-1 bg-card border border-border rounded-xl shadow-xl z-20 w-64 overflow-hidden">
               {suggestions.map((s) => (
-                <button
-                  key={s.username}
-                  onClick={() => insertMention(s.username)}
-                  className="flex items-center gap-3 w-full px-4 py-3 hover:bg-secondary/50 transition-colors text-left"
-                >
+                <button key={s.username} onClick={() => insertMention(s.username)} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-secondary/50 transition-colors text-left">
                   <Avatar className="w-8 h-8">
                     {s.avatar_url ? <AvatarImage src={s.avatar_url} /> : null}
                     <AvatarFallback className="bg-secondary text-xs">{s.username.charAt(0).toUpperCase()}</AvatarFallback>
@@ -115,14 +166,57 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
             </div>
           )}
 
+          {/* Media preview */}
+          {imagePreview && (
+            <div className="relative mt-2 rounded-xl overflow-hidden border border-border">
+              <img src={imagePreview} alt="Preview" className="max-h-64 w-full object-cover" />
+              <button onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute top-2 right-2 bg-black/60 rounded-full p-1">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          )}
+          {videoPreview && (
+            <div className="relative mt-2 rounded-xl overflow-hidden border border-border">
+              <video src={videoPreview} className="max-h-64 w-full" controls />
+              <button onClick={() => { setVideoFile(null); setVideoPreview(null); }} className="absolute top-2 right-2 bg-black/60 rounded-full p-1">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          )}
+
+          {/* Link input */}
+          {showLinkInput && (
+            <div className="mt-2 flex gap-2">
+              <input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="Paste a URL (YouTube, image, video link...)"
+                className="flex-1 bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <button onClick={() => { setShowLinkInput(false); setLinkUrl(""); }} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-3 border-t border-border/30 pt-3">
-            <p className="text-xs text-muted-foreground">
-              💬 Everyone can reply
-            </p>
+            <div className="flex items-center gap-1">
+              <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+              <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoSelect} />
+              <button onClick={() => imageInputRef.current?.click()} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors" title="Add image">
+                <Image className="w-5 h-5" />
+              </button>
+              <button onClick={() => videoInputRef.current?.click()} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors" title="Add video">
+                <Film className="w-5 h-5" />
+              </button>
+              <button onClick={() => setShowLinkInput(!showLinkInput)} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors" title="Add link">
+                <Link2 className="w-5 h-5" />
+              </button>
+            </div>
             <Button
               size="sm"
               className="rounded-full px-5 font-semibold"
-              disabled={!content.trim() || posting}
+              disabled={(!content.trim() && !imageFile && !videoFile && !linkUrl.trim()) || posting}
               onClick={handlePost}
             >
               {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}

@@ -356,22 +356,28 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          image_url: string | null
           updated_at: string
           user_id: string
+          video_url: string | null
         }
         Insert: {
           content: string
           created_at?: string
           id?: string
+          image_url?: string | null
           updated_at?: string
           user_id: string
+          video_url?: string | null
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           updated_at?: string
           user_id?: string
+          video_url?: string | null
         }
         Relationships: []
       }
