@@ -6,6 +6,7 @@ import {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getLeague, getYearData, YEARS, LEAGUE_EMOJIS, LeagueKey, Verdict } from "@/data/rulebookArchive";
+import { SafeExternalLink, isValidExternalUrl } from "@/components/SafeExternalLink";
 
 const VERDICT_STYLES: Record<Verdict, string> = {
   "Correct":      "bg-green-500/10 text-green-500 border-green-500/30",
@@ -58,6 +59,9 @@ const RulebookYear = () => {
     ],
   };
 
+  const hasPdf = isValidExternalUrl(yd.yearSpecificPdfUrl);
+  const hasArchive = isValidExternalUrl(yd.archiveUrl);
+
   return (
     <>
       <title>{title} | CallReview</title>
@@ -98,11 +102,10 @@ const RulebookYear = () => {
                 <section aria-labelledby="official-links">
                   <SectionHeader icon={<BookOpen className="w-4 h-4 text-primary" />} title="Official Links" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
                     {/* Rules portal — always present */}
-                    <a
-                      href={league.officialRulesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <SafeExternalLink
+                      url={league.officialRulesUrl}
                       className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
                     >
                       <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
@@ -113,32 +116,11 @@ const RulebookYear = () => {
                         <p className="text-xs text-muted-foreground mt-0.5">Official league source — opens in new tab</p>
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
-                    </a>
-
-                    {/* Year-specific PDF if available */}
-                    {yd.yearSpecificPdfUrl && (
-                      <a
-                        href={yd.yearSpecificPdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
-                      >
-                        <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4 text-green-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">Official {year} Rulebook PDF</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Direct PDF from official source</p>
-                        </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
-                      </a>
-                    )}
+                    </SafeExternalLink>
 
                     {/* Rule changes page */}
-                    <a
-                      href={league.ruleChangesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <SafeExternalLink
+                      url={league.ruleChangesUrl}
                       className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
                     >
                       <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center shrink-0">
@@ -149,14 +131,39 @@ const RulebookYear = () => {
                         <p className="text-xs text-muted-foreground mt-0.5">Official {league.shortName} rule changes archive</p>
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
-                    </a>
+                    </SafeExternalLink>
 
-                    {/* Archive.org fallback */}
-                    {yd.archiveUrl && (
-                      <a
-                        href={yd.archiveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    {/* Year-specific PDF — only if valid URL exists */}
+                    {hasPdf ? (
+                      <SafeExternalLink
+                        url={yd.yearSpecificPdfUrl}
+                        className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
+                      >
+                        <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4 text-green-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">Official {year} Rulebook PDF</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Direct PDF from official source</p>
+                        </div>
+                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
+                      </SafeExternalLink>
+                    ) : (
+                      <div className="flex items-start gap-3 bg-card border border-dashed border-border rounded-xl p-4 opacity-60">
+                        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Direct PDF not available</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Use the official rules hub above</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Archive.org fallback — only if valid */}
+                    {hasArchive && (
+                      <SafeExternalLink
+                        url={yd.archiveUrl}
                         className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
                       >
                         <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center shrink-0">
@@ -167,7 +174,7 @@ const RulebookYear = () => {
                           <p className="text-xs text-muted-foreground mt-0.5">Backup via Wayback Machine</p>
                         </div>
                         <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
-                      </a>
+                      </SafeExternalLink>
                     )}
                   </div>
                 </section>
@@ -185,11 +192,13 @@ const RulebookYear = () => {
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm mb-1">{change.title}</p>
                             <p className="text-sm text-muted-foreground leading-relaxed">{change.summary}</p>
-                            {change.sourceUrl && (
-                              <a href={change.sourceUrl} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2">
+                            {isValidExternalUrl(change.sourceUrl) && (
+                              <SafeExternalLink
+                                url={change.sourceUrl}
+                                className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2"
+                              >
                                 Source <ExternalLink className="w-3 h-3" />
-                              </a>
+                              </SafeExternalLink>
                             )}
                           </div>
                         </li>
@@ -199,10 +208,12 @@ const RulebookYear = () => {
                     <div className="bg-card border border-dashed border-border rounded-xl p-8 text-center">
                       <AlertCircle className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground mb-1">No curated rule changes yet for {year}.</p>
-                      <a href={league.ruleChangesUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                      <SafeExternalLink
+                        url={league.ruleChangesUrl}
+                        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                      >
                         Check official {league.shortName} rule changes <ExternalLink className="w-3 h-3" />
-                      </a>
+                      </SafeExternalLink>
                     </div>
                   )}
                 </section>
@@ -266,11 +277,13 @@ const RulebookYear = () => {
                               <td className="px-4 py-3 font-medium text-xs">{ref.rule}</td>
                               <td className="px-4 py-3 text-muted-foreground text-xs leading-relaxed">{ref.summary}</td>
                               <td className="px-4 py-3 text-center">
-                                {ref.sourceUrl && (
-                                  <a href={ref.sourceUrl} target="_blank" rel="noopener noreferrer"
-                                    className="text-muted-foreground hover:text-primary transition-colors">
+                                {isValidExternalUrl(ref.sourceUrl) && (
+                                  <SafeExternalLink
+                                    url={ref.sourceUrl}
+                                    className="text-muted-foreground hover:text-primary transition-colors inline-flex"
+                                  >
                                     <ExternalLink className="w-3.5 h-3.5" />
-                                  </a>
+                                  </SafeExternalLink>
                                 )}
                               </td>
                             </tr>
@@ -332,37 +345,31 @@ const RulebookYear = () => {
                     </Link>
                   </div>
 
-                  {/* Popular rules note */}
+                  {/* Official Source sidebar */}
                   <div className="bg-card border border-border rounded-xl p-4">
                     <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Official Source</h3>
-                    <a
-                      href={league.officialRulesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <SafeExternalLink
+                      url={league.officialRulesUrl}
                       className="flex items-center gap-2 text-sm text-primary hover:underline"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
                       {league.shortName} Rules Portal
-                    </a>
-                    <a
-                      href={league.ruleChangesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    </SafeExternalLink>
+                    <SafeExternalLink
+                      url={league.ruleChangesUrl}
                       className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       Rule Changes History
-                    </a>
-                    {yd.archiveUrl && (
-                      <a
-                        href={yd.archiveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    </SafeExternalLink>
+                    {hasArchive && (
+                      <SafeExternalLink
+                        url={yd.archiveUrl}
                         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
                       >
                         <Archive className="w-3.5 h-3.5" />
                         Archive.org Backup
-                      </a>
+                      </SafeExternalLink>
                     )}
                   </div>
 

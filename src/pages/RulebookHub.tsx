@@ -3,6 +3,7 @@ import { BookOpen, ExternalLink, ChevronRight, Archive } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { LEAGUES, LEAGUE_KEYS, LEAGUE_EMOJIS, YEARS } from "@/data/rulebookArchive";
+import SafeExternalLink from "@/components/SafeExternalLink";
 
 const RulebookHub = () => {
   return (
@@ -93,24 +94,20 @@ const RulebookHub = () => {
 
                       {/* Official links */}
                       <div className="flex flex-wrap gap-3">
-                        <a
-                          href={league.officialRulesUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <SafeExternalLink
+                          url={league.officialRulesUrl}
                           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <ExternalLink className="w-3 h-3" />
                           Official Rules Portal
-                        </a>
-                        <a
-                          href={league.ruleChangesUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        </SafeExternalLink>
+                        <SafeExternalLink
+                          url={league.ruleChangesUrl}
                           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <ExternalLink className="w-3 h-3" />
                           Rule Changes
-                        </a>
+                        </SafeExternalLink>
                       </div>
                     </div>
                   </div>
