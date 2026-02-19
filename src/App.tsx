@@ -10,6 +10,9 @@ import Rulebook from "./pages/Rulebook";
 import RulebookHub from "./pages/RulebookHub";
 import RulebookLeague from "./pages/RulebookLeague";
 import RulebookYear from "./pages/RulebookYear";
+import RulesHub from "./pages/RulesHub";
+import RulesLeague from "./pages/RulesLeague";
+import RulesYear from "./pages/RulesYear";
 import Leaderboard from "./pages/Leaderboard";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
@@ -36,6 +39,9 @@ const App = () => (
             <Route path="/rulebooks" element={<RulebookHub />} />
             <Route path="/rulebooks/:league" element={<RulebookLeague />} />
             <Route path="/rulebooks/:league/:year" element={<RulebookYear />} />
+            <Route path="/rules" element={<RulesHub />} />
+            <Route path="/rules/:league" element={<RulesLeague />} />
+            <Route path="/rules/:league/:year" element={<RulesYear />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
@@ -54,4 +60,5 @@ const App = () => (
 );
 
 export default App;
+
 
