@@ -419,6 +419,7 @@ export type Database = {
       }
       rule_changes: {
         Row: {
+          category_tags: string[]
           created_at: string
           id: string
           impact: string | null
@@ -432,6 +433,7 @@ export type Database = {
           what_changed: string | null
         }
         Insert: {
+          category_tags?: string[]
           created_at?: string
           id?: string
           impact?: string | null
@@ -445,6 +447,7 @@ export type Database = {
           what_changed?: string | null
         }
         Update: {
+          category_tags?: string[]
           created_at?: string
           id?: string
           impact?: string | null
