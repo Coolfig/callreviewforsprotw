@@ -7,6 +7,9 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import Rulebook from "./pages/Rulebook";
+import RulebookHub from "./pages/RulebookHub";
+import RulebookLeague from "./pages/RulebookLeague";
+import RulebookYear from "./pages/RulebookYear";
 import Leaderboard from "./pages/Leaderboard";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
@@ -30,6 +33,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/rulebook" element={<Rulebook />} />
+            <Route path="/rulebooks" element={<RulebookHub />} />
+            <Route path="/rulebooks/:league" element={<RulebookLeague />} />
+            <Route path="/rulebooks/:league/:year" element={<RulebookYear />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
@@ -48,3 +54,4 @@ const App = () => (
 );
 
 export default App;
+
