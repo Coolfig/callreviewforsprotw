@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Calendar, Users, ChevronRight, Clock, Flame } from "lucide-react";
+import { Calendar, Users, MessageSquare, ChevronRight, Flame, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VideoPlayer from "./VideoPlayer";
 import RulePanel, { type RulePanelProps } from "./RulePanel";
@@ -26,10 +26,17 @@ interface PlayCardProps {
   onUnavailable?: () => void;
 }
 
+const LEAGUE_COLORS: Record<string, string> = {
+  NFL: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  NBA: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+  MLB: "bg-red-500/10 text-red-400 border-red-500/20",
+  NHL: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+};
+
 const PlayCard = ({
   id,
   title = "Controversial Blocking Foul - Lakers vs Celtics",
-  description = "LeBron James drives to the basket and is called for an offensive foul on Jayson Tatum. The call negated what would have been a game-tying basket with 12 seconds remaining. Replays show Tatum may have still been moving when contact occurred.",
+  description = "LeBron James drives to the basket and is called for an offensive foul on Jayson Tatum. The call negated what would have been a game-tying basket with 12 seconds remaining.",
   league = "NBA",
   teams = "Lakers vs Celtics",
   date = "Jan 28, 2025",
@@ -43,7 +50,7 @@ const PlayCard = ({
   ruleData,
   onUnavailable,
 }: PlayCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [hidden, setHidden] = useState(false);
 
   const handleVideoError = useCallback(() => {
@@ -53,21 +60,98 @@ const PlayCard = ({
 
   if (hidden) return null;
 
+  const leagueColor = LEAGUE_COLORS[league] || "bg-primary/10 text-primary border-primary/20";
+
+  // Compact card (collapsed)
+  if (!isExpanded) {
+    return (
+      <article className="bg-card rounded-2xl border border-border hover:border-border/80 transition-all duration-200 overflow-hidden group">
+        <div className="p-6">
+          {/* Top row: league + trending + date + menu */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${leagueColor}`}>
+              {league}
+            </span>
+            {isHot && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border border-orange-500/30 text-orange-400 bg-orange-500/10">
+                <Flame className="w-3 h-3" />
+                Trending
+              </span>
+            )}
+            <span className="ml-auto text-xs text-muted-foreground">{date}</span>
+          </div>
+
+          {/* Title + optional media thumbnail */}
+          <div className={`flex gap-4 ${(embedUrl || videoUrl) ? 'items-start' : ''}`}>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold leading-tight mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                {title}
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4">
+                {description}
+              </p>
+
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">{teams}</span>
+                <span>·</span>
+                <span>{gameContext}</span>
+              </div>
+            </div>
+
+            {/* Video thumbnail */}
+            {(embedUrl || videoUrl) && (
+              <div className="relative w-32 h-20 rounded-xl overflow-hidden shrink-0 bg-secondary border border-border flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center">
+                    <Play className="w-4 h-4 text-foreground ml-0.5" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom row: stats + CTA */}
+          <div className="flex items-center mt-5 pt-4 border-t border-border/50">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5" />
+                <span className="font-medium">{(voteCount / 1000).toFixed(1)}K</span> votes
+              </span>
+              <span className="flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span className="font-medium">{commentCount}</span> comments
+              </span>
+            </div>
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="ml-auto flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              Open
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  // Expanded card (full detail)
   return (
     <article className="bg-card rounded-2xl border border-border overflow-hidden">
       {/* Header */}
       <div className="p-6 border-b border-border">
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+        <div className="flex items-center gap-2 mb-4">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${leagueColor}`}>
             {league}
-          </Badge>
+          </span>
           {isHot && (
-            <Badge variant="outline" className="border-vote-missed/50 text-vote-missed gap-1">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border border-orange-500/30 text-orange-400 bg-orange-500/10">
               <Flame className="w-3 h-3" />
               Trending
-            </Badge>
+            </span>
           )}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground ml-auto">
+          <div className="ml-auto flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Users className="w-3.5 h-3.5" />
               {(voteCount / 1000).toFixed(1)}K votes
@@ -76,42 +160,40 @@ const PlayCard = ({
               <Calendar className="w-3.5 h-3.5" />
               {date}
             </span>
+            <button
+              onClick={() => setIsExpanded(false)}
+              className="text-muted-foreground hover:text-foreground transition-colors text-xs underline underline-offset-2"
+            >
+              Collapse
+            </button>
           </div>
         </div>
 
-        <h2 className="text-xl md:text-2xl font-bold mb-3">{title}</h2>
-        
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          {description}
-        </p>
+        <h2 className="text-2xl font-bold mb-3">{title}</h2>
+        <p className="text-muted-foreground leading-relaxed mb-4 max-w-3xl">{description}</p>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          <span className="text-foreground font-medium">{teams}</span>
-          <span className="text-muted-foreground">•</span>
-          <span className="flex items-center gap-1.5 text-accent font-medium">
-            <Clock className="w-4 h-4" />
-            {gameContext}
-          </span>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span className="font-semibold text-foreground">{teams}</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground">{gameContext}</span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-6 space-y-6">
+        {/* Two-column: video+voting left, rule panel right */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Video + Voting */}
           <div className="lg:col-span-2 space-y-6">
             <VideoPlayer embedUrl={embedUrl} videoUrl={videoUrl} source={videoSource} onError={handleVideoError} />
             <VotingSection totalVotes={voteCount} />
           </div>
-
-          {/* Rule Panel */}
           <div className="lg:col-span-1">
             <RulePanel league={league} {...ruleData} />
           </div>
         </div>
 
         {/* Comments */}
-        <div className="mt-6">
+        <div>
           <CommentSection playId={id} />
         </div>
       </div>
