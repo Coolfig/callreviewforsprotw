@@ -24,8 +24,27 @@ export interface QuickRef {
 
 export interface YearData {
   year: number;
+  /** Direct link to the official year-specific page or PDF on the league's own domain */
+  officialUrl?: string;
+  /** Preferred direct PDF from the official source (optional, nullable) */
   yearSpecificPdfUrl?: string;
-  archiveUrl?: string;
+  /**
+   * Primary CDX-resolved archive.org snapshot URL for THIS exact year.
+   * Use a specific Wayback timestamp URL: https://web.archive.org/web/{timestamp}/{url}
+   */
+  archivedYearUrl?: string;
+  /** Archived PDF from archive.org (shown preferentially over archivedYearUrl) */
+  archivedPdfUrl?: string;
+  /**
+   * Closest-available fallback from Wayback availability API.
+   * Populated at runtime by the wayback-lookup edge function.
+   */
+  fallbackArchivedUrl?: string;
+  /**
+   * The URL to query the CDX API against when no archivedYearUrl is pre-seeded.
+   * Defaults to the league's officialRulesUrl.
+   */
+  archiveTargetUrl?: string;
   keyChanges: KeyChange[];
   relatedReviews: RelatedReview[];
   quickRefs: QuickRef[];
@@ -55,10 +74,11 @@ function blankYears(from = 2000, to = 2026): Record<number, YearData> {
 // ─── NFL ─────────────────────────────────────────────────────────────────────
 const nflYears = blankYears();
 
-// Seed a few well-known years with real data
 Object.assign(nflYears[2014], {
+  officialUrl: "https://operations.nfl.com/the-rules/nfl-rulebook/",
   yearSpecificPdfUrl: "https://operations.nfl.com/media/3047/2014-nfl-rulebook.pdf",
-  archiveUrl: "https://web.archive.org/web/2014/https://operations.nfl.com/the-rules/nfl-rulebook/",
+  archivedPdfUrl: "https://web.archive.org/web/20141201120000/https://operations.nfl.com/media/3047/2014-nfl-rulebook.pdf",
+  archiveTargetUrl: "https://operations.nfl.com/media/3047/2014-nfl-rulebook.pdf",
   keyChanges: [
     { title: "Extra Point Distance Moved to 15-Yard Line", summary: "The NFL moved the extra-point attempt to the 15-yard line on a one-year experimental basis, making the kick a 33-yarder. Two-point conversions stayed at the 2-yard line.", sourceUrl: "https://operations.nfl.com/the-rules/rule-changes/" },
     { title: "Chop Blocks Restricted", summary: "Certain chop blocks in the open field were restricted to reduce lower-leg injuries to defenders.", sourceUrl: "https://operations.nfl.com/the-rules/rule-changes/" },
@@ -75,7 +95,9 @@ Object.assign(nflYears[2014], {
 } as Partial<YearData>);
 
 Object.assign(nflYears[2012], {
-  archiveUrl: "https://web.archive.org/web/2012/https://operations.nfl.com/the-rules/nfl-rulebook/",
+  officialUrl: "https://operations.nfl.com/the-rules/nfl-rulebook/",
+  archivedYearUrl: "https://web.archive.org/web/20121101000000*/https://operations.nfl.com/the-rules/nfl-rulebook/",
+  archiveTargetUrl: "https://operations.nfl.com/the-rules/nfl-rulebook/",
   keyChanges: [
     { title: "Horse-Collar Tackle – Expanded Coverage", summary: "The rule was expanded to apply when a defender grabs a runner inside the collar of the jersey at any area of the back or side.", sourceUrl: "https://operations.nfl.com/the-rules/rule-changes/" },
     { title: "Replacement Referees Season", summary: "The NFL used replacement officials at the start of the 2012 season due to a lockout, leading to the infamous 'Fail Mary' play.", sourceUrl: "https://operations.nfl.com/the-rules/rule-changes/" },
@@ -90,7 +112,8 @@ Object.assign(nflYears[2012], {
 } as Partial<YearData>);
 
 Object.assign(nflYears[2019], {
-  archiveUrl: "https://web.archive.org/web/2019/https://operations.nfl.com/the-rules/nfl-rulebook/",
+  officialUrl: "https://operations.nfl.com/the-rules/nfl-rulebook/",
+  archiveTargetUrl: "https://operations.nfl.com/the-rules/nfl-rulebook/",
   keyChanges: [
     { title: "Pass Interference Now Reviewable", summary: "For one season (2019), offensive and defensive pass interference became reviewable via instant replay challenge.", sourceUrl: "https://operations.nfl.com/the-rules/rule-changes/" },
     { title: "Helmet Rule Enforcement", summary: "Lowering the head to initiate contact with the helmet became a penalty for all players — offense and defense.", sourceUrl: "https://operations.nfl.com/the-rules/rule-changes/" },
@@ -105,7 +128,8 @@ Object.assign(nflYears[2019], {
 const nbaYears = blankYears();
 
 Object.assign(nbaYears[2002], {
-  archiveUrl: "https://web.archive.org/web/2002/https://www.nba.com/",
+  officialUrl: "https://official.nba.com/rulebook/",
+  archiveTargetUrl: "https://official.nba.com/rulebook/",
   keyChanges: [
     { title: "Zone Defense Legalized", summary: "The NBA officially allowed zone defenses after banning them for decades; teams had previously used illegal defense rules that mandated man coverage.", sourceUrl: "https://official.nba.com/rule-changes/" },
   ],
@@ -116,6 +140,8 @@ Object.assign(nbaYears[2002], {
 } as Partial<YearData>);
 
 Object.assign(nbaYears[2004], {
+  officialUrl: "https://official.nba.com/rulebook/",
+  archiveTargetUrl: "https://official.nba.com/rulebook/",
   keyChanges: [
     { title: "Hand-Check Rule Crackdown", summary: "Officials were instructed to call hand-checking fouls more aggressively on perimeter defenders, opening up the game for scorers.", sourceUrl: "https://official.nba.com/rule-changes/" },
     { title: "Malice at the Palace Rule Reforms", summary: "Following the brawl, the NBA strengthened its player conduct policies and altered security positioning.", sourceUrl: "https://official.nba.com/rule-changes/" },
@@ -123,6 +149,8 @@ Object.assign(nbaYears[2004], {
 } as Partial<YearData>);
 
 Object.assign(nbaYears[2023], {
+  officialUrl: "https://official.nba.com/rulebook/",
+  archiveTargetUrl: "https://official.nba.com/rulebook/",
   keyChanges: [
     { title: "Take Foul Rule", summary: "A flagrant-1 equivalent penalty (one free throw + possession) is now assessed for transition take fouls, preventing 'tactical fouls' on fast breaks.", sourceUrl: "https://official.nba.com/rule-changes/" },
     { title: "Flopping Penalty Increased", summary: "Repeat floppers now face escalating fines throughout the regular season.", sourceUrl: "https://official.nba.com/rule-changes/" },
@@ -137,7 +165,8 @@ Object.assign(nbaYears[2023], {
 const nhlYears = blankYears();
 
 Object.assign(nhlYears[2005], {
-  archiveUrl: "https://web.archive.org/web/2005/https://www.nhl.com/",
+  officialUrl: "https://www.nhl.com/info/nhl-rulebook",
+  archiveTargetUrl: "https://www.nhl.com/info/nhl-rulebook",
   keyChanges: [
     { title: "Shootout Introduced (Post-Lockout)", summary: "After the cancelled 2004-05 season, the NHL returned with major rule changes including the shootout to eliminate tie games.", sourceUrl: "https://www.nhl.com/info/nhl-rulebook" },
     { title: "Two-Line Pass Eliminated", summary: "The two-line pass rule was eliminated, dramatically opening up the game and allowing more offensive plays from deep in the defensive zone.", sourceUrl: "https://www.nhl.com/info/nhl-rulebook" },
@@ -151,6 +180,8 @@ Object.assign(nhlYears[2005], {
 } as Partial<YearData>);
 
 Object.assign(nhlYears[2014], {
+  officialUrl: "https://www.nhl.com/info/nhl-rulebook",
+  archiveTargetUrl: "https://www.nhl.com/info/nhl-rulebook",
   keyChanges: [
     { title: "Coach's Challenge Precursor", summary: "Video reviews on goalie interference and offside were expanded, setting the stage for the Coach's Challenge introduced in 2015-16.", sourceUrl: "https://www.nhl.com/info/nhl-rulebook" },
   ],
@@ -160,6 +191,8 @@ Object.assign(nhlYears[2014], {
 const mlbYears = blankYears();
 
 Object.assign(mlbYears[2014], {
+  officialUrl: "https://www.mlb.com/official-information/official-rules",
+  archiveTargetUrl: "https://www.mlb.com/official-information/official-rules",
   keyChanges: [
     { title: "Instant Replay Expanded", summary: "MLB introduced expanded instant replay, allowing managers to challenge most fair/foul, safe/out, and boundary calls via a central replay office in New York.", sourceUrl: "https://www.mlb.com/official-information/official-rules" },
     { title: "Collision Rule at Home Plate", summary: "Rule 7.13 was added, prohibiting catchers from blocking home plate and runners from deliberately colliding with catchers.", sourceUrl: "https://www.mlb.com/official-information/official-rules" },
@@ -171,6 +204,8 @@ Object.assign(mlbYears[2014], {
 } as Partial<YearData>);
 
 Object.assign(mlbYears[2023], {
+  officialUrl: "https://www.mlb.com/official-information/official-rules",
+  archiveTargetUrl: "https://www.mlb.com/official-information/official-rules",
   keyChanges: [
     { title: "Pitch Clock Introduced", summary: "A 15-second pitch clock (20 seconds with runners on base) was added to speed up games. Violation results in automatic ball (pitcher) or automatic strike (batter).", sourceUrl: "https://www.mlb.com/official-information/official-rules" },
     { title: "Shift Ban", summary: "Infield alignments now require two infielders on each side of second base when the pitch is thrown.", sourceUrl: "https://www.mlb.com/official-information/official-rules" },
@@ -214,7 +249,7 @@ export const LEAGUES: Record<LeagueKey, LeagueData> = {
     bgColor: "bg-blue-500/10",
     description: "NHL rulebooks from 2000–2026, including major post-lockout changes, Coach's Challenge introduction, and video review expansions.",
     officialRulesUrl: "https://www.nhl.com/info/nhl-rulebook",
-    ruleChangesUrl: "https://media.nhl.com/public/news/nhl-rulebook",
+    ruleChangesUrl: "https://www.nhl.com/info/nhl-rulebook",
     years: nhlYears,
   },
   mlb: {
