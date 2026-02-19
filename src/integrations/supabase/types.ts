@@ -417,6 +417,133 @@ export type Database = {
         }
         Relationships: []
       }
+      rule_changes: {
+        Row: {
+          created_at: string
+          id: string
+          impact: string | null
+          previous_rule: string | null
+          rule_year_id: string
+          sort_order: number
+          source_citation: string | null
+          source_url: string | null
+          title: string
+          updated_at: string
+          what_changed: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          impact?: string | null
+          previous_rule?: string | null
+          rule_year_id: string
+          sort_order?: number
+          source_citation?: string | null
+          source_url?: string | null
+          title: string
+          updated_at?: string
+          what_changed?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          impact?: string | null
+          previous_rule?: string | null
+          rule_year_id?: string
+          sort_order?: number
+          source_citation?: string | null
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+          what_changed?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rule_changes_rule_year_id_fkey"
+            columns: ["rule_year_id"]
+            isOneToOne: false
+            referencedRelation: "rule_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rule_related_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          review_date: string | null
+          rule_tags: string[]
+          rule_year_id: string
+          sort_order: number
+          teams: string | null
+          title: string
+          url: string
+          verdict: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_date?: string | null
+          rule_tags?: string[]
+          rule_year_id: string
+          sort_order?: number
+          teams?: string | null
+          title: string
+          url: string
+          verdict: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_date?: string | null
+          rule_tags?: string[]
+          rule_year_id?: string
+          sort_order?: number
+          teams?: string | null
+          title?: string
+          url?: string
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rule_related_reviews_rule_year_id_fkey"
+            columns: ["rule_year_id"]
+            isOneToOne: false
+            referencedRelation: "rule_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rule_years: {
+        Row: {
+          created_at: string
+          id: string
+          interpretation_notes: string | null
+          league: string
+          overview_summary: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interpretation_notes?: string | null
+          league: string
+          overview_summary?: string | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interpretation_notes?: string | null
+          league?: string
+          overview_summary?: string | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       rules: {
         Row: {
           created_at: string
