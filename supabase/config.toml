@@ -1,5 +1,8 @@
 project_id = "rubrttlaitstladaukpd"
 
+[functions.wayback-lookup]
+verify_jwt = false
+
 [functions.verify-content]
 verify_jwt = false
 

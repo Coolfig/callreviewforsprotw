@@ -1,18 +1,19 @@
 import { Link, useParams, Navigate } from "react-router-dom";
 import {
   ExternalLink, ChevronRight, BookOpen, FileText,
-  Archive, Zap, Scale, ListOrdered, AlertCircle
+  Archive, Zap, Scale, ListOrdered, AlertCircle, Loader2
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getLeague, getYearData, YEARS, LEAGUE_EMOJIS, LeagueKey, Verdict } from "@/data/rulebookArchive";
 import { SafeExternalLink, isValidExternalUrl } from "@/components/SafeExternalLink";
+import { useWaybackArchive } from "@/hooks/useWaybackArchive";
 
 const VERDICT_STYLES: Record<Verdict, string> = {
-  "Correct":      "bg-green-500/10 text-green-500 border-green-500/30",
-  "Missed":       "bg-red-500/10 text-red-500 border-red-500/30",
-  "Questionable": "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
-  "50-50":        "bg-blue-500/10 text-blue-500 border-blue-500/30",
+  "Correct":      "bg-primary/10 text-primary border-primary/30",
+  "Missed":       "bg-destructive/10 text-destructive border-destructive/30",
+  "Questionable": "bg-secondary text-muted-foreground border-border",
+  "50-50":        "bg-accent/10 text-accent-foreground border-accent/30",
 };
 
 const SectionHeader = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
@@ -35,9 +36,24 @@ const RulebookYear = () => {
   const prevYear = YEARS.includes(year - 1) ? year - 1 : null;
   const nextYear = YEARS.includes(year + 1) ? year + 1 : null;
 
-  const h1 = `${league.shortName} Rulebook (${year})`;
-  const title = `${league.shortName} Rulebook ${year}: Official Links, Key Changes & Notable Calls`;
-  const metaDesc = `${league.shortName} official rulebook for ${year}. Official source links, key rule changes, notable controversial calls, and quick rule reference guide.`;
+  // ── Archive resolution ──────────────────────────────────────────────────────
+  const archive = useWaybackArchive({
+    archivedPdfUrl:   yd.archivedPdfUrl,
+    archivedYearUrl:  yd.archivedYearUrl,
+    archiveTargetUrl: yd.archiveTargetUrl,
+    officialRulesUrl: league.officialRulesUrl,
+    year,
+  });
+
+  // The best archive link to show: PDF first, then year snapshot, then fallback
+  const bestArchiveUrl = archive.archivedYearUrl ?? archive.fallbackArchivedUrl ?? null;
+  const isFallback     = !archive.archivedYearUrl && !!archive.fallbackArchivedUrl;
+  const hasPdf         = isValidExternalUrl(yd.yearSpecificPdfUrl);
+
+  // ── SEO ────────────────────────────────────────────────────────────────────
+  const h1        = `${league.shortName} Rulebook (${year})`;
+  const title     = `${league.shortName} Rulebook ${year}: Official Links, Key Changes & Notable Calls`;
+  const metaDesc  = `${league.shortName} official rulebook for ${year}. Archive snapshot, key rule changes, notable controversial calls, and quick rule reference guide.`;
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -58,9 +74,6 @@ const RulebookYear = () => {
       },
     ],
   };
-
-  const hasPdf = isValidExternalUrl(yd.yearSpecificPdfUrl);
-  const hasArchive = isValidExternalUrl(yd.archiveUrl);
 
   return (
     <>
@@ -98,85 +111,93 @@ const RulebookYear = () => {
                   </div>
                 </div>
 
-                {/* ── Official Links ── */}
+                {/* ── Archive & Official Links ── */}
                 <section aria-labelledby="official-links">
-                  <SectionHeader icon={<BookOpen className="w-4 h-4 text-primary" />} title="Official Links" />
+                  <SectionHeader icon={<Archive className="w-4 h-4 text-primary" />} title="Rulebook Links" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-                    {/* Rules portal — always present */}
+                    {/* ── PRIMARY: Archive Rulebook (year-specific) ── */}
+                    {archive.loading ? (
+                      <div className="flex items-center gap-3 bg-card border border-border rounded-xl p-4 opacity-70">
+                        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center shrink-0">
+                          <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Locating {year} archive snapshot…</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Checking Wayback Machine</p>
+                        </div>
+                      </div>
+                    ) : bestArchiveUrl ? (
+                      <SafeExternalLink
+                        url={bestArchiveUrl}
+                        className="flex items-start gap-3 bg-card border border-primary/30 hover:border-primary/60 rounded-xl p-4 transition-all group"
+                      >
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                          <Archive className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+                            Archive Rulebook ({year})
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {isFallback
+                              ? "Closest available snapshot — Wayback Machine"
+                              : yd.archivedPdfUrl
+                                ? "Archived PDF — Wayback Machine"
+                                : `Year-specific snapshot (${year}) — Wayback Machine`}
+                          </p>
+                        </div>
+                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
+                      </SafeExternalLink>
+                    ) : (
+                      <div className="flex items-start gap-3 bg-card border border-dashed border-border rounded-xl p-4">
+                        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center shrink-0">
+                          <Archive className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">No archive snapshot found for {year}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Use the official source below</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Official rules portal — always present */}
                     <SafeExternalLink
-                      url={league.officialRulesUrl}
+                      url={yd.officialUrl ?? league.officialRulesUrl}
                       className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
                     >
                       <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                         <BookOpen className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold group-hover:text-primary transition-colors">{league.shortName} Official Rules Portal</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Official league source — opens in new tab</p>
+                        <p className="text-sm font-semibold group-hover:text-primary transition-colors">Official Source</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{league.shortName} rules portal — current edition</p>
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
                     </SafeExternalLink>
 
-                    {/* Rule changes page */}
-                    <SafeExternalLink
-                      url={league.ruleChangesUrl}
-                      className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
-                    >
-                      <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center shrink-0">
-                        <Zap className="w-4 h-4 text-orange-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold group-hover:text-primary transition-colors">Rule Changes History</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Official {league.shortName} rule changes archive</p>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
-                    </SafeExternalLink>
-
-                    {/* Year-specific PDF — only if valid URL exists */}
-                    {hasPdf ? (
+                    {/* Year-specific PDF from official domain — only if valid */}
+                    {hasPdf && (
                       <SafeExternalLink
                         url={yd.yearSpecificPdfUrl}
                         className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
                       >
-                        <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4 text-green-500" />
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">Official {year} Rulebook PDF</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Direct PDF from official source</p>
-                        </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
-                      </SafeExternalLink>
-                    ) : (
-                      <div className="flex items-start gap-3 bg-card border border-dashed border-border rounded-xl p-4 opacity-60">
-                        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Direct PDF not available</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Use the official rules hub above</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Archive.org fallback — only if valid */}
-                    {hasArchive && (
-                      <SafeExternalLink
-                        url={yd.archiveUrl}
-                        className="flex items-start gap-3 bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all group"
-                      >
-                        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center shrink-0">
-                          <Archive className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">Archive.org Snapshot ({year})</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Backup via Wayback Machine</p>
+                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">Official {year} PDF</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Direct PDF from the official {league.shortName} domain</p>
                         </div>
                         <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 mt-0.5" />
                       </SafeExternalLink>
                     )}
                   </div>
+
+                  {/* Disclosure note */}
+                  <p className="text-xs text-muted-foreground mt-3 pl-1">
+                    Archive links open Wayback Machine snapshots captured during or near {year}. We do not host rulebook content — all links go to external sources.
+                  </p>
                 </section>
 
                 {/* ── Key Rule Changes ── */}
@@ -355,20 +376,13 @@ const RulebookYear = () => {
                       <BookOpen className="w-3.5 h-3.5" />
                       {league.shortName} Rules Portal
                     </SafeExternalLink>
-                    <SafeExternalLink
-                      url={league.ruleChangesUrl}
-                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Rule Changes History
-                    </SafeExternalLink>
-                    {hasArchive && (
+                    {bestArchiveUrl && (
                       <SafeExternalLink
-                        url={yd.archiveUrl}
+                        url={bestArchiveUrl}
                         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
                       >
                         <Archive className="w-3.5 h-3.5" />
-                        Archive.org Backup
+                        {isFallback ? "Closest Wayback Snapshot" : `${year} Archive`}
                       </SafeExternalLink>
                     )}
                   </div>
