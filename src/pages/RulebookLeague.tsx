@@ -4,6 +4,7 @@ import { Search, ExternalLink, ChevronRight, BookOpen } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getLeague, YEARS, LEAGUE_EMOJIS, LeagueKey } from "@/data/rulebookArchive";
+import SafeExternalLink from "@/components/SafeExternalLink";
 
 const DECADES = [
   { label: "2000s", years: YEARS.filter(y => y >= 2000 && y <= 2009) },
@@ -72,16 +73,20 @@ const RulebookLeague = () => {
                 </div>
                 <p className="text-muted-foreground max-w-xl text-sm leading-relaxed">{league.description}</p>
               </div>
-              <div className="flex gap-3 shrink-0">
-                <a href={league.officialRulesUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs border border-border bg-card hover:bg-secondary px-3 py-2 rounded-lg transition-colors">
-                  <BookOpen className="w-3.5 h-3.5" /> Official Rules
-                </a>
-                <a href={league.ruleChangesUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs border border-border bg-card hover:bg-secondary px-3 py-2 rounded-lg transition-colors">
-                  <ExternalLink className="w-3.5 h-3.5" /> Rule Changes
-                </a>
-              </div>
+                <div className="flex gap-3 shrink-0">
+                  <SafeExternalLink
+                    url={league.officialRulesUrl}
+                    className="flex items-center gap-1.5 text-xs border border-border bg-card hover:bg-secondary px-3 py-2 rounded-lg transition-colors"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" /> Official Rules
+                  </SafeExternalLink>
+                  <SafeExternalLink
+                    url={league.ruleChangesUrl}
+                    className="flex items-center gap-1.5 text-xs border border-border bg-card hover:bg-secondary px-3 py-2 rounded-lg transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Rule Changes
+                  </SafeExternalLink>
+                </div>
             </div>
 
             {/* Filters */}
