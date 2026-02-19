@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, X, HelpCircle, Users, ThumbsDown } from "lucide-react";
+import { Check, X, HelpCircle, Users } from "lucide-react";
 
 interface VotingSectionProps {
   totalVotes?: number;
@@ -10,8 +10,8 @@ interface VotingSectionProps {
 
 const VotingSection = ({
   totalVotes = 12847,
-  correctPercentage = 34,
-  missedPercentage = 52,
+  correctPercentage = 38,
+  missedPercentage = 48,
   unclearPercentage = 14,
 }: VotingSectionProps) => {
   const [userVote, setUserVote] = useState<string | null>(null);
@@ -23,107 +23,95 @@ const VotingSection = ({
   };
 
   const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
     return num.toString();
   };
 
+  const votes = [
+    {
+      key: "correct",
+      label: "Correct",
+      icon: <Check className="w-5 h-5" />,
+      pct: correctPercentage,
+      activeClass: "bg-vote-correct text-white border-vote-correct",
+      barClass: "bg-vote-correct",
+      pctClass: "text-vote-correct",
+      defaultClass: "border-border hover:bg-secondary text-foreground",
+    },
+    {
+      key: "missed",
+      label: "Missed",
+      icon: <X className="w-5 h-5" />,
+      pct: missedPercentage,
+      activeClass: "bg-vote-missed text-white border-vote-missed",
+      barClass: "bg-vote-missed",
+      pctClass: "text-vote-missed",
+      defaultClass: "border-border hover:bg-secondary text-foreground",
+    },
+    {
+      key: "unclear",
+      label: "Unclear",
+      icon: <HelpCircle className="w-5 h-5" />,
+      pct: unclearPercentage,
+      activeClass: "bg-vote-unclear text-black border-vote-unclear",
+      barClass: "bg-vote-unclear",
+      pctClass: "text-vote-unclear",
+      defaultClass: "border-border hover:bg-secondary text-foreground",
+    },
+  ];
+
   return (
-    <div className="bg-card rounded-xl border border-border p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold">What's Your Call?</h3>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Users className="w-4 h-4" />
+    <div className="bg-card rounded-xl border border-border p-5">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="font-semibold text-base">What's Your Call?</h3>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Users className="w-3.5 h-3.5" />
           <span>{formatNumber(totalVotes)} votes</span>
         </div>
       </div>
 
-      {/* Vote buttons */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        <button
-          onClick={() => handleVote('correct')}
-          className={`vote-btn vote-btn-correct flex flex-col items-center gap-2 py-4 ${
-            userVote === 'correct' ? 'bg-vote-correct text-white' : ''
-          }`}
-        >
-          <Check className="w-6 h-6" />
-          <span className="text-sm font-medium">Correct</span>
-        </button>
-        <button
-          onClick={() => handleVote('missed')}
-          className={`vote-btn vote-btn-missed flex flex-col items-center gap-2 py-4 ${
-            userVote === 'missed' ? 'bg-vote-missed text-white' : ''
-          }`}
-        >
-          <X className="w-6 h-6" />
-          <span className="text-sm font-medium">Missed</span>
-        </button>
-        <button
-          onClick={() => handleVote('dislike')}
-          className={`vote-btn flex flex-col items-center gap-2 py-4 rounded-lg border border-border transition-all ${
-            userVote === 'dislike' ? 'bg-destructive text-white border-destructive' : 'hover:bg-secondary'
-          }`}
-        >
-          <ThumbsDown className="w-6 h-6" />
-          <span className="text-sm font-medium">Dislike</span>
-        </button>
-        <button
-          onClick={() => handleVote('unclear')}
-          className={`vote-btn vote-btn-unclear flex flex-col items-center gap-2 py-4 ${
-            userVote === 'unclear' ? 'bg-vote-unclear text-black' : ''
-          }`}
-        >
-          <HelpCircle className="w-6 h-6" />
-          <span className="text-sm font-medium">Unclear</span>
-        </button>
+      {/* Vote buttons — 3 options only */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {votes.map(({ key, label, icon, activeClass, defaultClass }) => (
+          <button
+            key={key}
+            onClick={() => handleVote(key)}
+            className={`flex flex-col items-center gap-2 py-4 rounded-xl border text-sm font-medium transition-all ${
+              userVote === key ? activeClass : defaultClass
+            }`}
+          >
+            {icon}
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Results */}
+      {/* Results bars */}
       {showResults && (
         <div className="space-y-3">
-          <div>
-            <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-muted-foreground">Correct Call</span>
-              <span className="font-medium text-vote-correct">{correctPercentage}%</span>
+          {votes.map(({ key, label, pct, barClass, pctClass }) => (
+            <div key={key}>
+              <div className="flex justify-between text-xs mb-1.5">
+                <span className="text-muted-foreground">{label} Call</span>
+                <span className={`font-semibold ${pctClass}`}>{pct}%</span>
+              </div>
+              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${barClass} rounded-full transition-all duration-500`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
             </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-vote-correct rounded-full transition-all duration-500"
-                style={{ width: `${correctPercentage}%` }}
-              />
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-muted-foreground">Missed Call</span>
-              <span className="font-medium text-vote-missed">{missedPercentage}%</span>
-            </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-vote-missed rounded-full transition-all duration-500"
-                style={{ width: `${missedPercentage}%` }}
-              />
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-muted-foreground">Unclear</span>
-              <span className="font-medium text-vote-unclear">{unclearPercentage}%</span>
-            </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-vote-unclear rounded-full transition-all duration-500"
-                style={{ width: `${unclearPercentage}%` }}
-              />
-            </div>
-          </div>
+          ))}
         </div>
       )}
 
       {userVote && (
         <p className="text-xs text-muted-foreground text-center mt-4">
-          You voted: <span className="font-medium capitalize">{userVote === 'correct' ? 'Correct Call' : userVote === 'missed' ? 'Missed Call' : 'Unclear'}</span>
+          You voted:{" "}
+          <span className="font-semibold capitalize text-foreground">
+            {votes.find((v) => v.key === userVote)?.label}
+          </span>
         </p>
       )}
     </div>
