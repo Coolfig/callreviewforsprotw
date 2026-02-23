@@ -21,6 +21,10 @@ import Clips from "./pages/Clips";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
+import Messages from "./pages/Messages";
+import Settings from "./pages/Settings";
+import SearchPage from "./pages/SearchPage";
+import Bookmarks from "./pages/Bookmarks";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +54,10 @@ const App = () => (
             <Route path="/clips" element={<Clips />} />
             <Route path="/profile/:username" element={<Profile />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/bookmarks" element={<Bookmarks />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -60,5 +68,3 @@ const App = () => (
 );
 
 export default App;
-
-
