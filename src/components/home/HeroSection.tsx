@@ -1,7 +1,9 @@
 import { Play, Scale, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Background gradient */}
@@ -43,11 +45,15 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Button size="lg" className="text-base px-8 h-12">
+            <Button size="lg" className="text-base px-8 h-12" onClick={() => navigate("/feed")}>
               <Play className="w-5 h-5 mr-2" />
               Browse Controversies
             </Button>
-            <Button variant="outline" size="lg" className="text-base px-8 h-12">
+            <Button variant="outline" size="lg" className="text-base px-8 h-12" onClick={() => {
+              const el = document.getElementById("features");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+              else navigate("/about");
+            }}>
               Learn How It Works
             </Button>
           </div>

@@ -230,7 +230,7 @@ const FeedSection = () => {
                             <Link to={`/profile/${u.username}`} className="text-sm font-semibold leading-tight hover:underline">
                               {u.username}
                             </Link>
-                            <p className="text-xs text-muted-foreground line-clamp-1">{u.bio || "Member"}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-1">@{u.username}</p>
                           </div>
                           <button
                             onClick={() => handleFollow(u.user_id)}

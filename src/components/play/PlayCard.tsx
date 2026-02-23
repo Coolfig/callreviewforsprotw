@@ -1,10 +1,12 @@
-import { useState, useCallback } from "react";
-import { Calendar, Users, MessageSquare, ChevronRight, Flame, Play } from "lucide-react";
+import { useState, useCallback, useEffect } from "react";
+import { Calendar, Users, MessageSquare, ChevronRight, Flame, Play, Bookmark, BookmarkCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VideoPlayer from "./VideoPlayer";
 import RulePanel, { type RulePanelProps } from "./RulePanel";
 import VotingSection from "./VotingSection";
 import CommentSection from "./CommentSection";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 type VideoSource = "native" | "youtube" | "twitter" | "tiktok" | "instagram";
 
@@ -50,8 +52,29 @@ const PlayCard = ({
   ruleData,
   onUnavailable,
 }: PlayCardProps) => {
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("bookmarks").select("id").eq("user_id", user.id).eq("play_id", id).maybeSingle().then(({ data }) => {
+      setIsBookmarked(!!data);
+    });
+  }, [user, id]);
+
+  const toggleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+    if (isBookmarked) {
+      await supabase.from("bookmarks").delete().eq("user_id", user.id).eq("play_id", id);
+      setIsBookmarked(false);
+    } else {
+      await supabase.from("bookmarks").insert({ user_id: user.id, play_id: id });
+      setIsBookmarked(true);
+    }
+  };
 
   const handleVideoError = useCallback(() => {
     setHidden(true);
@@ -123,13 +146,20 @@ const PlayCard = ({
                 <span className="font-medium">{commentCount}</span> comments
               </span>
             </div>
-            <button
-              onClick={() => setIsExpanded(true)}
-              className="ml-auto flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-            >
-              Open
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            <div className="ml-auto flex items-center gap-2">
+              {user && (
+                <button onClick={toggleBookmark} className="text-muted-foreground hover:text-primary transition-colors">
+                  {isBookmarked ? <BookmarkCheck className="w-4 h-4 text-primary" /> : <Bookmark className="w-4 h-4" />}
+                </button>
+              )}
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+              >
+                Open
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </article>
