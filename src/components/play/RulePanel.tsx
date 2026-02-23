@@ -1,4 +1,4 @@
-import { BookOpen, ExternalLink, Download } from "lucide-react";
+import { BookOpen, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getSeasonYear, type RuleExplanation } from "@/data/sportsVideos";
 
 interface RuleSection {
   ruleNumber: string;
@@ -25,18 +26,25 @@ interface RuleSection {
 export interface RulePanelProps {
   league?: string;
   season?: string;
+  playDate?: string;
   rules?: RuleSection[];
   keyInterpretation?: string;
   rulebookPdfUrl?: string;
+  ruleExplanation?: RuleExplanation;
 }
 
 const RulePanel = ({
   league = "NFL",
-  season = "2014-15 Season",
+  season,
+  playDate,
   rules = [],
   keyInterpretation,
-  rulebookPdfUrl,
+  ruleExplanation,
 }: RulePanelProps) => {
+  // Auto-calculate season if not provided
+  const displaySeason = season || (playDate
+    ? `${getSeasonYear(playDate, league)}-${String(getSeasonYear(playDate, league) + 1).slice(2)} Season`
+    : undefined);
 
   const renderHighlightedText = (text: string, highlight?: string) => {
     if (!highlight) return <span>{text}</span>;
@@ -53,7 +61,7 @@ const RulePanel = ({
 
   return (
     <div className="bg-card rounded-2xl border border-border overflow-hidden h-full">
-      {/* Compact header */}
+      {/* Header */}
       <div className="p-5 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -61,106 +69,142 @@ const RulePanel = ({
           </div>
           <div>
             <div className="text-sm font-medium text-foreground">Official Rulebook</div>
-            <div className="text-xs text-muted-foreground">{league} {season}</div>
+            {displaySeason && (
+              <div className="text-xs text-muted-foreground">{league} {displaySeason}</div>
+            )}
           </div>
         </div>
         <Badge variant="outline" className="text-xs">{league}</Badge>
       </div>
 
-      {/* Accordion rule content */}
+      {/* Content */}
       <div className="p-5">
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="rulebook" className="border-none">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Rulebook Explanation
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-5 pt-1">
-                {rules.map((rule, i) => (
-                  <div key={i}>
-                    <div className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">
-                      {rule.ruleNumber}
-                    </div>
-                    <h4 className="text-sm font-semibold mb-2">{rule.ruleTitle}</h4>
-                    <div className="p-4 rounded-xl bg-secondary/40 text-xs text-muted-foreground leading-relaxed">
-                      {renderHighlightedText(rule.ruleText, rule.highlightedPart)}
-                    </div>
-                  </div>
-                ))}
+        <Accordion type="single" collapsible defaultValue="explanation" className="w-full">
 
-                {/* Key interpretation */}
-                {keyInterpretation && (
-                  <div className="p-4 rounded-xl bg-accent/5 border border-accent/10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                      <span className="text-[11px] font-medium text-accent uppercase tracking-wider">Key Interpretation</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {keyInterpretation}
+          {/* Rule Explanation — summary + bullet points */}
+          {ruleExplanation && (
+            <AccordionItem value="explanation" className="border-none">
+              <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                Rule Explanation
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 pt-1">
+                  {/* Reference */}
+                  <div className="text-[11px] text-muted-foreground uppercase tracking-wider">
+                    {ruleExplanation.ruleReference}
+                  </div>
+
+                  {/* Plain English Summary */}
+                  <div className="p-4 rounded-xl bg-secondary/40">
+                    <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Summary</div>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {ruleExplanation.plainEnglishSummary}
                     </p>
                   </div>
-                )}
 
-                {/* View full rule — opens Sheet */}
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <button className="flex items-center gap-2 text-xs text-primary hover:underline mt-2 transition-colors">
-                      <ExternalLink className="w-3 h-3" />
-                      View full rule in rulebook →
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-full sm:max-w-lg p-0">
-                    <SheetHeader className="p-6 pb-4 border-b border-border">
-                      <SheetTitle className="flex items-center gap-3 text-base">
-                        <BookOpen className="w-4 h-4 text-accent" />
-                        {league} Official Rulebook
-                      </SheetTitle>
-                      <p className="text-xs text-muted-foreground">{season}</p>
-                    </SheetHeader>
-                    <ScrollArea className="h-[calc(100vh-140px)]">
-                      <div className="p-6 space-y-8">
-                        {rules.map((rule, i) => (
-                          <div key={i}>
-                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">
-                              {rule.ruleNumber}
-                            </div>
-                            <h3 className="text-lg font-semibold mb-3">{rule.ruleTitle}</h3>
-                            <div className="p-5 rounded-xl bg-secondary/40 text-sm text-muted-foreground leading-relaxed">
-                              {renderHighlightedText(rule.ruleText, rule.highlightedPart)}
-                            </div>
-                          </div>
-                        ))}
+                  {/* Key Requirements */}
+                  <div>
+                    <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                      Key Requirements Officials Look For
+                    </div>
+                    <ul className="space-y-2">
+                      {ruleExplanation.keyRequirements.map((req, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                          <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                        {keyInterpretation && (
-                          <div className="p-5 rounded-xl bg-accent/5 border border-accent/10">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                              <span className="text-xs font-medium text-accent">Key Interpretation</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              {keyInterpretation}
-                            </p>
-                          </div>
-                        )}
+                  {/* Interpretation Standard */}
+                  <div className="p-4 rounded-xl bg-accent/5 border border-accent/10">
+                    <div className="text-[11px] font-medium text-accent uppercase tracking-wider mb-2">
+                      Interpretation Standard
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {ruleExplanation.interpretationStandard}
+                    </p>
+                  </div>
 
-                        {/* Download PDF */}
-                        {rulebookPdfUrl && (
-                          <a
-                            href={rulebookPdfUrl}
-                            download
-                            className="flex items-center gap-2 text-sm text-primary hover:underline transition-colors"
-                          >
-                            <Download className="w-4 h-4" />
-                            Download full rulebook (PDF)
-                          </a>
-                        )}
+                  {/* Replay Standard */}
+                  {ruleExplanation.replayStandard && (
+                    <div className="p-4 rounded-xl bg-secondary/30 border border-border">
+                      <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                        Replay Standard
                       </div>
-                    </ScrollArea>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {ruleExplanation.replayStandard}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Why This Call Was Made */}
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                    <div className="text-[11px] font-medium text-primary uppercase tracking-wider mb-2">
+                      Why This Call Was Made
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {ruleExplanation.whyCallWasMade}
+                    </p>
+                  </div>
+
+                  {/* Key Rule Changes That Year */}
+                  {ruleExplanation.keyRuleChanges && ruleExplanation.keyRuleChanges.length > 0 && (
+                    <div>
+                      <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                        Key Rule Changes
+                      </div>
+                      <ul className="space-y-1.5">
+                        {ruleExplanation.keyRuleChanges.map((change, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                            {change}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {/* Official Rule Text */}
+          {rules.length > 0 && (
+            <AccordionItem value="rulebook" className="border-none">
+              <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                Official Rule Text
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-5 pt-1">
+                  {rules.map((rule, i) => (
+                    <div key={i}>
+                      <div className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">
+                        {rule.ruleNumber}
+                      </div>
+                      <h4 className="text-sm font-semibold mb-2">{rule.ruleTitle}</h4>
+                      <div className="p-4 rounded-xl bg-secondary/40 text-xs text-muted-foreground leading-relaxed">
+                        {renderHighlightedText(rule.ruleText, rule.highlightedPart)}
+                      </div>
+                    </div>
+                  ))}
+
+                  {keyInterpretation && (
+                    <div className="p-4 rounded-xl bg-accent/5 border border-accent/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                        <span className="text-[11px] font-medium text-accent uppercase tracking-wider">Key Interpretation</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {keyInterpretation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
       </div>
     </div>

@@ -116,7 +116,7 @@ const PlayCard = ({
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5" />
-                <span className="font-medium">{(voteCount / 1000).toFixed(1)}K</span> votes
+                <span className="font-medium">{voteCount.toLocaleString()}</span> votes
               </span>
               <span className="flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5" />
@@ -154,7 +154,7 @@ const PlayCard = ({
           <div className="ml-auto flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Users className="w-3.5 h-3.5" />
-              {(voteCount / 1000).toFixed(1)}K votes
+              {voteCount.toLocaleString()} votes
             </span>
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
@@ -188,7 +188,7 @@ const PlayCard = ({
             <VotingSection totalVotes={voteCount} />
           </div>
           <div className="lg:col-span-1">
-            <RulePanel league={league} {...ruleData} />
+            <RulePanel league={league} playDate={date} {...ruleData} />
           </div>
         </div>
 

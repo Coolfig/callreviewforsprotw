@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import PlayCard from "@/components/play/PlayCard";
 import { sportsVideos } from "@/data/sportsVideos";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const leagues = ["All", "NFL", "NBA", "MLB", "NHL"];
 const BATCH_SIZE = 10;
@@ -17,22 +19,61 @@ const LEAGUE_ACCENT: Record<string, string> = {
   NHL: "text-sky-400",
 };
 
-// Suggested users sidebar widget
-const SUGGESTED_USERS = [
-  { username: "EmilyS", role: "NBA Analyst", initials: "ES" },
-  { username: "RefGuys4", role: "Officiating Expert", initials: "RG" },
-  { username: "DavidR", role: "MLB Scout", initials: "DR" },
-];
+interface SuggestedUser {
+  user_id: string;
+  username: string;
+  bio: string | null;
+  avatar_url: string | null;
+}
 
 // Trending sidebar widget
 const trendingVideos = sportsVideos.slice(0, 3);
 
 const FeedSection = () => {
+  const { user } = useAuth();
   const [activeLeague, setActiveLeague] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [isLoading, setIsLoading] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
+  const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([]);
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+
+  // Fetch real users from profiles table
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, username, bio, avatar_url")
+        .limit(5);
+      if (data) setSuggestedUsers(data);
+    };
+    fetchUsers();
+  }, []);
+
+  // Fetch who current user is following
+  useEffect(() => {
+    if (!user) return;
+    const fetchFollowing = async () => {
+      const { data } = await supabase
+        .from("followers")
+        .select("following_id")
+        .eq("follower_id", user.id);
+      if (data) setFollowingIds(new Set(data.map((d) => d.following_id)));
+    };
+    fetchFollowing();
+  }, [user]);
+
+  const handleFollow = async (targetUserId: string) => {
+    if (!user) return;
+    if (followingIds.has(targetUserId)) {
+      await supabase.from("followers").delete().eq("follower_id", user.id).eq("following_id", targetUserId);
+      setFollowingIds((prev) => { const next = new Set(prev); next.delete(targetUserId); return next; });
+    } else {
+      await supabase.from("followers").insert({ follower_id: user.id, following_id: targetUserId });
+      setFollowingIds((prev) => new Set(prev).add(targetUserId));
+    }
+  };
 
   const filtered = activeLeague === "All"
     ? sportsVideos
@@ -146,7 +187,7 @@ const FeedSection = () => {
                       <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-muted-foreground">{(v.voteCount / 1000).toFixed(1)}K votes</span>
+                        <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
                         <span className="text-xs text-primary hover:underline cursor-pointer">Open</span>
                       </div>
                     </div>
@@ -166,28 +207,47 @@ const FeedSection = () => {
             </div>
 
             {/* Who to Follow */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                <span className="font-semibold text-sm tracking-wide uppercase">Who to Follow</span>
-                <Users className="w-4 h-4 text-muted-foreground" />
+            {suggestedUsers.length > 0 && (
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                  <span className="font-semibold text-sm tracking-wide uppercase">Who to Follow</span>
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="divide-y divide-border">
+                  {suggestedUsers
+                    .filter((u) => u.user_id !== user?.id)
+                    .slice(0, 5)
+                    .map((u) => {
+                      const isFollowing = followingIds.has(u.user_id);
+                      return (
+                        <div key={u.user_id} className="flex items-center gap-3 px-5 py-3.5">
+                          <Avatar className="w-9 h-9 shrink-0">
+                            <AvatarFallback className="bg-secondary text-xs font-bold">
+                              {u.username.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <Link to={`/profile/${u.username}`} className="text-sm font-semibold leading-tight hover:underline">
+                              {u.username}
+                            </Link>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{u.bio || "Member"}</p>
+                          </div>
+                          <button
+                            onClick={() => handleFollow(u.user_id)}
+                            className={`text-xs font-semibold rounded-full px-3 py-1 transition-colors ${
+                              isFollowing
+                                ? "bg-secondary text-foreground border border-border"
+                                : "text-primary border border-primary/40 hover:bg-primary/10"
+                            }`}
+                          >
+                            {isFollowing ? "Following" : "Follow"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
-              <div className="divide-y divide-border">
-                {SUGGESTED_USERS.map((u) => (
-                  <div key={u.username} className="flex items-center gap-3 px-5 py-3.5">
-                    <Avatar className="w-9 h-9 shrink-0">
-                      <AvatarFallback className="bg-secondary text-xs font-bold">{u.initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold leading-tight">{u.username}</p>
-                      <p className="text-xs text-muted-foreground">{u.role}</p>
-                    </div>
-                    <button className="text-xs font-semibold text-primary border border-primary/40 rounded-full px-3 py-1 hover:bg-primary/10 transition-colors">
-                      Follow
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
 
             {/* League jump */}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
