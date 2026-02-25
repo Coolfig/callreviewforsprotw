@@ -37,7 +37,7 @@ export interface SportVideo {
   commentCount: number;
   embedUrl?: string;
   videoUrl?: string;
-  videoSource: "youtube" | "native";
+  videoSource: "youtube" | "native" | "twitter" | "tiktok" | "instagram";
   ruleData?: {
     season?: string; // auto-calculated if missing
     rules: {
@@ -105,8 +105,8 @@ export const sportsVideos: SportVideo[] = [
     isHot: true,
     voteCount: 342,
     commentCount: 47,
-    embedUrl: "https://www.youtube.com/embed/Kl_VvJTyMwo?start=65",
-    videoSource: "youtube",
+    embedUrl: "https://twitter.com/espn/status/1086615465143795712",
+    videoSource: "twitter",
     ruleData: {
       rules: [
         {
@@ -157,8 +157,8 @@ export const sportsVideos: SportVideo[] = [
     isHot: true,
     voteCount: 512,
     commentCount: 74,
-    embedUrl: "https://www.youtube.com/embed/1khK6is-Bfs?start=65",
-    videoSource: "youtube",
+    embedUrl: "https://twitter.com/TommySledge/status/1613162447690416130",
+    videoSource: "twitter",
     ruleData: {
       rules: [
         {
