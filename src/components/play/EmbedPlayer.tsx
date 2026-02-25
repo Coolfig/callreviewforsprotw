@@ -128,12 +128,13 @@ const EmbedPlayer = ({ url, platform: explicitPlatform, onError: onErrorProp }: 
       case "twitter":
         const tweetId = getTwitterEmbedId(url);
         return (
-          <div className="w-full h-full flex items-center justify-center bg-card p-4">
-            <blockquote className="twitter-tweet" data-theme="dark">
-              <a href={url}>Loading tweet...</a>
-            </blockquote>
-            <script async src="https://platform.twitter.com/widgets.js" />
-          </div>
+          <iframe
+            src={`https://platform.twitter.com/embed/Tweet.html?id=${tweetId}&theme=dark`}
+            className="w-full h-full border-0"
+            allowFullScreen
+            onLoad={() => setIsLoading(false)}
+            onError={() => { setHasError(true); onErrorProp?.(); }}
+          />
         );
       
       case "tiktok":
@@ -183,7 +184,7 @@ const EmbedPlayer = ({ url, platform: explicitPlatform, onError: onErrorProp }: 
       
       {/* Embed container */}
       <div className="relative aspect-video">
-        {isLoading && platform === "youtube" && (
+        {isLoading && (platform === "youtube" || platform === "twitter") && (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary/80">
             <div className="animate-pulse text-muted-foreground">Loading...</div>
           </div>
