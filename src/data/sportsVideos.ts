@@ -105,7 +105,7 @@ export const sportsVideos: SportVideo[] = [
     isHot: true,
     voteCount: 342,
     commentCount: 47,
-    embedUrl: "https://www.youtube.com/embed/Kl_VvJTyMwo?start=65",
+    embedUrl: "https://www.youtube.com/embed/1khK6is-Bfs?si=S7SwKV8oHAcAQCoq&start=65",
     videoSource: "youtube",
     ruleData: {
       rules: [
