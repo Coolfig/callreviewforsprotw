@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +33,7 @@ interface Message {
 const Messages = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvo, setActiveConvo] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -99,6 +100,14 @@ const Messages = () => {
   }, [user]);
 
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
+
+  // Auto-select conversation from URL query param
+  useEffect(() => {
+    const convoParam = searchParams.get("convo");
+    if (convoParam && !activeConvo) {
+      setActiveConvo(convoParam);
+    }
+  }, [searchParams, activeConvo]);
 
   // Realtime messages
   useEffect(() => {
