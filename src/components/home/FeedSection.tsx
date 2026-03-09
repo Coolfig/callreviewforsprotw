@@ -43,6 +43,7 @@ const FeedSection = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedPlayId, setExpandedPlayId] = useState<string | null>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([]);
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
