@@ -126,24 +126,40 @@ const ShareDialog = ({ open, onOpenChange, postId, postContent, username }: Shar
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-card border-border rounded-2xl p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-sm bg-card border-border rounded-2xl p-0 overflow-hidden">
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="text-lg font-bold text-foreground">Share Post</DialogTitle>
         </DialogHeader>
 
         {/* Copy link */}
-        <div className="px-5 pb-4">
+        <div className="px-5 pb-3">
           <button
             onClick={handleCopyLink}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left group"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
           >
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              {copied ? <Check className="w-5 h-5 text-green-500" /> : <Link2 className="w-5 h-5 text-primary" />}
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              {copied ? <Check className="w-4 h-4 text-green-500" /> : <Link2 className="w-4 h-4 text-primary" />}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground">{copied ? "Copied!" : "Copy link"}</p>
-              <p className="text-xs text-muted-foreground truncate">{postUrl}</p>
+            <p className="text-sm font-semibold text-foreground">{copied ? "Copied!" : "Copy link"}</p>
+          </button>
+        </div>
+
+        {/* Share post via external */}
+        <div className="px-5 pb-3">
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({ title: `Post by @${username}`, text: postContent.slice(0, 200), url: postUrl });
+              } else {
+                handleCopyLink();
+              }
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
+          >
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Share2 className="w-4 h-4 text-primary" />
             </div>
+            <p className="text-sm font-semibold text-foreground">Share post via…</p>
           </button>
         </div>
 
