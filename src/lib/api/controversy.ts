@@ -102,8 +102,17 @@ export async function detectControversy(
   posts: SocialPost[],
   windowMinutes: number = 3
 ): Promise<DetectionResponse> {
+  // Get current session for auth header
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error('Authentication required to run controversy detection');
+  }
+
   const { data, error } = await supabase.functions.invoke('detect-controversy', {
     body: { posts, window_minutes: windowMinutes },
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
   });
 
   if (error) {
