@@ -89,6 +89,12 @@
   }
 }
 
+@layer utilities {
+  .ticker-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer components {
   .glass-card {
     @apply bg-card/80 backdrop-blur-xl border border-border/50;
