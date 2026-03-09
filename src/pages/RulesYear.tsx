@@ -432,62 +432,52 @@ const RulesYear = () => {
                   })()}
                 </section>
 
-                {/* ── Related Call Reviews ── */}
+                {/* ── Related Calls ── */}
                 <section>
-                  <SectionHeader
-                    icon={<Scale className="w-4 h-4 text-primary" />}
-                    title="Related Call Reviews"
-                    count={relatedReviews.length}
-                  />
-                  {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[1, 2].map((i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl h-32 animate-pulse" />
-                      ))}
-                    </div>
-                  ) : relatedReviews.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {relatedReviews.map((review) => {
-                        const vs = VERDICT_STYLES[review.verdict] ?? VERDICT_STYLES.Questionable;
-                        return (
-                          <Link key={review.id} to={review.url}
-                            className="bg-card border border-border hover:border-primary/40 rounded-xl p-4 group transition-all block">
-                            <div className="flex items-start justify-between gap-3 mb-3">
-                              <p className="font-semibold text-sm group-hover:text-primary transition-colors leading-snug">
-                                {review.title}
-                              </p>
-                              <span className="text-xs border rounded-full px-2.5 py-0.5 shrink-0 font-medium"
-                                style={{ backgroundColor: vs.bg, color: vs.text, borderColor: vs.border }}>
-                                {review.verdict}
-                              </span>
-                            </div>
-                            {(review.teams || review.review_date) && (
-                              <p className="text-xs text-muted-foreground mb-3">
-                                {review.teams}{review.teams && review.review_date ? " · " : ""}{review.review_date}
-                              </p>
-                            )}
-                            <div className="flex flex-wrap gap-1.5">
-                              {review.rule_tags.map((tag) => (
-                                <span key={tag}
-                                  className="text-xs bg-secondary/60 text-muted-foreground rounded-full px-2 py-0.5">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <PlaceholderCard
-                      message={`No reviews linked yet for ${meta.short} ${year}.`}
-                      sub={
-                        <Link to="/feed" className="text-xs text-primary hover:underline inline-block mt-1">
-                          Browse all controversial calls →
-                        </Link>
-                      }
-                    />
-                  )}
+                  {(() => {
+                    // Filter sportsVideos for this league and year
+                    const relatedPlays = sportsVideos.filter((video) => {
+                      if (video.league.toLowerCase() !== meta.short.toLowerCase()) return false;
+                      const videoYear = getSeasonYear(video.date, video.league);
+                      return videoYear === year;
+                    });
+                    return (
+                      <>
+                        <SectionHeader
+                          icon={<Scale className="w-4 h-4 text-primary" />}
+                          title="Related Calls"
+                          count={relatedPlays.length}
+                        />
+                        {relatedPlays.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {relatedPlays.map((play) => (
+                              <Link key={play.id} to={`/feed#play-${play.id}`}
+                                className="bg-card border border-border hover:border-primary/40 rounded-xl p-4 group transition-all block">
+                                <p className="font-semibold text-sm group-hover:text-primary transition-colors leading-snug mb-2">
+                                  {play.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  {play.teams} · {play.date}
+                                </p>
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {play.description}
+                                </p>
+                              </Link>
+                            ))}
+                          </div>
+                        ) : (
+                          <PlaceholderCard
+                            message={`No controversial calls catalogued yet for ${meta.short} ${year}.`}
+                            sub={
+                              <Link to="/feed" className="text-xs text-primary hover:underline inline-block mt-1">
+                                Browse all controversial calls →
+                              </Link>
+                            }
+                          />
+                        )}
+                      </>
+                    );
+                  })()}
                 </section>
 
               </div>
