@@ -76,8 +76,6 @@ const SearchPage = () => {
                     date={video.date}
                     gameContext={video.gameContext}
                     isHot={video.isHot}
-                    voteCount={video.voteCount}
-                    commentCount={video.commentCount}
                     embedUrl={video.embedUrl}
                     videoUrl={video.videoUrl}
                     videoSource={video.videoSource}

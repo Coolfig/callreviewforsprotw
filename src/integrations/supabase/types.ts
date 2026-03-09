@@ -508,6 +508,30 @@ export type Database = {
         }
         Relationships: []
       }
+      play_votes: {
+        Row: {
+          created_at: string
+          id: string
+          play_id: string
+          user_id: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          play_id: string
+          user_id: string
+          vote: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          play_id?: string
+          user_id?: string
+          vote?: string
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           created_at: string
