@@ -160,7 +160,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
 };
 
 // Gamecast: key plays, leaders
-const GamecastTab = ({ summary, game }: { summary: any; game: Game }) => {
+const GamecastTab = ({ summary, game, onPlayerClick }: { summary: any; game: Game; onPlayerClick: (id: string) => void }) => {
   const leaders = summary?.leaders || [];
   const keyEvents = summary?.keyEvents || summary?.plays?.slice(-8) || [];
 
