@@ -115,31 +115,44 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex gap-4 border-b border-border mb-3">
-          {(["gamecast", "boxscore", "matchup"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`text-xs font-semibold pb-2 border-b-2 transition-colors capitalize ${
-                activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Matchup"}
-            </button>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        {/* Player detail or tabs */}
+        {selectedPlayerId ? (
+          <div className="max-h-80 overflow-y-auto">
+            <PlayerDetail
+              athleteId={selectedPlayerId}
+              league={game.league}
+              onBack={() => setSelectedPlayerId(null)}
+            />
           </div>
         ) : (
-          <div className="max-h-60 overflow-y-auto">
-            {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} />}
-            {activeTab === "boxscore" && <BoxScoreTab summary={summary} />}
-            {activeTab === "matchup" && <MatchupTab summary={summary} game={game} />}
-          </div>
+          <>
+            {/* Tabs */}
+            <div className="flex gap-4 border-b border-border mb-3">
+              {(["gamecast", "boxscore", "matchup"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`text-xs font-semibold pb-2 border-b-2 transition-colors capitalize ${
+                    activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Matchup"}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="max-h-60 overflow-y-auto">
+                {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} onPlayerClick={setSelectedPlayerId} />}
+                {activeTab === "boxscore" && <BoxScoreTab summary={summary} onPlayerClick={setSelectedPlayerId} />}
+                {activeTab === "matchup" && <MatchupTab summary={summary} game={game} />}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
