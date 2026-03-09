@@ -117,7 +117,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
 
         {/* Player detail or tabs */}
         {selectedPlayerId ? (
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto subtle-scroll">
             <PlayerDetail
               athleteId={selectedPlayerId}
               league={game.league}
