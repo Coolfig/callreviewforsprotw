@@ -70,9 +70,11 @@ const PlayerDetail = ({ athleteId, league, onBack }: PlayerDetailProps) => {
 
   // Recent games / game log
   const gameLog = data.gameLog || data.gamelog || {};
-  const recentEvents = gameLog.events?.slice(0, 5) || [];
+  const gameLogEventsRaw = Array.isArray(gameLog.events) ? gameLog.events : [];
+  const recentEvents = gameLogEventsRaw.slice(0, 5);
   const gameLogLabels = gameLog.labels || gameLog.seasonTypes?.[0]?.categories?.[0]?.labels || [];
-  const gameLogEvents = gameLog.seasonTypes?.[0]?.categories?.[0]?.events || recentEvents;
+  const seasonCatEvents = gameLog.seasonTypes?.[0]?.categories?.[0]?.events;
+  const gameLogEvents = Array.isArray(seasonCatEvents) ? seasonCatEvents : recentEvents;
 
   // Quick stats (top-level summary like PTS, REB, AST)
   const quickStats = data.quickStats || data.statsSummary?.statistics || [];
