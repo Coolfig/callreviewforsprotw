@@ -530,6 +530,56 @@ const CommentSection = ({ playId }: { playId: string }) => {
                 className="mt-2 w-full bg-secondary/40 border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50" />
             )}
 
+            {/* GIF preview */}
+            {selectedGifUrl && (
+              <div className="relative mt-2 inline-block">
+                <img src={selectedGifUrl} alt="GIF" className="rounded-lg max-h-32 object-contain" />
+                <button onClick={() => setSelectedGifUrl(null)} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>
+              </div>
+            )}
+
+            {/* GIF Picker */}
+            {showGifPicker && (
+              <div className="mt-2 bg-card border border-border rounded-xl p-3 max-h-72 overflow-hidden flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <input
+                    value={gifSearch}
+                    onChange={(e) => { setGifSearch(e.target.value); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") searchGifs(gifSearch); }}
+                    placeholder="Search GIFs…"
+                    className="flex-1 bg-secondary/50 border-none rounded-lg px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+                    autoFocus
+                  />
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => searchGifs(gifSearch)}>Search</Button>
+                </div>
+                {gifResults.length === 0 && !gifLoading && (
+                  <button onClick={fetchTrendingGifs} className="text-xs text-primary hover:underline mb-2">Load trending GIFs</button>
+                )}
+                <div className="overflow-y-auto subtle-scroll flex-1">
+                  {gifLoading ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">Loading…</p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-1">
+                      {gifResults.map((gif: any) => {
+                        const url = gif.media_formats?.tinygif?.url || gif.media_formats?.gif?.url || "";
+                        return (
+                          <button
+                            key={gif.id}
+                            onClick={() => { setSelectedGifUrl(url); setShowGifPicker(false); }}
+                            className="rounded overflow-hidden hover:opacity-80 transition-opacity"
+                          >
+                            <img src={url} alt="" className="w-full h-20 object-cover" loading="lazy" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-1 text-right">Powered by Tenor</p>
+              </div>
+            )}
+
             <div className="flex justify-between items-center mt-3">
               <div className="flex gap-2">
                 <Button variant={showRuleInput ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => setShowRuleInput(v => !v)}>
@@ -537,6 +587,9 @@ const CommentSection = ({ playId }: { playId: string }) => {
                 </Button>
                 <Button variant={showTimeInput ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => setShowTimeInput(v => !v)}>
                   <Clock className="w-3.5 h-3.5" />Timestamp
+                </Button>
+                <Button variant={showGifPicker ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => { setShowGifPicker(v => !v); if (!showGifPicker) fetchTrendingGifs(); }}>
+                  GIF
                 </Button>
               </div>
               <Button size="sm" className="h-8 px-4" onClick={handlePost}>Post</Button>
