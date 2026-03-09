@@ -186,21 +186,43 @@ const FeedSection = () => {
                 <TrendingUp className="w-4 h-4 text-primary" />
               </div>
               <div className="divide-y divide-border">
-                {trendingVideos.map((v) => (
-                  <div key={v.id} className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer">
-                    <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
-                      <Play className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
-                        <span className="text-xs text-primary hover:underline cursor-pointer">Open</span>
+                {trendingVideos.map((v) => {
+                  const thumb = getVideoThumbnail(v);
+                  return (
+                    <button
+                      key={v.id}
+                      onClick={() => {
+                        const el = document.getElementById(`play-${v.id}`);
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth", block: "center" });
+                          el.click();
+                        }
+                      }}
+                      className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
+                    >
+                      <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden relative">
+                        {thumb ? (
+                          <>
+                            <img src={thumb} alt="" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Play className="w-4 h-4 text-white drop-shadow" />
+                            </div>
+                          </>
+                        ) : (
+                          <Play className="w-4 h-4 text-muted-foreground" />
+                        )}
                       </div>
-                    </div>
-                  </div>
-                ))}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
+                          <span className="text-xs text-primary">Open</span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
               <div className="px-5 py-3">
                 <a
