@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { Game } from "./LiveScoresTicker";
+import PlayerDetail from "./PlayerDetail";
 
 interface GameDetailProps {
   game: Game;
@@ -11,6 +12,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"gamecast" | "boxscore" | "matchup">("gamecast");
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -113,31 +115,44 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex gap-4 border-b border-border mb-3">
-          {(["gamecast", "boxscore", "matchup"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`text-xs font-semibold pb-2 border-b-2 transition-colors capitalize ${
-                activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Matchup"}
-            </button>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        {/* Player detail or tabs */}
+        {selectedPlayerId ? (
+          <div className="max-h-80 overflow-y-auto">
+            <PlayerDetail
+              athleteId={selectedPlayerId}
+              league={game.league}
+              onBack={() => setSelectedPlayerId(null)}
+            />
           </div>
         ) : (
-          <div className="max-h-60 overflow-y-auto">
-            {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} />}
-            {activeTab === "boxscore" && <BoxScoreTab summary={summary} />}
-            {activeTab === "matchup" && <MatchupTab summary={summary} game={game} />}
-          </div>
+          <>
+            {/* Tabs */}
+            <div className="flex gap-4 border-b border-border mb-3">
+              {(["gamecast", "boxscore", "matchup"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`text-xs font-semibold pb-2 border-b-2 transition-colors capitalize ${
+                    activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Matchup"}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="max-h-60 overflow-y-auto">
+                {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} onPlayerClick={setSelectedPlayerId} />}
+                {activeTab === "boxscore" && <BoxScoreTab summary={summary} onPlayerClick={setSelectedPlayerId} />}
+                {activeTab === "matchup" && <MatchupTab summary={summary} game={game} />}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -145,7 +160,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
 };
 
 // Gamecast: key plays, leaders
-const GamecastTab = ({ summary, game }: { summary: any; game: Game }) => {
+const GamecastTab = ({ summary, game, onPlayerClick }: { summary: any; game: Game; onPlayerClick: (id: string) => void }) => {
   const leaders = summary?.leaders || [];
   const keyEvents = summary?.keyEvents || summary?.plays?.slice(-8) || [];
 
@@ -164,7 +179,14 @@ const GamecastTab = ({ summary, game }: { summary: any; game: Game }) => {
                   if (!topPlayer) return null;
                   const headshotUrl = topPlayer.athlete?.headshot?.href || topPlayer.athlete?.headshot || topPlayer.headshot?.href || topPlayer.headshot;
                   return (
-                    <div key={j} className="flex items-center gap-2 mb-1">
+                    <button
+                      key={j}
+                      onClick={() => {
+                        const id = topPlayer.athlete?.id || topPlayer.athlete?.playerId;
+                        if (id) onPlayerClick(String(id));
+                      }}
+                      className="flex items-center gap-2 mb-1 hover:bg-secondary/50 rounded px-1 py-0.5 transition-colors cursor-pointer w-full text-left"
+                    >
                       {headshotUrl ? (
                         <img src={headshotUrl} alt="" className="w-6 h-6 rounded-full object-cover bg-secondary" />
                       ) : (
@@ -174,7 +196,7 @@ const GamecastTab = ({ summary, game }: { summary: any; game: Game }) => {
                         <p className="text-[10px] font-medium">{topPlayer.athlete?.displayName || topPlayer.athlete?.shortName || "—"}</p>
                         <p className="text-[9px] text-muted-foreground">{cat.shortDisplayName || cat.displayName}: {topPlayer.displayValue}</p>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -205,7 +227,7 @@ const GamecastTab = ({ summary, game }: { summary: any; game: Game }) => {
 };
 
 // Box score: team stats
-const BoxScoreTab = ({ summary }: { summary: any }) => {
+const BoxScoreTab = ({ summary, onPlayerClick }: { summary: any; onPlayerClick: (id: string) => void }) => {
   const boxscore = summary?.boxscore;
   if (!boxscore) return <p className="text-xs text-muted-foreground text-center py-4">Box score not available yet.</p>;
 
