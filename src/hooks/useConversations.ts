@@ -54,7 +54,23 @@ export const useConversations = (userId: string | undefined) => {
         unread_count: unread?.length || 0,
       });
     }
-    setConversations(enriched);
+
+    // Deduplicate 1:1 conversations — keep only the most recent per user pair
+    const seen1on1 = new Map<string, number>();
+    const deduped = enriched.filter((c, idx) => {
+      if (c.is_group) return true;
+      const otherMembers = c.members
+        .map(m => m.user_id)
+        .filter(id => id !== userId)
+        .sort()
+        .join(",");
+      if (!otherMembers) return true;
+      if (seen1on1.has(otherMembers)) return false;
+      seen1on1.set(otherMembers, idx);
+      return true;
+    });
+
+    setConversations(deduped);
   }, [userId]);
 
   const createConversation = async (
