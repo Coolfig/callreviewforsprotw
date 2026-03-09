@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { Game } from "./LiveScoresTicker";
+import PlayerDetail from "./PlayerDetail";
 
 interface GameDetailProps {
   game: Game;
