@@ -157,7 +157,7 @@ const PostItem = ({
             <MessageCircle className="w-3.5 h-3.5" />
             <span>{replies_count}</span>
           </button>
-          <button onClick={handleCopyLink} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
+          <button onClick={() => setShareOpen(true)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
             <Share className="w-3.5 h-3.5" />
           </button>
         </div>
