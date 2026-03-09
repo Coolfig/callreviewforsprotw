@@ -143,20 +143,12 @@ const RulesYear = () => {
       setRuleYear(ry ?? null);
       if (!ry) { setLoading(false); return; }
 
-      const [changesRes, reviewsRes] = await Promise.all([
-        supabase
-          .from("rule_changes")
-          .select("id, title, what_changed, previous_rule, impact, source_citation, source_url, category_tags, sort_order")
-          .eq("rule_year_id", ry.id)
-          .order("sort_order"),
-        supabase
-          .from("rule_related_reviews")
-          .select("id, title, url, rule_tags, verdict, teams, review_date, sort_order")
-          .eq("rule_year_id", ry.id)
-          .order("sort_order"),
-      ]);
+      const reviewsRes = await supabase
+        .from("rule_related_reviews")
+        .select("id, title, url, rule_tags, verdict, teams, review_date, sort_order")
+        .eq("rule_year_id", ry.id)
+        .order("sort_order");
 
-      setRuleChanges(changesRes.data ?? []);
       setRelatedReviews(reviewsRes.data ?? []);
       setLoading(false);
     };
