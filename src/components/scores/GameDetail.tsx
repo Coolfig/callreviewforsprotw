@@ -150,7 +150,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
               <div className="max-h-60 overflow-y-auto subtle-scroll">
                 {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} onPlayerClick={setSelectedPlayerId} />}
                 {activeTab === "boxscore" && <BoxScoreTab summary={summary} onPlayerClick={setSelectedPlayerId} />}
-                {activeTab === "standings" && <MatchupTab summary={summary} game={game} />}
+                {activeTab === "standings" && <StandingsTab game={game} />}
               </div>
             )}
           </>
