@@ -407,21 +407,29 @@ const RulesYear = () => {
                 {/* ── Interpretation Notes ── */}
                 <section>
                   <SectionHeader icon={<StickyNote className="w-4 h-4 text-primary" />} title="Officiating Interpretation Notes" />
-                  {loading ? (
-                    <div className="bg-card border border-border rounded-xl p-5 animate-pulse h-24" />
-                  ) : ruleYear?.interpretation_notes &&
-                    !ruleYear.interpretation_notes.startsWith("Officiating notes for") ? (
-                    <div className="bg-card border border-border rounded-xl p-5">
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {ruleYear.interpretation_notes}
-                      </p>
-                    </div>
-                  ) : (
-                    <PlaceholderCard
-                      message={`Interpretation notes for ${meta.short} ${year} are pending.`}
-                      sub={<span className="text-xs text-muted-foreground">Notes on how officials applied the rules this season will appear here.</span>}
-                    />
-                  )}
+                  {(() => {
+                    const notes = getInterpretationNotes(meta.short, year);
+                    if (notes.length > 0) {
+                      return (
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <ul className="space-y-3">
+                            {notes.map((note, i) => (
+                              <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                                <span>{note}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    }
+                    return (
+                      <PlaceholderCard
+                        message={`Interpretation notes for ${meta.short} ${year} are pending.`}
+                        sub={<span className="text-xs text-muted-foreground">Notes on how officials applied the rules this season will appear here.</span>}
+                      />
+                    );
+                  })()}
                 </section>
 
                 {/* ── Related Call Reviews ── */}
