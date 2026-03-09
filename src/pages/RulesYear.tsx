@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import {
   ChevronRight, Zap, Scale, AlertCircle,
-  FileText, TrendingUp, ArrowLeft, ArrowRight, Tag, StickyNote
+  TrendingUp, ArrowLeft, ArrowRight, Tag
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
