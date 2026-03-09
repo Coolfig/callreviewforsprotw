@@ -46,6 +46,7 @@ const Profile = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [userPosts, setUserPosts] = useState<PostWithProfile[]>([]);
   const [likedPosts, setLikedPosts] = useState<PostWithProfile[]>([]);
+  const [startingChat, setStartingChat] = useState(false);
 
   const isOwnProfile = user && profile?.user_id === user.id;
 
