@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MessageSquare, ThumbsUp, Clock, BookOpen, ChevronDown, Smile, X } from "lucide-react";
+import { MessageSquare, ThumbsUp, ThumbsDown, Clock, BookOpen, ChevronDown, Smile, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,13 +13,17 @@ interface CommentData {
   id: string;
   user_id: string;
   username: string;
+  avatar_url: string | null;
   content: string;
   likes_count: number;
+  dislikes_count: number;
   score: number;
   rule_reference: string | null;
   timestamp_reference: string | null;
   created_at: string;
   liked_by_me: boolean;
+  disliked_by_me: boolean;
+  bookmarked_by_me: boolean;
   replies: CommentData[];
 }
 
@@ -54,10 +58,19 @@ const CommentSection = ({ playId }: { playId: string }) => {
   const [replyShowEmoji, setReplyShowEmoji] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [authAvatarUrl, setAuthAvatarUrl] = useState<string | null>(null);
   const PAGE_SIZE = 10;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const replyInputRef = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch current user's avatar
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("avatar_url").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+      if (data) setAuthAvatarUrl(data.avatar_url);
+    });
+  }, [user]);
 
   // Close emoji picker on outside click
   useEffect(() => {
@@ -84,34 +97,47 @@ const CommentSection = ({ playId }: { playId: string }) => {
     if (!rawComments || rawComments.length < PAGE_SIZE) setHasMore(false);
 
     const userIds = rawComments?.map(c => c.user_id) ?? [];
-    const { data: profiles } = await supabase.from("profiles").select("user_id, username").in("user_id", userIds);
-    const usernameMap = new Map(profiles?.map(p => [p.user_id, p.username]) ?? []);
+    const { data: profiles } = await supabase.from("profiles").select("user_id, username, avatar_url").in("user_id", userIds);
+    const profileMap = new Map(profiles?.map(p => [p.user_id, { username: p.username, avatar_url: p.avatar_url }]) ?? []);
 
     const commentIds = rawComments?.map(c => c.id) ?? [];
     const { data: replies } = await supabase.from("comments").select("*").in("parent_id", commentIds).order("created_at", { ascending: true });
 
-    const replyUserIds = replies?.map(r => r.user_id).filter(id => !usernameMap.has(id)) ?? [];
+    const replyUserIds = replies?.map(r => r.user_id).filter(id => !profileMap.has(id)) ?? [];
     if (replyUserIds.length > 0) {
-      const { data: replyProfiles } = await supabase.from("profiles").select("user_id, username").in("user_id", replyUserIds);
-      replyProfiles?.forEach(p => usernameMap.set(p.user_id, p.username));
+      const { data: replyProfiles } = await supabase.from("profiles").select("user_id, username, avatar_url").in("user_id", replyUserIds);
+      replyProfiles?.forEach(p => profileMap.set(p.user_id, { username: p.username, avatar_url: p.avatar_url }));
     }
 
     let myLikes = new Set<string>();
+    let myDislikes = new Set<string>();
+    let myBookmarks = new Set<string>();
     if (user) {
       const allIds = [...commentIds, ...(replies?.map(r => r.id) ?? [])];
       if (allIds.length > 0) {
-        const { data: likes } = await supabase.from("comment_likes").select("comment_id").eq("user_id", user.id).in("comment_id", allIds);
-        myLikes = new Set(likes?.map(l => l.comment_id) ?? []);
+        const [likesRes, dislikesRes, bookmarksRes] = await Promise.all([
+          supabase.from("comment_likes").select("comment_id").eq("user_id", user.id).in("comment_id", allIds),
+          supabase.from("comment_dislikes").select("comment_id").eq("user_id", user.id).in("comment_id", allIds),
+          supabase.from("comment_bookmarks").select("comment_id").eq("user_id", user.id).in("comment_id", allIds),
+        ]);
+        myLikes = new Set(likesRes.data?.map(l => l.comment_id) ?? []);
+        myDislikes = new Set(dislikesRes.data?.map(l => l.comment_id) ?? []);
+        myBookmarks = new Set(bookmarksRes.data?.map(l => l.comment_id) ?? []);
       }
     }
 
-    const mapComment = (c: any): CommentData => ({
-      id: c.id, user_id: c.user_id,
-      username: usernameMap.get(c.user_id) || "Unknown",
-      content: c.content, likes_count: c.likes_count, score: c.score,
-      rule_reference: c.rule_reference, timestamp_reference: c.timestamp_reference,
-      created_at: c.created_at, liked_by_me: myLikes.has(c.id), replies: [],
-    });
+    const mapComment = (c: any): CommentData => {
+      const profile = profileMap.get(c.user_id);
+      return {
+        id: c.id, user_id: c.user_id,
+        username: profile?.username || "Unknown",
+        avatar_url: profile?.avatar_url || null,
+        content: c.content, likes_count: c.likes_count, dislikes_count: c.dislikes_count ?? 0, score: c.score,
+        rule_reference: c.rule_reference, timestamp_reference: c.timestamp_reference,
+        created_at: c.created_at, liked_by_me: myLikes.has(c.id), disliked_by_me: myDislikes.has(c.id),
+        bookmarked_by_me: myBookmarks.has(c.id), replies: [],
+      };
+    };
 
     const repliesByParent = new Map<string, CommentData[]>();
     replies?.forEach(r => {
@@ -135,12 +161,59 @@ const CommentSection = ({ playId }: { playId: string }) => {
   const handleLike = useCallback(async (commentId: string) => {
     if (!user) { toast({ title: "Sign up to participate" }); navigate("/auth"); return; }
     setComments(prev => prev.map(c => {
-      if (c.id === commentId) return { ...c, liked_by_me: !c.liked_by_me, likes_count: c.liked_by_me ? c.likes_count - 1 : c.likes_count + 1 };
-      return { ...c, replies: c.replies.map(r => r.id === commentId ? { ...r, liked_by_me: !r.liked_by_me, likes_count: r.liked_by_me ? r.likes_count - 1 : r.likes_count + 1 } : r) };
+      const update = (item: CommentData): CommentData => {
+        if (item.id !== commentId) return item;
+        // If already liked, remove like
+        if (item.liked_by_me) return { ...item, liked_by_me: false, likes_count: item.likes_count - 1 };
+        // If disliked, remove dislike and add like
+        if (item.disliked_by_me) return { ...item, liked_by_me: true, disliked_by_me: false, likes_count: item.likes_count + 1, dislikes_count: item.dislikes_count - 1 };
+        return { ...item, liked_by_me: true, likes_count: item.likes_count + 1 };
+      };
+      return { ...update(c), replies: c.replies.map(update) };
     }));
     const { data: existing } = await supabase.from("comment_likes").select("id").eq("comment_id", commentId).eq("user_id", user.id).maybeSingle();
-    if (existing) await supabase.from("comment_likes").delete().eq("id", existing.id);
-    else await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: user.id });
+    if (existing) {
+      await supabase.from("comment_likes").delete().eq("id", existing.id);
+    } else {
+      // Remove dislike if exists, then add like
+      await supabase.from("comment_dislikes").delete().eq("comment_id", commentId).eq("user_id", user.id);
+      await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: user.id });
+    }
+  }, [user, navigate]);
+
+  const handleDislike = useCallback(async (commentId: string) => {
+    if (!user) { toast({ title: "Sign up to participate" }); navigate("/auth"); return; }
+    setComments(prev => prev.map(c => {
+      const update = (item: CommentData): CommentData => {
+        if (item.id !== commentId) return item;
+        if (item.disliked_by_me) return { ...item, disliked_by_me: false, dislikes_count: item.dislikes_count - 1 };
+        if (item.liked_by_me) return { ...item, disliked_by_me: true, liked_by_me: false, dislikes_count: item.dislikes_count + 1, likes_count: item.likes_count - 1 };
+        return { ...item, disliked_by_me: true, dislikes_count: item.dislikes_count + 1 };
+      };
+      return { ...update(c), replies: c.replies.map(update) };
+    }));
+    const { data: existing } = await supabase.from("comment_dislikes").select("id").eq("comment_id", commentId).eq("user_id", user.id).maybeSingle();
+    if (existing) {
+      await supabase.from("comment_dislikes").delete().eq("id", existing.id);
+    } else {
+      await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", user.id);
+      await supabase.from("comment_dislikes").insert({ comment_id: commentId, user_id: user.id });
+    }
+  }, [user, navigate]);
+
+  const handleBookmark = useCallback(async (commentId: string) => {
+    if (!user) { toast({ title: "Sign up to participate" }); navigate("/auth"); return; }
+    setComments(prev => prev.map(c => {
+      const update = (item: CommentData): CommentData => item.id === commentId ? { ...item, bookmarked_by_me: !item.bookmarked_by_me } : item;
+      return { ...update(c), replies: c.replies.map(update) };
+    }));
+    const { data: existing } = await supabase.from("comment_bookmarks").select("id").eq("comment_id", commentId).eq("user_id", user.id).maybeSingle();
+    if (existing) {
+      await supabase.from("comment_bookmarks").delete().eq("id", existing.id);
+    } else {
+      await supabase.from("comment_bookmarks").insert({ comment_id: commentId, user_id: user.id });
+      toast({ title: "Comment bookmarked" });
+    }
   }, [user, navigate]);
 
   const handlePost = async () => {
@@ -163,7 +236,6 @@ const CommentSection = ({ playId }: { playId: string }) => {
     fetchComments(0);
   };
 
-  // Insert emoji at cursor position in main textarea
   const onEmojiClick = (emojiData: EmojiClickData) => {
     const ta = textareaRef.current;
     if (ta) {
@@ -204,6 +276,7 @@ const CommentSection = ({ playId }: { playId: string }) => {
       <div className={`${isReply ? "ml-10 pl-4 border-l-2 border-border" : ""}`}>
         <div className="flex gap-3">
           <Avatar className="h-8 w-8 shrink-0">
+            {comment.avatar_url && <AvatarImage src={comment.avatar_url} alt={comment.username} />}
             <AvatarFallback className="bg-secondary text-xs font-semibold">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
@@ -237,6 +310,19 @@ const CommentSection = ({ playId }: { playId: string }) => {
                 <ThumbsUp className="w-3.5 h-3.5" />
                 <span>{comment.likes_count}</span>
               </button>
+              <button
+                onClick={() => handleDislike(comment.id)}
+                className={`flex items-center gap-1.5 text-xs transition-colors ${comment.disliked_by_me ? "text-destructive" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <ThumbsDown className="w-3.5 h-3.5" />
+                <span>{comment.dislikes_count}</span>
+              </button>
+              <button
+                onClick={() => handleBookmark(comment.id)}
+                className={`flex items-center text-xs transition-colors ${comment.bookmarked_by_me ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Bookmark className={`w-3.5 h-3.5 ${comment.bookmarked_by_me ? "fill-primary" : ""}`} />
+              </button>
               {!isReply && (
                 <button
                   onClick={() => { if (!user) { navigate("/auth"); return; } setReplyingTo(replyingTo === comment.id ? null : comment.id); }}
@@ -253,7 +339,6 @@ const CommentSection = ({ playId }: { playId: string }) => {
               )}
             </div>
 
-            {/* Reply input */}
             {replyingTo === comment.id && (
               <div className="mt-3">
                 <div className="flex gap-2 relative">
@@ -292,7 +377,6 @@ const CommentSection = ({ playId }: { playId: string }) => {
           </div>
         </div>
 
-        {/* Replies */}
         {comment.replies.length > 0 && expandedReplies.includes(comment.id) && (
           <div className="space-y-4 mt-4">
             {comment.replies.map(reply => (
@@ -306,7 +390,6 @@ const CommentSection = ({ playId }: { playId: string }) => {
 
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden">
-      {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4 text-primary" />
@@ -324,10 +407,10 @@ const CommentSection = ({ playId }: { playId: string }) => {
         </select>
       </div>
 
-      {/* Comment composer */}
       <div className="px-5 py-4 border-b border-border">
         <div className="flex gap-3">
           <Avatar className="h-8 w-8 shrink-0">
+            {authAvatarUrl && <AvatarImage src={authAvatarUrl} alt={authUsername || "You"} />}
             <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
               {authUsername ? authUsername.slice(0, 2).toUpperCase() : "YO"}
             </AvatarFallback>
@@ -342,7 +425,6 @@ const CommentSection = ({ playId }: { playId: string }) => {
                 className="w-full bg-secondary/40 border border-border rounded-xl px-4 py-3 text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 pr-10"
                 rows={3}
               />
-              {/* Emoji button inside textarea */}
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker(v => !v)}
@@ -376,20 +458,10 @@ const CommentSection = ({ playId }: { playId: string }) => {
 
             <div className="flex justify-between items-center mt-3">
               <div className="flex gap-2">
-                <Button
-                  variant={showRuleInput ? "default" : "ghost"}
-                  size="sm"
-                  className="text-xs gap-1 h-7 px-2.5"
-                  onClick={() => setShowRuleInput(v => !v)}
-                >
+                <Button variant={showRuleInput ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => setShowRuleInput(v => !v)}>
                   <BookOpen className="w-3.5 h-3.5" />Cite Rule
                 </Button>
-                <Button
-                  variant={showTimeInput ? "default" : "ghost"}
-                  size="sm"
-                  className="text-xs gap-1 h-7 px-2.5"
-                  onClick={() => setShowTimeInput(v => !v)}
-                >
+                <Button variant={showTimeInput ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => setShowTimeInput(v => !v)}>
                   <Clock className="w-3.5 h-3.5" />Timestamp
                 </Button>
               </div>
@@ -399,7 +471,6 @@ const CommentSection = ({ playId }: { playId: string }) => {
         </div>
       </div>
 
-      {/* Comments list */}
       <div className="px-5 py-4 space-y-6">
         {loading ? (
           <p className="text-sm text-muted-foreground text-center py-6">Loading discussion…</p>
