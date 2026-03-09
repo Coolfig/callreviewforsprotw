@@ -7,7 +7,7 @@ import {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { SafeExternalLink, isValidExternalUrl } from "@/components/SafeExternalLink";
+import { SafeExternalLink } from "@/components/SafeExternalLink";
 import { getInterpretationNotes } from "@/data/interpretationNotes";
 import { sportsVideos, getSeasonYear } from "@/data/sportsVideos";
 // ── League meta (self-contained, no external deps) ───────────────────────────
