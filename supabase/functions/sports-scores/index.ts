@@ -2,10 +2,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// ESPN public API endpoints
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
 
 const SPORT_MAP: Record<string, string> = {
@@ -14,6 +13,25 @@ const SPORT_MAP: Record<string, string> = {
   mlb: 'baseball/mlb',
   nhl: 'hockey/nhl',
 };
+
+async function fetchWithRetry(url: string, retries = 3, delayMs = 500): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; SportsApp/1.0)',
+          'Accept': 'application/json',
+        },
+      });
+      return res;
+    } catch (err) {
+      console.error(`Fetch attempt ${i + 1} failed for ${url}:`, err);
+      if (i === retries - 1) throw err;
+      await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
+    }
+  }
+  throw new Error('All fetch retries exhausted');
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -42,7 +60,6 @@ serve(async (req) => {
     } else if (type === 'summary' && gameId) {
       apiUrl = `${ESPN_BASE}/${sport}/summary?event=${gameId}`;
     } else if (type === 'standings') {
-      const leagueSegment = sport.split('/')[1]; // e.g. "nba"
       apiUrl = `https://site.web.api.espn.com/apis/v2/sports/${sport}/standings?season=${url.searchParams.get('season') || new Date().getFullYear()}&type=0`;
     } else if (type === 'athlete' && athleteId) {
       const sportSegment = sport.split('/')[0];
@@ -52,16 +69,22 @@ serve(async (req) => {
       apiUrl = `${ESPN_BASE}/${sport}/scoreboard`;
     }
 
-    const response = await fetch(apiUrl);
+    const response = await fetchWithRetry(apiUrl);
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=30',
+      },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
+    console.error('Sports scores error:', message);
+    // Return empty but valid structure so the UI doesn't break
+    return new Response(JSON.stringify({ events: [], leagues: [], error: message }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
