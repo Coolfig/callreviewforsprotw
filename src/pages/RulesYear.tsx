@@ -485,34 +485,6 @@ const RulesYear = () => {
               {/* ── SIDEBAR ── */}
               <aside className="lg:w-64 shrink-0 space-y-5">
 
-                {/* Official sources — no broken links */}
-                <div className="bg-card border border-border rounded-xl p-5">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                    Official Source
-                  </p>
-                  <SafeExternalLink url={meta.officialRulesUrl}
-                    className="flex items-center gap-2 text-sm text-primary hover:underline mb-2"
-                    showIcon>
-                    {meta.short} Rulebook
-                  </SafeExternalLink>
-                  <SafeExternalLink url={meta.ruleChangesUrl}
-                    className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    showIcon>
-                    Rule Changes History
-                  </SafeExternalLink>
-                </div>
-
-                {/* Archive link */}
-                <div className="bg-card border border-border rounded-xl p-4">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                    Rulebook Archive
-                  </p>
-                  <Link to={`/rulebooks/${leagueKey}/${year}`}
-                    className="text-sm text-primary hover:underline">
-                    View {year} Archive Snapshot →
-                  </Link>
-                </div>
-
                 {/* Rule category tags from this page */}
                 {allCategoryTags.length > 0 && (
                   <div className="bg-card border border-border rounded-xl p-5">
