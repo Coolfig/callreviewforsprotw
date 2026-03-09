@@ -99,15 +99,17 @@ const Messages = () => {
     setConversations(enriched);
   }, [user]);
 
-  useEffect(() => { fetchConversations(); }, [fetchConversations]);
-
-  // Auto-select conversation from URL query param
+  // Fetch conversations and auto-select from URL param
   useEffect(() => {
-    const convoParam = searchParams.get("convo");
-    if (convoParam && !activeConvo) {
-      loadMessages(convoParam);
-    }
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+    const init = async () => {
+      await fetchConversations();
+      const convoParam = searchParams.get("convo");
+      if (convoParam) {
+        loadMessages(convoParam);
+      }
+    };
+    init();
+  }, [fetchConversations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime messages
   useEffect(() => {
