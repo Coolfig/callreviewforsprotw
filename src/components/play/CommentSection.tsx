@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MessageSquare, ThumbsUp, ThumbsDown, Clock, BookOpen, ChevronDown, Smile, Bookmark } from "lucide-react";
+import { MessageSquare, ThumbsUp, ThumbsDown, Clock, BookOpen, ChevronDown, Smile, Bookmark, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
