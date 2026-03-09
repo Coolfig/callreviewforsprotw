@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Trash2, Share, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Share } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import ShareDialog from "./ShareDialog";
 
 interface PostItemProps {
   id: string;
