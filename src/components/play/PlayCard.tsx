@@ -147,13 +147,13 @@ const PlayCard = ({
             </div>
 
             <div
-              className="w-36 h-36 shrink-0 flex items-center justify-center cursor-pointer"
+              className="w-44 h-44 shrink-0 flex items-center justify-center cursor-pointer"
               onClick={() => setIsExpanded(true)}
             >
               <img
                 src={LEAGUE_BALL[league] || ballFootball}
                 alt={league}
-                className="w-32 h-32 object-contain drop-shadow-lg"
+                className="w-44 h-44 object-contain drop-shadow-lg"
               />
             </div>
           </div>
