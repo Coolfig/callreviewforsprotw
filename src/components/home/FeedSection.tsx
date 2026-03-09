@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, Send, TrendingUp, Users, ChevronRight, Play } from "lucide-react";
+import { Loader2, Send, TrendingUp, Users, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,6 +8,17 @@ import { sportsVideos } from "@/data/sportsVideos";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import ballFootball from "@/assets/ball-football.png";
+import ballBasketball from "@/assets/ball-basketball.png";
+import ballBaseball from "@/assets/ball-baseball.png";
+import ballHockey from "@/assets/ball-hockey.png";
+
+const LEAGUE_BALL: Record<string, string> = {
+  NFL: ballFootball,
+  NBA: ballBasketball,
+  MLB: ballBaseball,
+  NHL: ballHockey,
+};
 
 const leagues = ["All", "NFL", "NBA", "MLB", "NHL"];
 const BATCH_SIZE = 10;
