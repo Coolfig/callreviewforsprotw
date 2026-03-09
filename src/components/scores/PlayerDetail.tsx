@@ -49,35 +49,43 @@ const PlayerDetail = ({ athleteId, league, onBack }: PlayerDetailProps) => {
     );
   }
 
-  const athlete = data.athlete || {};
-  const headshot = athlete.headshot?.href || athlete.headshot || "";
-  const displayName = athlete.displayName || "Unknown";
-  const position = athlete.position?.displayName || athlete.position?.abbreviation || "";
-  const jersey = athlete.jersey || "";
-  const team = athlete.team?.displayName || "";
-  const teamLogo = athlete.team?.logo || athlete.team?.logos?.[0]?.href || "";
-  const height = athlete.displayHeight || "";
-  const weight = athlete.displayWeight || "";
-  const birthdate = athlete.displayBirthPlace || athlete.dateOfBirth || "";
-  const experience = athlete.experience?.displayValue || "";
-  const draft = athlete.draft?.displayText || "";
-  const status = athlete.status?.type?.description || athlete.status?.name || "";
+  // Extract next event context for summary stats and athlete info
+  const nextEvent = data.nextEvent?.[0] || data.nextEvent || {};
+  const summaryStats = nextEvent?.summaryStatistics || [];
+  const athleteStats = nextEvent?.statistics || data.statistics || {};
 
-  // Season stats from the overview
-  const statsCategories = data.stats || data.statistics || [];
-  const seasonStats = statsCategories?.[0]; // Usually current season
-  const splits = seasonStats?.splits || seasonStats?.categories?.[0]?.splits || [];
+  // Season/career stats from top-level `statistics`
+  const seasonStats = data.statistics || {};
+  const seasonLabels = seasonStats.labels || [];
+  const seasonSplits = seasonStats.splits || [];
 
-  // Recent games / game log
-  const gameLog = data.gameLog || data.gamelog || {};
-  const gameLogEventsRaw = Array.isArray(gameLog.events) ? gameLog.events : [];
-  const recentEvents = gameLogEventsRaw.slice(0, 5);
-  const gameLogLabels = gameLog.labels || gameLog.seasonTypes?.[0]?.categories?.[0]?.labels || [];
-  const seasonCatEvents = gameLog.seasonTypes?.[0]?.categories?.[0]?.events;
-  const gameLogEvents = Array.isArray(seasonCatEvents) ? seasonCatEvents : recentEvents;
+  // Splits from next event statistics (This Game, L10, vs OPP, Road)
+  const gameSplits = athleteStats.splits || [];
+  const gameLabels = athleteStats.labels || [];
 
-  // Quick stats (top-level summary like PTS, REB, AST)
-  const quickStats = data.quickStats || data.statsSummary?.statistics || [];
+  // Game log - events is an OBJECT keyed by game ID
+  const gameLog = data.gameLog || {};
+  const gameLogEventsObj = gameLog.events || {};
+  const gameLogStatistics = gameLog.statistics?.[0] || {};
+  const gameLogLabels = gameLogStatistics.labels || [];
+  const gameLogStatEvents = gameLogStatistics.events || [];
+
+  // Convert events object to sorted array (most recent first)
+  const gameLogEntries = Object.values(gameLogEventsObj) as any[];
+  gameLogEntries.sort((a: any, b: any) => {
+    const da = new Date(a.gameDate || 0).getTime();
+    const db = new Date(b.gameDate || 0).getTime();
+    return db - da;
+  });
+
+  // Map stat events to game entries by eventId
+  const statsByEventId: Record<string, string[]> = {};
+  for (const se of gameLogStatEvents) {
+    if (se.eventId) statsByEventId[se.eventId] = se.stats || [];
+  }
+
+  // Headshot from the scoreboard data (not in this API, use ESPN CDN pattern)
+  const headshotUrl = `https://a.espncdn.com/i/headshots/nba/players/full/${athleteId}.png`;
 
   return (
     <div className="space-y-4">
@@ -86,82 +94,65 @@ const PlayerDetail = ({ athleteId, league, onBack }: PlayerDetailProps) => {
         <ArrowLeft className="w-3 h-3" /> Back to game
       </button>
 
-      {/* Player header */}
-      <div className="flex items-center gap-4">
-        {headshot ? (
-          <img src={headshot} alt={displayName} className="w-16 h-16 rounded-full object-cover bg-secondary border-2 border-border" />
-        ) : (
-          <div className="w-16 h-16 rounded-full bg-secondary border-2 border-border" />
-        )}
-        <div className="flex-1">
-          <h3 className="text-lg font-black leading-tight">{displayName}</h3>
-          <div className="flex items-center gap-2 mt-0.5">
-            {teamLogo && <img src={teamLogo} alt="" className="w-4 h-4 object-contain" />}
-            <span className="text-xs text-muted-foreground">
-              {team}{jersey ? ` · #${jersey}` : ""}{position ? ` · ${position}` : ""}
-            </span>
-          </div>
+      {/* Summary stat badges (PPG, APG, 3P%, FG%) */}
+      {summaryStats.length > 0 && (
+        <div className="flex gap-3 flex-wrap">
+          {summaryStats.map((stat: any, i: number) => (
+            <div key={i} className="bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 text-center min-w-[70px]">
+              <p className="text-[9px] text-primary font-bold uppercase">{stat.shortDisplayName || stat.abbreviation}</p>
+              <p className="text-xl font-black tabular-nums text-primary">{stat.displayValue}</p>
+            </div>
+          ))}
         </div>
+      )}
 
-        {/* Quick season stats badges */}
-        {quickStats.length > 0 && (
-          <div className="hidden sm:flex gap-3">
-            {quickStats.slice(0, 4).map((stat: any, i: number) => (
-              <div key={i} className="text-center">
-                <p className="text-[9px] text-muted-foreground uppercase font-semibold">{stat.label || stat.shortDisplayName || stat.name}</p>
-                <p className="text-base font-black tabular-nums text-primary">{stat.displayValue || stat.value}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Player info row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-        {height && (
-          <div className="bg-secondary/30 rounded px-2 py-1.5">
-            <span className="text-muted-foreground font-semibold">HT/WT</span>
-            <p className="font-medium">{height}{weight ? `, ${weight}` : ""}</p>
-          </div>
-        )}
-        {birthdate && (
-          <div className="bg-secondary/30 rounded px-2 py-1.5">
-            <span className="text-muted-foreground font-semibold">BIRTHPLACE</span>
-            <p className="font-medium">{birthdate}</p>
-          </div>
-        )}
-        {draft && (
-          <div className="bg-secondary/30 rounded px-2 py-1.5">
-            <span className="text-muted-foreground font-semibold">DRAFT</span>
-            <p className="font-medium">{draft}</p>
-          </div>
-        )}
-        {status && (
-          <div className="bg-secondary/30 rounded px-2 py-1.5">
-            <span className="text-muted-foreground font-semibold">STATUS</span>
-            <p className="font-medium">{status}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Season Stats Table */}
-      {seasonStats && (
+      {/* Splits table (This Game, L10, vs OPP, Road) */}
+      {gameSplits.length > 0 && gameLabels.length > 0 && (
         <div>
-          <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Season Stats</h4>
+          <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Splits</h4>
           <div className="overflow-x-auto">
             <table className="w-full text-[11px] text-center">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-1.5 px-2 font-semibold text-muted-foreground">STATS</th>
-                  {seasonStats.labels?.map((label: string, i: number) => (
+                  <th className="text-left py-1.5 px-2 font-semibold text-muted-foreground">SPLITS</th>
+                  {gameLabels.map((label: string, i: number) => (
                     <th key={i} className="py-1.5 px-2 font-semibold text-muted-foreground">{label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {splits.slice(0, 4).map((split: any, i: number) => (
+                {gameSplits.map((split: any, i: number) => (
                   <tr key={i} className="border-b border-border/30 hover:bg-secondary/20">
-                    <td className="text-left py-1.5 px-2 font-medium">{split.displayName || split.type || "—"}</td>
+                    <td className="text-left py-1.5 px-2 font-medium">{split.displayName || "—"}</td>
+                    {split.stats?.map((val: string, j: number) => (
+                      <td key={j} className="py-1.5 px-2 tabular-nums">{val}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Season Stats (Regular Season, Career) */}
+      {seasonSplits.length > 0 && seasonLabels.length > 0 && (
+        <div>
+          <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Stats</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-[11px] text-center">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-1.5 px-2 font-semibold text-muted-foreground">STATS</th>
+                  {seasonLabels.map((label: string, i: number) => (
+                    <th key={i} className="py-1.5 px-2 font-semibold text-muted-foreground">{label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {seasonSplits.map((split: any, i: number) => (
+                  <tr key={i} className="border-b border-border/30 hover:bg-secondary/20">
+                    <td className="text-left py-1.5 px-2 font-medium">{split.displayName || "—"}</td>
                     {split.stats?.map((val: string, j: number) => (
                       <td key={j} className="py-1.5 px-2 tabular-nums">{val}</td>
                     ))}
@@ -174,7 +165,7 @@ const PlayerDetail = ({ athleteId, league, onBack }: PlayerDetailProps) => {
       )}
 
       {/* Recent Games */}
-      {gameLogEvents.length > 0 && (
+      {gameLogEntries.length > 0 && gameLogLabels.length > 0 && (
         <div>
           <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Recent Games</h4>
           <div className="overflow-x-auto">
@@ -184,36 +175,37 @@ const PlayerDetail = ({ athleteId, league, onBack }: PlayerDetailProps) => {
                   <th className="text-left py-1.5 px-2 font-semibold text-muted-foreground">DATE</th>
                   <th className="text-left py-1.5 px-2 font-semibold text-muted-foreground">OPP</th>
                   <th className="text-left py-1.5 px-2 font-semibold text-muted-foreground">RESULT</th>
-                  {gameLogLabels.slice(0, 8).map((label: string, i: number) => (
+                  {gameLogLabels.map((label: string, i: number) => (
                     <th key={i} className="py-1.5 px-2 font-semibold text-muted-foreground">{label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {gameLogEvents.slice(0, 5).map((event: any, i: number) => {
-                  const opponent = event.opponent?.displayName || event.opponent?.abbreviation || event.atVs || "—";
-                  const oppLogo = event.opponent?.logo || event.opponent?.logos?.[0]?.href || "";
-                  const result = event.gameResult || event.result || "";
+                {gameLogEntries.slice(0, 5).map((event: any, i: number) => {
+                  const oppName = event.opponent?.abbreviation || event.opponent?.displayName || "—";
+                  const oppLogo = event.opponent?.logo || "";
+                  const result = event.gameResult || "";
                   const score = event.score || "";
-                  const stats = event.stats || event.playerStats || [];
+                  const isHome = event.atVs === "vs";
+                  const stats = statsByEventId[event.id] || [];
                   const dateStr = event.gameDate
                     ? new Date(event.gameDate).toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })
                     : "—";
 
                   return (
                     <tr key={i} className="border-b border-border/30 hover:bg-secondary/20">
-                      <td className="text-left py-1.5 px-2 text-muted-foreground">{dateStr}</td>
-                      <td className="text-left py-1.5 px-2">
+                      <td className="text-left py-1.5 px-2 text-muted-foreground whitespace-nowrap">{dateStr}</td>
+                      <td className="text-left py-1.5 px-2 whitespace-nowrap">
                         <div className="flex items-center gap-1">
-                          {event.homeAway === "away" ? "@ " : "vs "}
+                          <span className="text-muted-foreground">{isHome ? "vs" : "@"}</span>
                           {oppLogo && <img src={oppLogo} alt="" className="w-3.5 h-3.5 object-contain" />}
-                          <span className="font-medium">{typeof opponent === "string" ? opponent : opponent}</span>
+                          <span className="font-medium">{oppName}</span>
                         </div>
                       </td>
-                      <td className={`text-left py-1.5 px-2 font-semibold ${result === "W" ? "text-green-500" : result === "L" ? "text-destructive" : ""}`}>
+                      <td className={`text-left py-1.5 px-2 font-semibold whitespace-nowrap ${result === "W" ? "text-green-500" : result === "L" ? "text-destructive" : ""}`}>
                         {result} {score}
                       </td>
-                      {stats.slice(0, 8).map((val: string, j: number) => (
+                      {stats.map((val: string, j: number) => (
                         <td key={j} className="py-1.5 px-2 tabular-nums">{val}</td>
                       ))}
                     </tr>
@@ -225,7 +217,7 @@ const PlayerDetail = ({ athleteId, league, onBack }: PlayerDetailProps) => {
         </div>
       )}
 
-      {!seasonStats && gameLogEvents.length === 0 && (
+      {gameSplits.length === 0 && seasonSplits.length === 0 && gameLogEntries.length === 0 && (
         <p className="text-xs text-muted-foreground text-center py-4">No stats available for this player.</p>
       )}
     </div>
