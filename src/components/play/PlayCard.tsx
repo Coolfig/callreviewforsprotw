@@ -26,6 +26,7 @@ interface PlayCardProps {
   videoSource?: VideoSource;
   ruleData?: Omit<RulePanelProps, 'league'>;
   onUnavailable?: () => void;
+  defaultExpanded?: boolean;
 }
 
 const LEAGUE_COLORS: Record<string, string> = {
@@ -51,11 +52,16 @@ const PlayCard = ({
   videoSource = "native",
   ruleData,
   onUnavailable,
+  defaultExpanded = false,
 }: PlayCardProps) => {
   const { user } = useAuth();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [hidden, setHidden] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (defaultExpanded) setIsExpanded(true);
+  }, [defaultExpanded]);
 
   useEffect(() => {
     if (!user) return;
@@ -123,15 +129,20 @@ const PlayCard = ({
             </div>
 
             {/* Video thumbnail */}
-            {(embedUrl || videoUrl) && (
-              <div className="relative w-32 h-20 rounded-xl overflow-hidden shrink-0 bg-secondary border border-border flex items-center justify-center">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center">
-                    <Play className="w-4 h-4 text-foreground ml-0.5" />
+            {(embedUrl || videoUrl) && (() => {
+              const ytMatch = embedUrl?.match(/(?:embed\/|v=)([\w-]+)/);
+              const thumbUrl = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg` : null;
+              return (
+                <div className="relative w-32 h-20 rounded-xl overflow-hidden shrink-0 bg-secondary border border-border flex items-center justify-center">
+                  {thumbUrl && <img src={thumbUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center">
+                      <Play className="w-4 h-4 text-foreground ml-0.5" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Bottom row: stats + CTA */}

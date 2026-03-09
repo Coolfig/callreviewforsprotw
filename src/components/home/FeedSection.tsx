@@ -29,12 +29,21 @@ interface SuggestedUser {
 // Trending sidebar widget
 const trendingVideos = sportsVideos.slice(0, 3);
 
+function getVideoThumbnail(video: typeof sportsVideos[0]): string | null {
+  if (video.videoSource === "youtube" && video.embedUrl) {
+    const match = video.embedUrl.match(/(?:embed\/|v=)([\w-]+)/);
+    if (match) return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+  }
+  return null;
+}
+
 const FeedSection = () => {
   const { user } = useAuth();
   const [activeLeague, setActiveLeague] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedPlayId, setExpandedPlayId] = useState<string | null>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([]);
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
@@ -144,23 +153,25 @@ const FeedSection = () => {
           {/* Main feed */}
           <div className="space-y-6">
             {visible.map((video) => (
-              <PlayCard
-                key={video.id}
-                id={video.id}
-                title={video.title}
-                description={video.description}
-                league={video.league}
-                teams={video.teams}
-                date={video.date}
-                gameContext={video.gameContext}
-                isHot={video.isHot}
-                voteCount={video.voteCount}
-                commentCount={video.commentCount}
-                embedUrl={video.embedUrl}
-                videoUrl={video.videoUrl}
-                videoSource={video.videoSource}
-                ruleData={video.ruleData}
-              />
+              <div key={video.id} id={`play-${video.id}`}>
+                <PlayCard
+                  id={video.id}
+                  title={video.title}
+                  description={video.description}
+                  league={video.league}
+                  teams={video.teams}
+                  date={video.date}
+                  gameContext={video.gameContext}
+                  isHot={video.isHot}
+                  voteCount={video.voteCount}
+                  commentCount={video.commentCount}
+                  embedUrl={video.embedUrl}
+                  videoUrl={video.videoUrl}
+                  videoSource={video.videoSource}
+                  ruleData={video.ruleData}
+                  defaultExpanded={expandedPlayId === video.id}
+                />
+              </div>
             ))}
 
             <div ref={loaderRef} className="flex justify-center py-8">
@@ -178,21 +189,43 @@ const FeedSection = () => {
                 <TrendingUp className="w-4 h-4 text-primary" />
               </div>
               <div className="divide-y divide-border">
-                {trendingVideos.map((v) => (
-                  <div key={v.id} className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer">
-                    <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
-                      <Play className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
-                        <span className="text-xs text-primary hover:underline cursor-pointer">Open</span>
+                {trendingVideos.map((v) => {
+                  const thumb = getVideoThumbnail(v);
+                  return (
+                    <button
+                      key={v.id}
+                      onClick={() => {
+                        setExpandedPlayId(v.id);
+                        setTimeout(() => {
+                          const el = document.getElementById(`play-${v.id}`);
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }, 100);
+                      }}
+                      className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
+                    >
+                      <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden relative">
+                        {thumb ? (
+                          <>
+                            <img src={thumb} alt="" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Play className="w-4 h-4 text-white drop-shadow" />
+                            </div>
+                          </>
+                        ) : (
+                          <Play className="w-4 h-4 text-muted-foreground" />
+                        )}
                       </div>
-                    </div>
-                  </div>
-                ))}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
+                          <span className="text-xs text-primary">Open</span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
               <div className="px-5 py-3">
                 <a
