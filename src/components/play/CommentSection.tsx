@@ -392,6 +392,15 @@ const CommentSection = ({ playId }: { playId: string }) => {
                   Reply
                 </button>
               )}
+              {user && comment.user_id === user.id && (
+                <button
+                  onClick={() => handleDeleteComment(comment.id)}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                  title="Delete comment"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
               {comment.replies.length > 0 && (
                 <button onClick={() => toggleReplies(comment.id)} className="flex items-center gap-1 text-xs text-primary hover:underline">
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedReplies.includes(comment.id) ? "rotate-180" : ""}`} />
