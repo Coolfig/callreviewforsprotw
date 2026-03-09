@@ -259,14 +259,14 @@ const BoxScoreTab = ({ summary, onPlayerClick }: { summary: any; onPlayerClick: 
   );
 };
 
-// Matchup: season series
+// Matchup: season series + standings with highlighted teams
 const MatchupTab = ({ summary, game }: { summary: any; game: Game }) => {
   const standings = summary?.standings || [];
   const seriesHistory = summary?.seasonseries || summary?.header?.competitions?.[0]?.series || null;
+  const highlightIds = [game.homeTeam.id, game.awayTeam.id];
 
   return (
     <div className="space-y-4">
-      {/* Season Series */}
       {seriesHistory && (
         <div>
           <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Season Series</h4>
@@ -278,7 +278,6 @@ const MatchupTab = ({ summary, game }: { summary: any; game: Game }) => {
         </div>
       )}
 
-      {/* Standings */}
       {standings.length > 0 && (
         <div>
           <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Standings</h4>
@@ -294,18 +293,36 @@ const MatchupTab = ({ summary, game }: { summary: any; game: Game }) => {
               </tr>
             </thead>
             <tbody>
-              {standings.map((team: any, i: number) => (
-                <tr key={i} className="border-b border-border/30">
-                  <td className="text-left py-1 px-1 font-medium">{team.team?.abbreviation || team.team?.displayName}</td>
-                  <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "wins")?.displayValue || "—"}</td>
-                  <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "losses")?.displayValue || "—"}</td>
-                  <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "winPercent")?.displayValue || "—"}</td>
-                  <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "gamesBehind")?.displayValue || "—"}</td>
-                  <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "streak")?.displayValue || "—"}</td>
-                </tr>
-              ))}
+              {standings.map((team: any, i: number) => {
+                const teamId = team.team?.id;
+                const isHighlighted = highlightIds.includes(teamId);
+                return (
+                  <tr key={i} className={`border-b border-border/30 ${isHighlighted ? "bg-primary/10 font-bold" : ""}`}>
+                    <td className="text-left py-1 px-1 font-medium">
+                      <div className="flex items-center gap-1">
+                        {team.team?.logos?.[0]?.href && (
+                          <img src={team.team.logos[0].href} alt="" className="w-3.5 h-3.5 object-contain" />
+                        )}
+                        <span className={isHighlighted ? "text-primary" : ""}>
+                          {team.team?.abbreviation || team.team?.displayName}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "wins")?.displayValue || "—"}</td>
+                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "losses")?.displayValue || "—"}</td>
+                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "winPercent")?.displayValue || "—"}</td>
+                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "gamesBehind")?.displayValue || "—"}</td>
+                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "streak")?.displayValue || "—"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          <div className="text-center mt-3">
+            <a href={`/standings/${game.league.toLowerCase()}`} className="text-xs text-primary hover:underline font-semibold">
+              Full Standings
+            </a>
+          </div>
         </div>
       )}
 
