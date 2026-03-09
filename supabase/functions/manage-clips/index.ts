@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -11,10 +11,49 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabase = createClient(
+  // Validate JWT and check admin role
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const anonClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+  if (claimsError || !claimsData?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = claimsData.claims.sub;
+
+  // Check admin role
+  const serviceClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
+
+  const { data: roleCheck } = await serviceClient.rpc("has_role", {
+    _user_id: userId,
+    _role: "admin",
+  });
+
+  if (!roleCheck) {
+    return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   try {
     const { action, ...data } = await req.json();
@@ -22,8 +61,7 @@ serve(async (req) => {
     switch (action) {
       case "upsert_video": {
         const { youtube_url, youtube_id, title } = data;
-        // Try to find existing
-        const { data: existing } = await supabase
+        const { data: existing } = await serviceClient
           .from("videos")
           .select("*")
           .eq("youtube_id", youtube_id)
@@ -33,7 +71,7 @@ serve(async (req) => {
           return new Response(JSON.stringify(existing), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
 
-        const { data: video, error } = await supabase
+        const { data: video, error } = await serviceClient
           .from("videos")
           .insert({ youtube_url, youtube_id, title: title || null })
           .select()
@@ -45,7 +83,7 @@ serve(async (req) => {
 
       case "save_clip": {
         const { video_id, clip_title, start_seconds, end_seconds, notes, tags } = data;
-        const { data: clip, error } = await supabase
+        const { data: clip, error } = await serviceClient
           .from("clips")
           .insert({ video_id, clip_title, start_seconds, end_seconds, notes: notes || null, tags: tags || [] })
           .select()
@@ -57,7 +95,7 @@ serve(async (req) => {
 
       case "update_clip": {
         const { id, clip_title, start_seconds, end_seconds, notes, tags } = data;
-        const { data: clip, error } = await supabase
+        const { data: clip, error } = await serviceClient
           .from("clips")
           .update({ clip_title, start_seconds, end_seconds, notes: notes || null, tags: tags || [] })
           .eq("id", id)
@@ -70,7 +108,7 @@ serve(async (req) => {
 
       case "delete_clip": {
         const { id } = data;
-        const { error } = await supabase.from("clips").delete().eq("id", id);
+        const { error } = await serviceClient.from("clips").delete().eq("id", id);
         if (error) throw error;
         return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
