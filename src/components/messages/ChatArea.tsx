@@ -1,6 +1,7 @@
 import { useState, RefObject } from "react";
 import { ArrowLeft, Send, Users, Smile, Image } from "lucide-react";
 import { Theme } from "emoji-picker-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
