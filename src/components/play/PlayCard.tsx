@@ -52,9 +52,10 @@ const PlayCard = ({
   videoSource = "native",
   ruleData,
   onUnavailable,
+  defaultExpanded = false,
 }: PlayCardProps) => {
   const { user } = useAuth();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [hidden, setHidden] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
