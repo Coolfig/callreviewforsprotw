@@ -60,6 +60,10 @@ const PlayCard = ({
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
+    if (defaultExpanded) setIsExpanded(true);
+  }, [defaultExpanded]);
+
+  useEffect(() => {
     if (!user) return;
     supabase.from("bookmarks").select("id").eq("user_id", user.id).eq("play_id", id).maybeSingle().then(({ data }) => {
       setIsBookmarked(!!data);
