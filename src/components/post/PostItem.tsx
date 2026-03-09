@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Trash2, Share, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Share } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import ShareDialog from "./ShareDialog";
 
 interface PostItemProps {
   id: string;
@@ -89,11 +90,7 @@ const PostItem = ({
     onDelete?.();
   };
 
-  const handleCopyLink = () => {
-    const url = `${window.location.origin}/community`;
-    navigator.clipboard.writeText(url);
-    toast({ title: "Link copied!", description: "Post link copied to clipboard." });
-  };
+  const [shareOpen, setShareOpen] = useState(false);
 
   const youtubeEmbed = video_url ? getYouTubeEmbedUrl(video_url) : null;
   const isDirectVideo = video_url && !youtubeEmbed && (video_url.match(/\.(mp4|webm|mov)$/i) || video_url.startsWith("blob:"));
@@ -160,7 +157,7 @@ const PostItem = ({
             <MessageCircle className="w-3.5 h-3.5" />
             <span>{replies_count}</span>
           </button>
-          <button onClick={handleCopyLink} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
+          <button onClick={() => setShareOpen(true)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
             <Share className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -170,6 +167,13 @@ const PostItem = ({
           </button>
         )}
       </div>
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        postId={id}
+        postContent={content}
+        username={username}
+      />
     </div>
   );
 };
