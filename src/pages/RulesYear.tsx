@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import {
   ChevronRight, Zap, Scale, AlertCircle,
-  FileText, TrendingUp, ArrowLeft, ArrowRight, Tag, StickyNote
+  TrendingUp, ArrowLeft, ArrowRight, Tag
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { SafeExternalLink, isValidExternalUrl } from "@/components/SafeExternalLink";
+import { SafeExternalLink } from "@/components/SafeExternalLink";
 import { getInterpretationNotes } from "@/data/interpretationNotes";
 import { sportsVideos, getSeasonYear } from "@/data/sportsVideos";
 // ── League meta (self-contained, no external deps) ───────────────────────────
@@ -51,17 +51,6 @@ interface RuleYear {
   interpretation_notes: string | null;
 }
 
-interface RuleChange {
-  id: string;
-  title: string;
-  what_changed: string | null;
-  previous_rule: string | null;
-  impact: string | null;
-  source_citation: string | null;
-  source_url: string | null;
-  category_tags: string[];
-  sort_order: number;
-}
 
 interface RelatedReview {
   id: string;
@@ -126,10 +115,8 @@ const RulesYear = () => {
   const meta = leagueKey ? LEAGUE_META[leagueKey] : null;
 
   const [ruleYear, setRuleYear] = useState<RuleYear | null>(null);
-  const [ruleChanges, setRuleChanges] = useState<RuleChange[]>([]);
   const [relatedReviews, setRelatedReviews] = useState<RelatedReview[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedChange, setExpandedChange] = useState<string | null>(null);
 
   useEffect(() => {
     if (!meta || !ALL_YEARS.includes(year)) return;
@@ -145,20 +132,12 @@ const RulesYear = () => {
       setRuleYear(ry ?? null);
       if (!ry) { setLoading(false); return; }
 
-      const [changesRes, reviewsRes] = await Promise.all([
-        supabase
-          .from("rule_changes")
-          .select("id, title, what_changed, previous_rule, impact, source_citation, source_url, category_tags, sort_order")
-          .eq("rule_year_id", ry.id)
-          .order("sort_order"),
-        supabase
-          .from("rule_related_reviews")
-          .select("id, title, url, rule_tags, verdict, teams, review_date, sort_order")
-          .eq("rule_year_id", ry.id)
-          .order("sort_order"),
-      ]);
+      const reviewsRes = await supabase
+        .from("rule_related_reviews")
+        .select("id, title, url, rule_tags, verdict, teams, review_date, sort_order")
+        .eq("rule_year_id", ry.id)
+        .order("sort_order");
 
-      setRuleChanges(changesRes.data ?? []);
       setRelatedReviews(reviewsRes.data ?? []);
       setLoading(false);
     };
@@ -171,10 +150,7 @@ const RulesYear = () => {
   const nextYear = year < 2026 ? year + 1 : null;
   const nearbyYears = ALL_YEARS.filter((y) => y !== year);
 
-  // Collect all unique category tags from this year's changes
-  const allCategoryTags = Array.from(
-    new Set(ruleChanges.flatMap((c) => c.category_tags))
-  ).filter(Boolean);
+  const allCategoryTags: string[] = [];
 
   // ── SEO ─────────────────────────────────────────────────────────────────────
   const h1 = `${meta.short} Rule Changes ${year}`;
@@ -296,138 +272,38 @@ const RulesYear = () => {
 
                 {/* ── Key Rule Changes ── */}
                 <section>
-                  <SectionHeader
-                    icon={<Zap className="w-4 h-4 text-primary" />}
-                    title={`Key Rule Changes (${year})`}
-                    count={ruleChanges.length}
-                  />
-
-                  {loading ? (
-                    <div className="space-y-3">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl p-5 animate-pulse">
-                          <div className="h-4 bg-secondary rounded w-2/3 mb-3" />
-                          <div className="h-3 bg-secondary rounded w-full mb-1.5" />
-                          <div className="h-3 bg-secondary rounded w-4/5" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : ruleChanges.length > 0 ? (
-                    <ul className="space-y-3">
-                      {ruleChanges.map((change, i) => {
-                        const isExpanded = expandedChange === change.id;
-                        const hasDetails = change.previous_rule || change.impact || change.source_citation;
-                        return (
-                          <li key={change.id} className="bg-card border border-border rounded-xl overflow-hidden">
-                            {/* Header row — always visible */}
-                            <div className="flex gap-4 p-5">
-                              <div className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 text-primary-foreground"
-                                style={{ backgroundColor: meta.accent }}>
-                                {i + 1}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm mb-1">{change.title}</p>
-                                {change.what_changed && (
-                                  <p className="text-sm text-foreground/80 leading-relaxed">{change.what_changed}</p>
-                                )}
-                                {/* Category tags */}
-                                {change.category_tags.length > 0 && (
-                                  <div className="flex flex-wrap gap-1.5 mt-2">
-                                    {change.category_tags.map((tag) => (
-                                      <span key={tag}
-                                        className="text-xs bg-secondary/60 text-muted-foreground rounded-full px-2 py-0.5">
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                              {hasDetails && (
-                                <button onClick={() => setExpandedChange(isExpanded ? null : change.id)}
-                                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors mt-0.5">
-                                  <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
-                                </button>
-                              )}
-                            </div>
-
-                            {/* Expanded details */}
-                            {isExpanded && (
-                              <div className="border-t border-border bg-secondary/20 px-5 pb-5 pt-4 space-y-4">
-                                {change.previous_rule && (
-                                  <div>
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                                      Previous Rule
-                                    </p>
-                                    <div className="bg-background/60 border border-border rounded-lg px-4 py-3">
-                                      <p className="text-xs text-muted-foreground leading-relaxed">{change.previous_rule}</p>
-                                    </div>
-                                  </div>
-                                )}
-                                {change.impact && (
-                                  <div>
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                                      Impact
-                                    </p>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">{change.impact}</p>
-                                  </div>
-                                )}
-                                {(change.source_citation || isValidExternalUrl(change.source_url)) && (
-                                  <div className="flex items-center gap-2 pt-1 border-t border-border">
-                                    <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                    {change.source_citation && (
-                                      <span className="text-xs text-muted-foreground">{change.source_citation}</span>
-                                    )}
-                                    {isValidExternalUrl(change.source_url) && (
-                                      <SafeExternalLink url={change.source_url}
-                                        className="text-xs text-primary hover:underline ml-auto shrink-0">
-                                        Source →
-                                      </SafeExternalLink>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    <PlaceholderCard
-                      message={`No rule changes curated yet for ${meta.short} ${year}.`}
-                      sub={
-                        <SafeExternalLink url={meta.ruleChangesUrl}
-                          className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-                          Check official {meta.short} rule changes →
-                        </SafeExternalLink>
-                      }
-                    />
-                  )}
-                </section>
-
-                {/* ── Interpretation Notes ── */}
-                <section>
-                  <SectionHeader icon={<StickyNote className="w-4 h-4 text-primary" />} title="Officiating Interpretation Notes" />
                   {(() => {
-                    const notes = getInterpretationNotes(meta.short, year);
-                    if (notes.length > 0) {
-                      return (
-                        <div className="bg-card border border-border rounded-xl p-5">
-                          <ul className="space-y-3">
-                            {notes.map((note, i) => (
-                              <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
-                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                                <span>{note}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    }
+                    const bullets = getInterpretationNotes(meta.short, year);
                     return (
-                      <PlaceholderCard
-                        message={`Interpretation notes for ${meta.short} ${year} are pending.`}
-                        sub={<span className="text-xs text-muted-foreground">Notes on how officials applied the rules this season will appear here.</span>}
-                      />
+                      <>
+                        <SectionHeader
+                          icon={<Zap className="w-4 h-4 text-primary" />}
+                          title={`Key Rule Changes (${year})`}
+                          count={bullets.length}
+                        />
+                        {bullets.length > 0 ? (
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <ul className="space-y-3">
+                              {bullets.map((bullet, i) => (
+                                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                                  <span>{bullet}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : (
+                          <PlaceholderCard
+                            message={`No rule changes curated yet for ${meta.short} ${year}.`}
+                            sub={
+                              <SafeExternalLink url={meta.ruleChangesUrl}
+                                className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                                Check official {meta.short} rule changes →
+                              </SafeExternalLink>
+                            }
+                          />
+                        )}
+                      </>
                     );
                   })()}
                 </section>
