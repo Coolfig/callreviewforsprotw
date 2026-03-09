@@ -161,10 +161,7 @@ const RulesYear = () => {
   const nextYear = year < 2026 ? year + 1 : null;
   const nearbyYears = ALL_YEARS.filter((y) => y !== year);
 
-  // Collect all unique category tags from this year's changes
-  const allCategoryTags = Array.from(
-    new Set(ruleChanges.flatMap((c) => c.category_tags))
-  ).filter(Boolean);
+  const allCategoryTags: string[] = [];
 
   // ── SEO ─────────────────────────────────────────────────────────────────────
   const h1 = `${meta.short} Rule Changes ${year}`;
