@@ -28,6 +28,7 @@ import SearchPage from "./pages/SearchPage";
 import Bookmarks from "./pages/Bookmarks";
 import Standings from "./pages/Standings";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
