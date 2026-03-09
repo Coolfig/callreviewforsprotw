@@ -93,7 +93,13 @@ const LiveScoresTicker = () => {
         headers: { Authorization: `Bearer ${anonKey}`, apikey: anonKey },
       });
       const json = await res.json();
-      setGames(parseGames(json, league));
+      const parsed = parseGames(json, league);
+      // Sort: live games first, then pre-game, then final
+      parsed.sort((a, b) => {
+        const order = (g: Game) => g.status.type.state === "in" ? 0 : g.status.type.state === "pre" ? 1 : 2;
+        return order(a) - order(b);
+      });
+      setGames(parsed);
     } catch (e) {
       console.error("Failed to fetch scores:", e);
       setGames([]);
