@@ -26,6 +26,7 @@ import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import SearchPage from "./pages/SearchPage";
 import Bookmarks from "./pages/Bookmarks";
+import Standings from "./pages/Standings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
+            <Route path="/standings/:league" element={<Standings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

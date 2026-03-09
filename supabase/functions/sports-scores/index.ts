@@ -41,10 +41,12 @@ serve(async (req) => {
       apiUrl = `${ESPN_BASE}/${sport}/scoreboard`;
     } else if (type === 'summary' && gameId) {
       apiUrl = `${ESPN_BASE}/${sport}/summary?event=${gameId}`;
-    } else if (type === 'athlete' && athleteId) {
-      // Fetch athlete overview (season stats, bio, recent games)
-      const sportSegment = sport.split('/')[0]; // e.g. "basketball"
+    } else if (type === 'standings') {
       const leagueSegment = sport.split('/')[1]; // e.g. "nba"
+      apiUrl = `https://site.web.api.espn.com/apis/v2/sports/${sport}/standings?season=${url.searchParams.get('season') || new Date().getFullYear()}&type=0`;
+    } else if (type === 'athlete' && athleteId) {
+      const sportSegment = sport.split('/')[0];
+      const leagueSegment = sport.split('/')[1];
       apiUrl = `https://site.web.api.espn.com/apis/common/v3/sports/${sportSegment}/${leagueSegment}/athletes/${athleteId}/overview`;
     } else {
       apiUrl = `${ESPN_BASE}/${sport}/scoreboard`;
