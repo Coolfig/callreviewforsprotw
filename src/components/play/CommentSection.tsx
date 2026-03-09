@@ -264,6 +264,55 @@ const CommentSection = ({ playId }: { playId: string }) => {
     setReplyShowEmoji(false);
   };
 
+  // GIF picker state
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState("");
+  const [gifResults, setGifResults] = useState<any[]>([]);
+  const [gifLoading, setGifLoading] = useState(false);
+  const [selectedGifUrl, setSelectedGifUrl] = useState<string | null>(null);
+
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) { setGifResults([]); return; }
+    setGifLoading(true);
+    try {
+      const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch (e) {
+      console.error("GIF search failed:", e);
+    } finally {
+      setGifLoading(false);
+    }
+  };
+
+  const fetchTrendingGifs = async () => {
+    setGifLoading(true);
+    try {
+      const url = `https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch (e) {
+      console.error("GIF fetch failed:", e);
+    } finally {
+      setGifLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!user) return;
+    const confirmed = window.confirm("Delete this comment?");
+    if (!confirmed) return;
+    const { error } = await supabase.from("comments").delete().eq("id", commentId).eq("user_id", user.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete comment.", variant: "destructive" });
+    } else {
+      toast({ title: "Comment deleted" });
+      fetchComments(0);
+    }
+  };
+
   const sorted = [...comments].sort((a, b) => {
     if (sortMode === "top") return b.score - a.score;
     if (sortMode === "debated") return b.replies.length - a.replies.length;
