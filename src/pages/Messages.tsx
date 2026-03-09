@@ -33,6 +33,7 @@ interface Message {
 const Messages = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvo, setActiveConvo] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
