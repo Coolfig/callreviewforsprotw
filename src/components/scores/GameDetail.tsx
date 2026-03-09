@@ -179,7 +179,14 @@ const GamecastTab = ({ summary, game, onPlayerClick }: { summary: any; game: Gam
                   if (!topPlayer) return null;
                   const headshotUrl = topPlayer.athlete?.headshot?.href || topPlayer.athlete?.headshot || topPlayer.headshot?.href || topPlayer.headshot;
                   return (
-                    <div key={j} className="flex items-center gap-2 mb-1">
+                    <button
+                      key={j}
+                      onClick={() => {
+                        const id = topPlayer.athlete?.id || topPlayer.athlete?.playerId;
+                        if (id) onPlayerClick(String(id));
+                      }}
+                      className="flex items-center gap-2 mb-1 hover:bg-secondary/50 rounded px-1 py-0.5 transition-colors cursor-pointer w-full text-left"
+                    >
                       {headshotUrl ? (
                         <img src={headshotUrl} alt="" className="w-6 h-6 rounded-full object-cover bg-secondary" />
                       ) : (
@@ -189,7 +196,7 @@ const GamecastTab = ({ summary, game, onPlayerClick }: { summary: any; game: Gam
                         <p className="text-[10px] font-medium">{topPlayer.athlete?.displayName || topPlayer.athlete?.shortName || "—"}</p>
                         <p className="text-[9px] text-muted-foreground">{cat.shortDisplayName || cat.displayName}: {topPlayer.displayValue}</p>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
