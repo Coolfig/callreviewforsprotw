@@ -261,75 +261,125 @@ const BoxScoreTab = ({ summary, onPlayerClick }: { summary: any; onPlayerClick: 
 };
 
 // Matchup: season series + standings with highlighted teams
-const MatchupTab = ({ summary, game }: { summary: any; game: Game }) => {
-  const standings = summary?.standings || [];
-  const seriesHistory = summary?.seasonseries || summary?.header?.competitions?.[0]?.series || null;
+const StandingsTab = ({ game }: { game: Game }) => {
+  const [standingsData, setStandingsData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
   const highlightIds = [game.homeTeam.id, game.awayTeam.id];
+
+  useEffect(() => {
+    const fetchStandings = async () => {
+      setLoading(true);
+      try {
+        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const url = `https://${projectId}.supabase.co/functions/v1/sports-scores?league=${game.league.toLowerCase()}&type=standings`;
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${anonKey}`, apikey: anonKey },
+        });
+        const json = await res.json();
+        setStandingsData(json);
+      } catch (e) {
+        console.error("Failed to fetch standings:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStandings();
+  }, [game.league]);
+
+  const getStat = (stats: any[], name: string) => {
+    return stats?.find((s: any) => s.name === name || s.abbreviation === name)?.displayValue || "—";
+  };
+
+  const getStatValue = (stats: any[], name: string) => {
+    return stats?.find((s: any) => s.name === name)?.value ?? 0;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const conferences = standingsData?.children || [];
+
+  if (conferences.length === 0) {
+    return <p className="text-xs text-muted-foreground text-center py-4">Standings data not available.</p>;
+  }
 
   return (
     <div className="space-y-4">
-      {seriesHistory && (
-        <div>
-          <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Season Series</h4>
-          <div className="bg-secondary/30 rounded-lg p-3 text-center">
-            <p className="text-xs text-muted-foreground">
-              {seriesHistory.summary || `${game.awayTeam.abbreviation} vs ${game.homeTeam.abbreviation}`}
-            </p>
-          </div>
-        </div>
-      )}
+      {conferences.map((conference: any, ci: number) => {
+        const entries = (conference.standings?.entries || [])
+          .sort((a: any, b: any) => getStatValue(b.stats, "winPercent") - getStatValue(a.stats, "winPercent"));
 
-      {standings.length > 0 && (
-        <div>
-          <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Standings</h4>
-          <table className="w-full text-[11px]">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-1 px-1 text-muted-foreground font-semibold">Team</th>
-                <th className="py-1 px-1 text-muted-foreground font-semibold">W</th>
-                <th className="py-1 px-1 text-muted-foreground font-semibold">L</th>
-                <th className="py-1 px-1 text-muted-foreground font-semibold">PCT</th>
-                <th className="py-1 px-1 text-muted-foreground font-semibold">GB</th>
-                <th className="py-1 px-1 text-muted-foreground font-semibold">STRK</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((team: any, i: number) => {
-                const teamId = team.team?.id;
-                const isHighlighted = highlightIds.includes(teamId);
-                return (
-                  <tr key={i} className={`border-b border-border/30 ${isHighlighted ? "bg-primary/10 font-bold" : ""}`}>
-                    <td className="text-left py-1 px-1 font-medium">
-                      <div className="flex items-center gap-1">
-                        {team.team?.logos?.[0]?.href && (
-                          <img src={team.team.logos[0].href} alt="" className="w-3.5 h-3.5 object-contain" />
-                        )}
-                        <span className={isHighlighted ? "text-primary" : ""}>
-                          {team.team?.abbreviation || team.team?.displayName}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "wins")?.displayValue || "—"}</td>
-                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "losses")?.displayValue || "—"}</td>
-                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "winPercent")?.displayValue || "—"}</td>
-                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "gamesBehind")?.displayValue || "—"}</td>
-                    <td className="py-1 px-1 tabular-nums">{team.stats?.find((s: any) => s.name === "streak")?.displayValue || "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="text-center mt-3">
-            <a href={`/standings/${game.league.toLowerCase()}`} className="text-xs text-primary hover:underline font-semibold">
-              Full Standings
-            </a>
-          </div>
-        </div>
-      )}
+        return (
+          <div key={ci}>
+            <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-2">
+              {conference.name || `Conference ${ci + 1}`}
+            </h4>
+            <table className="w-full text-[11px]">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-1 px-1 text-muted-foreground font-semibold w-5">#</th>
+                  <th className="text-left py-1 px-1 text-muted-foreground font-semibold">Team</th>
+                  <th className="py-1 px-1 text-muted-foreground font-semibold">W</th>
+                  <th className="py-1 px-1 text-muted-foreground font-semibold">L</th>
+                  <th className="py-1 px-1 text-muted-foreground font-semibold">PCT</th>
+                  <th className="py-1 px-1 text-muted-foreground font-semibold">GB</th>
+                  <th className="py-1 px-1 text-muted-foreground font-semibold">STRK</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((entry: any, i: number) => {
+                  const team = entry.team || {};
+                  const stats = entry.stats || [];
+                  const teamId = String(team.id);
+                  const isHighlighted = highlightIds.includes(teamId);
 
-      {!seriesHistory && standings.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-4">Matchup data not available.</p>
-      )}
+                  return (
+                    <tr
+                      key={team.id || i}
+                      className={`border-b border-border/30 ${isHighlighted ? "bg-primary/10" : ""} ${
+                        i === 5 || i === 9 ? "border-b-2 border-border" : ""
+                      }`}
+                    >
+                      <td className="py-1 px-1 text-muted-foreground tabular-nums text-center">{i + 1}</td>
+                      <td className="text-left py-1 px-1">
+                        <div className="flex items-center gap-1">
+                          {team.logos?.[0]?.href && (
+                            <img src={team.logos[0].href} alt="" className="w-3.5 h-3.5 object-contain" />
+                          )}
+                          <span className={`font-medium ${isHighlighted ? "text-primary font-bold" : ""}`}>
+                            {team.abbreviation || team.displayName}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-1 px-1 tabular-nums text-center">{getStat(stats, "wins")}</td>
+                      <td className="py-1 px-1 tabular-nums text-center">{getStat(stats, "losses")}</td>
+                      <td className="py-1 px-1 tabular-nums text-center font-semibold">{getStat(stats, "winPercent")}</td>
+                      <td className="py-1 px-1 tabular-nums text-center text-primary">{getStat(stats, "gamesBehind")}</td>
+                      <td className="py-1 px-1 tabular-nums text-center">{getStat(stats, "streak")}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
+      <div className="text-center pt-1">
+        <button
+          onClick={() => navigate(`/standings/${game.league.toLowerCase()}`)}
+          className="text-xs text-primary hover:underline font-semibold"
+        >
+          Full Standings
+        </button>
+      </div>
     </div>
   );
 };
