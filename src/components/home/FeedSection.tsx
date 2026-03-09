@@ -29,6 +29,14 @@ interface SuggestedUser {
 // Trending sidebar widget
 const trendingVideos = sportsVideos.slice(0, 3);
 
+function getVideoThumbnail(video: typeof sportsVideos[0]): string | null {
+  if (video.videoSource === "youtube" && video.embedUrl) {
+    const match = video.embedUrl.match(/(?:embed\/|v=)([\w-]+)/);
+    if (match) return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+  }
+  return null;
+}
+
 const FeedSection = () => {
   const { user } = useAuth();
   const [activeLeague, setActiveLeague] = useState("All");
