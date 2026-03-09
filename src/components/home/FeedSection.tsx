@@ -214,11 +214,11 @@ const FeedSection = () => {
                       }}
                       className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
                     >
-                      <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-14 h-14 shrink-0 flex items-center justify-center">
                         <img
                           src={LEAGUE_BALL[v.league] || ballFootball}
                           alt={v.league}
-                          className="w-10 h-10 object-contain"
+                          className="w-12 h-12 object-contain drop-shadow-md"
                         />
                       </div>
                       <div className="min-w-0">
