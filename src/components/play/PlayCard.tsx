@@ -131,7 +131,7 @@ const PlayCard = ({
             <span className="ml-auto text-xs text-muted-foreground">{date}</span>
           </div>
 
-          <div className={`flex gap-4 ${(embedUrl || videoUrl) ? 'items-start' : ''}`}>
+          <div className={`flex gap-4 ${(embedUrl || videoUrl) ? 'items-center' : ''}`}>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold leading-tight mb-2 group-hover:text-primary transition-colors line-clamp-2">
                 {title}
