@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Send, Search, X, Check, Loader2 } from "lucide-react";
+import { Link2, Send, Search, X, Check, Loader2, Share2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
