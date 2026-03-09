@@ -167,6 +167,13 @@ const PostItem = ({
           </button>
         )}
       </div>
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        postId={id}
+        postContent={content}
+        username={username}
+      />
     </div>
   );
 };
