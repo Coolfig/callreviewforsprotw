@@ -101,6 +101,14 @@ const Messages = () => {
 
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
+  // Auto-select conversation from URL query param
+  useEffect(() => {
+    const convoParam = searchParams.get("convo");
+    if (convoParam && !activeConvo) {
+      setActiveConvo(convoParam);
+    }
+  }, [searchParams, activeConvo]);
+
   // Realtime messages
   useEffect(() => {
     if (!activeConvo) return;
