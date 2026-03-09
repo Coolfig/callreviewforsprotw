@@ -214,17 +214,12 @@ const FeedSection = () => {
                       }}
                       className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
                     >
-                      <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden relative">
-                        {thumb ? (
-                          <>
-                            <img src={thumb} alt="" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Play className="w-4 h-4 text-white drop-shadow" />
-                            </div>
-                          </>
-                        ) : (
-                          <Play className="w-4 h-4 text-muted-foreground" />
-                        )}
+                      <div className="w-16 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                        <img
+                          src={LEAGUE_BALL[v.league] || ballFootball}
+                          alt={v.league}
+                          className="w-10 h-10 object-contain"
+                        />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
