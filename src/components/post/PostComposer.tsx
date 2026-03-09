@@ -25,6 +25,30 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState("");
+  const [gifResults, setGifResults] = useState<any[]>([]);
+  const [gifLoading, setGifLoading] = useState(false);
+  const [selectedGifUrl, setSelectedGifUrl] = useState<string | null>(null);
+
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) { setGifResults([]); return; }
+    setGifLoading(true);
+    try {
+      const res = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch { /* ignore */ } finally { setGifLoading(false); }
+  };
+
+  const fetchTrendingGifs = async () => {
+    setGifLoading(true);
+    try {
+      const res = await fetch(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch { /* ignore */ } finally { setGifLoading(false); }
+  };
 
   useEffect(() => {
     const el = textareaRef.current;
