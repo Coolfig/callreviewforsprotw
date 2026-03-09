@@ -199,10 +199,63 @@ const Profile = () => {
                   Edit Profile
                 </Button>
               ) : user ? (
-                <Button variant={isFollowing ? "outline" : "default"} size="sm" className="rounded-lg gap-2" onClick={handleFollow}>
-                  <UserPlus className="w-3.5 h-3.5" />
-                  {isFollowing ? "Following" : "Follow"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-lg"
+                    onClick={async () => {
+                      if (!profile) return;
+                      // Find existing 1-on-1 conversation or create one
+                      const { data: myConvos } = await supabase
+                        .from("conversation_members")
+                        .select("conversation_id")
+                        .eq("user_id", user.id);
+                      const myConvoIds = (myConvos || []).map(c => c.conversation_id);
+                      let convoId: string | null = null;
+                      if (myConvoIds.length > 0) {
+                        const { data: sharedConvos } = await supabase
+                          .from("conversation_members")
+                          .select("conversation_id")
+                          .eq("user_id", profile.user_id)
+                          .in("conversation_id", myConvoIds);
+                        if (sharedConvos) {
+                          for (const sc of sharedConvos) {
+                            const { data: convo } = await supabase
+                              .from("conversations")
+                              .select("id, is_group")
+                              .eq("id", sc.conversation_id)
+                              .eq("is_group", false)
+                              .single();
+                            if (convo) { convoId = convo.id; break; }
+                          }
+                        }
+                      }
+                      if (!convoId) {
+                        const { data: newConvo } = await supabase
+                          .from("conversations")
+                          .insert({ created_by: user.id, is_group: false })
+                          .select("id")
+                          .single();
+                        if (newConvo) {
+                          convoId = newConvo.id;
+                          await supabase.from("conversation_members").insert([
+                            { conversation_id: convoId, user_id: user.id },
+                            { conversation_id: convoId, user_id: profile.user_id },
+                          ]);
+                        }
+                      }
+                      if (convoId) navigate(`/messages?convo=${convoId}`);
+                    }}
+                    title="Message"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </Button>
+                  <Button variant={isFollowing ? "outline" : "default"} size="sm" className="rounded-lg gap-2" onClick={handleFollow}>
+                    <UserPlus className="w-3.5 h-3.5" />
+                    {isFollowing ? "Following" : "Follow"}
+                  </Button>
+                </div>
               ) : null}
             </div>
 
