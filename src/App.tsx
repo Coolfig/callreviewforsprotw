@@ -26,6 +26,7 @@ import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import SearchPage from "./pages/SearchPage";
 import Bookmarks from "./pages/Bookmarks";
+import Standings from "./pages/Standings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
