@@ -205,68 +205,48 @@ const Profile = () => {
                     variant="outline"
                     size="sm"
                     className="rounded-lg"
+                    disabled={startingChat}
                     onClick={async () => {
-                      if (!profile) return;
+                      if (!profile || startingChat) return;
+                      setStartingChat(true);
                       try {
-                        // Find existing 1-on-1 conversation
-                        const { data: myConvos } = await supabase
-                          .from("conversation_members")
-                          .select("conversation_id")
-                          .eq("user_id", user.id);
-                        const myConvoIds = (myConvos || []).map(c => c.conversation_id);
-                        let convoId: string | null = null;
+                        // Create a new conversation directly
+                        const { data: newConvo, error: convoErr } = await supabase
+                          .from("conversations")
+                          .insert({ created_by: user.id, is_group: false })
+                          .select("id")
+                          .single();
 
-                        if (myConvoIds.length > 0) {
-                          // For each of my conversations, check if the target user is also a member
-                          for (const cid of myConvoIds) {
-                            const { data: convo } = await supabase
-                              .from("conversations")
-                              .select("id, is_group")
-                              .eq("id", cid)
-                              .eq("is_group", false)
-                              .single();
-                            if (!convo) continue;
-                            const { data: members } = await supabase
-                              .from("conversation_members")
-                              .select("user_id")
-                              .eq("conversation_id", cid);
-                            const memberIds = members?.map(m => m.user_id) || [];
-                            if (memberIds.includes(profile.user_id)) {
-                              convoId = cid;
-                              break;
-                            }
-                          }
+                        if (convoErr || !newConvo) {
+                          console.error("Create convo error:", convoErr);
+                          toast({ title: "Error", description: "Could not start chat. Please try again.", variant: "destructive" });
+                          setStartingChat(false);
+                          return;
                         }
 
-                        if (!convoId) {
-                          const { data: newConvo, error: convoErr } = await supabase
-                            .from("conversations")
-                            .insert({ created_by: user.id, is_group: false })
-                            .select("id")
-                            .single();
-                          console.log("Create convo result:", newConvo, convoErr);
-                          if (newConvo) {
-                            convoId = newConvo.id;
-                            const { error: memberErr } = await supabase.from("conversation_members").insert([
-                              { conversation_id: convoId, user_id: user.id },
-                              { conversation_id: convoId, user_id: profile.user_id },
-                            ]);
-                            console.log("Insert members error:", memberErr);
-                          }
+                        const { error: memberErr } = await supabase.from("conversation_members").insert([
+                          { conversation_id: newConvo.id, user_id: user.id },
+                          { conversation_id: newConvo.id, user_id: profile.user_id },
+                        ]);
+
+                        if (memberErr) {
+                          console.error("Insert members error:", memberErr);
+                          toast({ title: "Error", description: "Could not add members. Please try again.", variant: "destructive" });
+                          setStartingChat(false);
+                          return;
                         }
 
-                        if (convoId) {
-                          navigate(`/messages?convo=${convoId}`);
-                        } else {
-                          console.error("Failed to create or find conversation");
-                        }
+                        navigate(`/messages?convo=${newConvo.id}`);
                       } catch (err) {
                         console.error("Message button error:", err);
+                        toast({ title: "Error", description: "Something went wrong.", variant: "destructive" });
+                      } finally {
+                        setStartingChat(false);
                       }
                     }}
                     title="Message"
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    {startingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
                   </Button>
                   <Button variant={isFollowing ? "outline" : "default"} size="sm" className="rounded-lg gap-2" onClick={handleFollow}>
                     <UserPlus className="w-3.5 h-3.5" />
