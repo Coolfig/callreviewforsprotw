@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Search, LogOut, User, Bell, MessageSquare, Settings, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useNotifications } from "@/hooks/useNotifications";
+import { timeAgo } from "@/lib/utils/timeAgo";
 import refereeLogo from "@/assets/referee-logo.png";
 
 const Header = () => {
@@ -11,9 +12,8 @@ const Header = () => {
   const { user, username, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const { notifications, unreadCount, markAllRead, markOneRead } = useNotifications(user?.id);
 
   const navLinks = [
     { name: "Feed", href: "/feed" },
@@ -23,50 +23,9 @@ const Header = () => {
     { name: "About", href: "/about" },
   ];
 
-  // Fetch notifications
-  useEffect(() => {
-    if (!user) return;
-    const fetchNotifs = async () => {
-      const { data } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (data) {
-        setNotifications(data);
-        setUnreadNotifications(data.filter((n: any) => !n.is_read).length);
-      }
-    };
-    fetchNotifs();
-
-    const channel = supabase
-      .channel("notifications-header")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => fetchNotifs())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user]);
-
-  const markAllRead = async () => {
-    if (!user) return;
-    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false);
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-    setUnreadNotifications(0);
-  };
-
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
-  };
-
-  const timeAgo = (d: string) => {
-    const diff = Date.now() - new Date(d).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "now";
-    if (mins < 60) return `${mins}m`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h`;
-    return `${Math.floor(hrs / 24)}d`;
   };
 
   return (
@@ -125,9 +84,9 @@ const Header = () => {
                 <div className="relative">
                   <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setShowNotifications(!showNotifications)}>
                     <Bell className="w-5 h-5" />
-                    {unreadNotifications > 0 && (
+                    {unreadCount > 0 && (
                       <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-                        {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                        {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
                   </Button>
@@ -136,7 +95,7 @@ const Header = () => {
                     <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                         <span className="text-sm font-bold">Notifications</span>
-                        {unreadNotifications > 0 && (
+                        {unreadCount > 0 && (
                           <button onClick={markAllRead} className="text-xs text-primary hover:underline">Mark all read</button>
                         )}
                       </div>
@@ -150,9 +109,7 @@ const Header = () => {
                               onClick={() => {
                                 if (n.link) navigate(n.link);
                                 setShowNotifications(false);
-                                if (!n.is_read) {
-                                  supabase.from("notifications").update({ is_read: true }).eq("id", n.id).then();
-                                }
+                                if (!n.is_read) markOneRead(n.id);
                               }}
                               className={`w-full text-left px-4 py-3 hover:bg-secondary/30 transition-colors border-b border-border/30 ${!n.is_read ? "bg-primary/5" : ""}`}
                             >
