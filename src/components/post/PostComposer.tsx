@@ -98,13 +98,15 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   };
 
   const handlePost = async () => {
-    if (!user || (!content.trim() && !imageFile && !videoFile && !linkUrl.trim())) return;
+    if (!user || (!content.trim() && !imageFile && !videoFile && !linkUrl.trim() && !selectedGifUrl)) return;
     setPosting(true);
 
     let imageUrl: string | null = null;
     let videoUrl: string | null = null;
 
-    if (imageFile) {
+    if (selectedGifUrl) {
+      imageUrl = selectedGifUrl;
+    } else if (imageFile) {
       const ext = imageFile.name.split(".").pop();
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("post-media").upload(path, imageFile);
@@ -124,7 +126,6 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
       }
     }
 
-    // If user pasted a link, store as video_url (for embeds) or image_url
     if (linkUrl.trim() && !imageUrl && !videoUrl) {
       const url = linkUrl.trim();
       if (url.match(/\.(mp4|webm|mov)$/i) || url.includes("youtube.com") || url.includes("youtu.be")) {
@@ -132,7 +133,7 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
       } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         imageUrl = url;
       } else {
-        videoUrl = url; // default to video/embed
+        videoUrl = url;
       }
     }
 
@@ -148,6 +149,7 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
     setImageFile(null); setImagePreview(null);
     setVideoFile(null); setVideoPreview(null);
     setLinkUrl(""); setShowLinkInput(false);
+    setSelectedGifUrl(null); setShowGifPicker(false);
     setPosting(false);
     onPostCreated?.();
   };
