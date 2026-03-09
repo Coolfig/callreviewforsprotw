@@ -80,15 +80,17 @@ const PostFeed = () => {
 
   return (
     <div>
-      <PostComposer onPostCreated={fetchPosts} />
+      <div className="bg-card rounded-xl border border-border/50 mb-4 overflow-hidden">
+        <PostComposer onPostCreated={fetchPosts} />
+      </div>
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
+        <div className="text-center py-16 bg-card rounded-xl border border-border/50">
           <p className="font-semibold text-foreground">No posts yet</p>
-          <p className="text-sm mt-1">Be the first to share your take!</p>
+          <p className="text-sm mt-1 text-muted-foreground">Be the first to share your take!</p>
         </div>
       ) : (
         posts.map((post) => (
