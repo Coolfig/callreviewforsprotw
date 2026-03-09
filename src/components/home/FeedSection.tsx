@@ -194,11 +194,11 @@ const FeedSection = () => {
                     <button
                       key={v.id}
                       onClick={() => {
-                        const el = document.getElementById(`play-${v.id}`);
-                        if (el) {
-                          el.scrollIntoView({ behavior: "smooth", block: "center" });
-                          el.click();
-                        }
+                        setExpandedPlayId(v.id);
+                        setTimeout(() => {
+                          const el = document.getElementById(`play-${v.id}`);
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }, 100);
                       }}
                       className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
                     >
