@@ -37,14 +37,13 @@ const ConversationSidebar = ({
       </Button>
     </div>
 
-    {showNewChat && (
-      <NewChatPanel
-        userId={userId}
-        onCancel={onCancelNewChat}
-        onCreated={onConvoCreated}
-        createConversation={createConversation}
-      />
-    )}
+    <NewChatPanel
+      userId={userId}
+      open={showNewChat}
+      onClose={onCancelNewChat}
+      onCreated={onConvoCreated}
+      createConversation={createConversation}
+    />
 
     <div className="flex-1 overflow-y-auto">
       {conversations.map(c => (
