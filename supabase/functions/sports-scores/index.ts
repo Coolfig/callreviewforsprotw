@@ -35,11 +35,17 @@ serve(async (req) => {
     }
 
     let apiUrl: string;
+    const athleteId = url.searchParams.get('athleteId');
 
     if (type === 'scoreboard') {
       apiUrl = `${ESPN_BASE}/${sport}/scoreboard`;
     } else if (type === 'summary' && gameId) {
       apiUrl = `${ESPN_BASE}/${sport}/summary?event=${gameId}`;
+    } else if (type === 'athlete' && athleteId) {
+      // Fetch athlete overview (season stats, bio, recent games)
+      const sportSegment = sport.split('/')[0]; // e.g. "basketball"
+      const leagueSegment = sport.split('/')[1]; // e.g. "nba"
+      apiUrl = `https://site.web.api.espn.com/apis/common/v3/sports/${sportSegment}/${leagueSegment}/athletes/${athleteId}/overview`;
     } else {
       apiUrl = `${ESPN_BASE}/${sport}/scoreboard`;
     }
