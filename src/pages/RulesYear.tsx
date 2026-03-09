@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import {
-  ChevronRight, Zap, Scale, BookOpen, AlertCircle,
+  ChevronRight, Zap, Scale, AlertCircle,
   FileText, TrendingUp, ArrowLeft, ArrowRight, Tag, StickyNote
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { SafeExternalLink, isValidExternalUrl } from "@/components/SafeExternalLink";
-
+import { getInterpretationNotes } from "@/data/interpretationNotes";
+import { sportsVideos, getSeasonYear } from "@/data/sportsVideos";
 // ── League meta (self-contained, no external deps) ───────────────────────────
 const LEAGUE_META: Record<string, {
   name: string; short: string; emoji: string;
@@ -406,113 +407,83 @@ const RulesYear = () => {
                 {/* ── Interpretation Notes ── */}
                 <section>
                   <SectionHeader icon={<StickyNote className="w-4 h-4 text-primary" />} title="Officiating Interpretation Notes" />
-                  {loading ? (
-                    <div className="bg-card border border-border rounded-xl p-5 animate-pulse h-24" />
-                  ) : ruleYear?.interpretation_notes &&
-                    !ruleYear.interpretation_notes.startsWith("Officiating notes for") ? (
-                    <div className="bg-card border border-border rounded-xl p-5">
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {ruleYear.interpretation_notes}
-                      </p>
-                    </div>
-                  ) : (
-                    <PlaceholderCard
-                      message={`Interpretation notes for ${meta.short} ${year} are pending.`}
-                      sub={<span className="text-xs text-muted-foreground">Notes on how officials applied the rules this season will appear here.</span>}
-                    />
-                  )}
+                  {(() => {
+                    const notes = getInterpretationNotes(meta.short, year);
+                    if (notes.length > 0) {
+                      return (
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <ul className="space-y-3">
+                            {notes.map((note, i) => (
+                              <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                                <span>{note}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    }
+                    return (
+                      <PlaceholderCard
+                        message={`Interpretation notes for ${meta.short} ${year} are pending.`}
+                        sub={<span className="text-xs text-muted-foreground">Notes on how officials applied the rules this season will appear here.</span>}
+                      />
+                    );
+                  })()}
                 </section>
 
-                {/* ── Related Call Reviews ── */}
+                {/* ── Related Calls ── */}
                 <section>
-                  <SectionHeader
-                    icon={<Scale className="w-4 h-4 text-primary" />}
-                    title="Related Call Reviews"
-                    count={relatedReviews.length}
-                  />
-                  {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[1, 2].map((i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl h-32 animate-pulse" />
-                      ))}
-                    </div>
-                  ) : relatedReviews.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {relatedReviews.map((review) => {
-                        const vs = VERDICT_STYLES[review.verdict] ?? VERDICT_STYLES.Questionable;
-                        return (
-                          <Link key={review.id} to={review.url}
-                            className="bg-card border border-border hover:border-primary/40 rounded-xl p-4 group transition-all block">
-                            <div className="flex items-start justify-between gap-3 mb-3">
-                              <p className="font-semibold text-sm group-hover:text-primary transition-colors leading-snug">
-                                {review.title}
-                              </p>
-                              <span className="text-xs border rounded-full px-2.5 py-0.5 shrink-0 font-medium"
-                                style={{ backgroundColor: vs.bg, color: vs.text, borderColor: vs.border }}>
-                                {review.verdict}
-                              </span>
-                            </div>
-                            {(review.teams || review.review_date) && (
-                              <p className="text-xs text-muted-foreground mb-3">
-                                {review.teams}{review.teams && review.review_date ? " · " : ""}{review.review_date}
-                              </p>
-                            )}
-                            <div className="flex flex-wrap gap-1.5">
-                              {review.rule_tags.map((tag) => (
-                                <span key={tag}
-                                  className="text-xs bg-secondary/60 text-muted-foreground rounded-full px-2 py-0.5">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <PlaceholderCard
-                      message={`No reviews linked yet for ${meta.short} ${year}.`}
-                      sub={
-                        <Link to="/feed" className="text-xs text-primary hover:underline inline-block mt-1">
-                          Browse all controversial calls →
-                        </Link>
-                      }
-                    />
-                  )}
+                  {(() => {
+                    // Filter sportsVideos for this league and year
+                    const relatedPlays = sportsVideos.filter((video) => {
+                      if (video.league.toLowerCase() !== meta.short.toLowerCase()) return false;
+                      const videoYear = getSeasonYear(video.date, video.league);
+                      return videoYear === year;
+                    });
+                    return (
+                      <>
+                        <SectionHeader
+                          icon={<Scale className="w-4 h-4 text-primary" />}
+                          title="Related Calls"
+                          count={relatedPlays.length}
+                        />
+                        {relatedPlays.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {relatedPlays.map((play) => (
+                              <Link key={play.id} to={`/feed#play-${play.id}`}
+                                className="bg-card border border-border hover:border-primary/40 rounded-xl p-4 group transition-all block">
+                                <p className="font-semibold text-sm group-hover:text-primary transition-colors leading-snug mb-2">
+                                  {play.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  {play.teams} · {play.date}
+                                </p>
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {play.description}
+                                </p>
+                              </Link>
+                            ))}
+                          </div>
+                        ) : (
+                          <PlaceholderCard
+                            message={`No controversial calls catalogued yet for ${meta.short} ${year}.`}
+                            sub={
+                              <Link to="/feed" className="text-xs text-primary hover:underline inline-block mt-1">
+                                Browse all controversial calls →
+                              </Link>
+                            }
+                          />
+                        )}
+                      </>
+                    );
+                  })()}
                 </section>
 
               </div>
 
               {/* ── SIDEBAR ── */}
               <aside className="lg:w-64 shrink-0 space-y-5">
-
-                {/* Official sources — no broken links */}
-                <div className="bg-card border border-border rounded-xl p-5">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                    Official Source
-                  </p>
-                  <SafeExternalLink url={meta.officialRulesUrl}
-                    className="flex items-center gap-2 text-sm text-primary hover:underline mb-2"
-                    showIcon>
-                    {meta.short} Rulebook
-                  </SafeExternalLink>
-                  <SafeExternalLink url={meta.ruleChangesUrl}
-                    className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    showIcon>
-                    Rule Changes History
-                  </SafeExternalLink>
-                </div>
-
-                {/* Archive link */}
-                <div className="bg-card border border-border rounded-xl p-4">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                    Rulebook Archive
-                  </p>
-                  <Link to={`/rulebooks/${leagueKey}/${year}`}
-                    className="text-sm text-primary hover:underline">
-                    View {year} Archive Snapshot →
-                  </Link>
-                </div>
 
                 {/* Rule category tags from this page */}
                 {allCategoryTags.length > 0 && (
