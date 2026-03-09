@@ -26,6 +26,7 @@ interface PlayCardProps {
   videoSource?: VideoSource;
   ruleData?: Omit<RulePanelProps, 'league'>;
   onUnavailable?: () => void;
+  defaultExpanded?: boolean;
 }
 
 const LEAGUE_COLORS: Record<string, string> = {

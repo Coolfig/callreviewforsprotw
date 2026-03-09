@@ -153,7 +153,7 @@ const FeedSection = () => {
           {/* Main feed */}
           <div className="space-y-6">
             {visible.map((video) => (
-              <div key={video.id} id={`play-${video.id}`} onClick={() => {}}>
+              <div key={video.id} id={`play-${video.id}`}>
                 <PlayCard
                   id={video.id}
                   title={video.title}
@@ -169,6 +169,7 @@ const FeedSection = () => {
                   videoUrl={video.videoUrl}
                   videoSource={video.videoSource}
                   ruleData={video.ruleData}
+                  defaultExpanded={expandedPlayId === video.id}
                 />
               </div>
             ))}
