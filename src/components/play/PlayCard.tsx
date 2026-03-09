@@ -142,13 +142,13 @@ const PlayCard = ({
             {/* Video thumbnail */}
             {(embedUrl || videoUrl) && (
                 <div
-                  className="w-24 h-24 shrink-0 flex items-center justify-center cursor-pointer"
+                  className="w-32 h-28 shrink-0 flex items-center justify-center cursor-pointer"
                   onClick={() => setIsExpanded(true)}
                 >
                   <img
                     src={LEAGUE_BALL[league] || ballFootball}
                     alt={league}
-                    className="w-20 h-20 object-contain drop-shadow-lg"
+                    className="w-28 h-28 object-contain drop-shadow-lg"
                   />
                 </div>
             )}

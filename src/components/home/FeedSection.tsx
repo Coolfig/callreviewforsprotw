@@ -126,21 +126,8 @@ const FeedSection = () => {
     <section id="feed" className="py-10 bg-background min-h-screen">
       <div className="container mx-auto px-4 max-w-7xl">
 
-        {/* Filter strip */}
+        {/* League filter strip */}
         <div className="flex items-center gap-2 mb-8 border-b border-border pb-4">
-          {["All", "Controversial", "Call Reviews", "Rule Changes"].map((f) => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                activeFilter === f
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
           <div className="ml-auto flex items-center gap-2">
             {leagues.filter(l => l !== "All").map((league) => (
               <button
