@@ -51,17 +51,6 @@ interface RuleYear {
   interpretation_notes: string | null;
 }
 
-interface RuleChange {
-  id: string;
-  title: string;
-  what_changed: string | null;
-  previous_rule: string | null;
-  impact: string | null;
-  source_citation: string | null;
-  source_url: string | null;
-  category_tags: string[];
-  sort_order: number;
-}
 
 interface RelatedReview {
   id: string;
