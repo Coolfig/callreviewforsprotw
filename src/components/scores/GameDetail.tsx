@@ -146,7 +146,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
             ) : (
-              <div className="max-h-60 overflow-y-auto">
+              <div className="max-h-60 overflow-y-auto subtle-scroll">
                 {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} onPlayerClick={setSelectedPlayerId} />}
                 {activeTab === "boxscore" && <BoxScoreTab summary={summary} onPlayerClick={setSelectedPlayerId} />}
                 {activeTab === "matchup" && <MatchupTab summary={summary} game={game} />}
