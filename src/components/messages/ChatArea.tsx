@@ -1,8 +1,11 @@
 import { useState, RefObject } from "react";
-import { ArrowLeft, Send, Users } from "lucide-react";
+import { ArrowLeft, Send, Users, Smile, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import EmojiPicker from "emoji-picker-react";
+import GifPicker from "@/components/play/GifPicker";
 import MessageBubble from "./MessageBubble";
 import type { Message, Conversation } from "@/types/messages";
 
@@ -32,12 +35,24 @@ const ChatArea = ({
   onClearTyping,
 }: ChatAreaProps) => {
   const [newMessage, setNewMessage] = useState("");
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
     await onSend(newMessage.trim());
     setNewMessage("");
     await onClearTyping();
+  };
+
+  const handleGifSelect = async (url: string) => {
+    setShowGifPicker(false);
+    await onSend(url);
+  };
+
+  const handleEmojiClick = (emojiData: any) => {
+    setNewMessage((prev) => prev + emojiData.emoji);
+    setEmojiOpen(false);
   };
 
   return (
@@ -77,7 +92,33 @@ const ChatArea = ({
         </div>
       )}
 
+      {showGifPicker && (
+        <div className="px-4">
+          <GifPicker onSelect={handleGifSelect} />
+        </div>
+      )}
+
       <div className="p-4 border-t border-border flex items-center gap-2">
+        <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+          <PopoverTrigger asChild>
+            <Button size="icon" variant="ghost" className="shrink-0">
+              <Smile className="w-5 h-5 text-muted-foreground" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent side="top" align="start" className="p-0 w-auto border-none shadow-xl">
+            <EmojiPicker onEmojiClick={handleEmojiClick} theme="dark" as any />
+          </PopoverContent>
+        </Popover>
+
+        <Button
+          size="icon"
+          variant="ghost"
+          className="shrink-0"
+          onClick={() => setShowGifPicker(!showGifPicker)}
+        >
+          <Image className="w-5 h-5 text-muted-foreground" />
+        </Button>
+
         <Input
           placeholder="Type a message..."
           value={newMessage}
