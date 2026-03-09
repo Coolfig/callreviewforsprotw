@@ -211,7 +211,35 @@ const Profile = () => {
                       if (!profile || startingChat) return;
                       setStartingChat(true);
                       try {
-                        // Create a new conversation directly
+                        // Check for existing 1-on-1 conversation first
+                        const { data: myMemberships } = await supabase
+                          .from("conversation_members")
+                          .select("conversation_id")
+                          .eq("user_id", user.id);
+
+                        if (myMemberships?.length) {
+                          for (const m of myMemberships) {
+                            const { data: convo } = await supabase
+                              .from("conversations")
+                              .select("id, is_group")
+                              .eq("id", m.conversation_id)
+                              .eq("is_group", false)
+                              .single();
+                            if (!convo) continue;
+                            const { data: otherMember } = await supabase
+                              .from("conversation_members")
+                              .select("user_id")
+                              .eq("conversation_id", convo.id)
+                              .eq("user_id", profile.user_id)
+                              .single();
+                            if (otherMember) {
+                              navigate(`/messages?convo=${convo.id}`);
+                              return;
+                            }
+                          }
+                        }
+
+                        // Create new conversation
                         const { data: newConvo, error: convoErr } = await supabase
                           .from("conversations")
                           .insert({ created_by: user.id, is_group: false })
@@ -221,7 +249,6 @@ const Profile = () => {
                         if (convoErr || !newConvo) {
                           console.error("Create convo error:", convoErr);
                           toast({ title: "Error", description: "Could not start chat. Please try again.", variant: "destructive" });
-                          setStartingChat(false);
                           return;
                         }
 
@@ -233,7 +260,6 @@ const Profile = () => {
                         if (memberErr) {
                           console.error("Insert members error:", memberErr);
                           toast({ title: "Error", description: "Could not add members. Please try again.", variant: "destructive" });
-                          setStartingChat(false);
                           return;
                         }
 
