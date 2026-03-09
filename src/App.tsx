@@ -53,8 +53,8 @@ const App = () => (
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/clipper" element={<AdminClipper />} />
+            <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+            <Route path="/admin/clipper" element={<ProtectedRoute requiredRole="admin"><AdminClipper /></ProtectedRoute>} />
             <Route path="/clips" element={<Clips />} />
             <Route path="/profile/:username" element={<Profile />} />
             <Route path="/community" element={<Community />} />
