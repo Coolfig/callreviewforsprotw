@@ -63,6 +63,39 @@ export const useConversations = (userId: string | undefined) => {
   ): Promise<string | null> => {
     if (!userId || selectedUsers.length === 0) return null;
     const isGroup = selectedUsers.length > 1;
+
+    // For 1:1 chats, check if a conversation already exists with this user
+    if (!isGroup) {
+      const otherUserId = selectedUsers[0].user_id;
+      // Find conversations where both users are members and it's not a group
+      const { data: myConvos } = await supabase
+        .from("conversation_members")
+        .select("conversation_id")
+        .eq("user_id", userId);
+      if (myConvos?.length) {
+        const myConvoIds = myConvos.map(m => m.conversation_id);
+        const { data: theirConvos } = await supabase
+          .from("conversation_members")
+          .select("conversation_id")
+          .eq("user_id", otherUserId)
+          .in("conversation_id", myConvoIds);
+        if (theirConvos?.length) {
+          // Check which of these shared conversations are 1:1 (not group)
+          const sharedIds = theirConvos.map(m => m.conversation_id);
+          const { data: existing } = await supabase
+            .from("conversations")
+            .select("id")
+            .in("id", sharedIds)
+            .eq("is_group", false)
+            .limit(1);
+          if (existing?.length) {
+            await fetchConversations();
+            return existing[0].id;
+          }
+        }
+      }
+    }
+
     const { data: convo } = await supabase
       .from("conversations")
       .insert({ name: isGroup ? (groupName || "Group Chat") : null, is_group: isGroup, created_by: userId })
