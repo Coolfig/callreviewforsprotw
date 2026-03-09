@@ -5,6 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import FeedSection from "@/components/home/FeedSection";
 import SplashScreen from "@/components/SplashScreen";
+import LiveScoresTicker from "@/components/scores/LiveScoresTicker";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -14,8 +15,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      <LiveScoresTicker />
       <Header />
-      <main>
+      <main className="pt-10">
         <HeroSection />
         <FeaturesSection />
         <FeedSection />
