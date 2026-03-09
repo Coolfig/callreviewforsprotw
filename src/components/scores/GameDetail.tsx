@@ -12,6 +12,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"gamecast" | "boxscore" | "matchup">("gamecast");
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSummary = async () => {
