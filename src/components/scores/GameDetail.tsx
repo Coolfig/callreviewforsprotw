@@ -128,7 +128,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
           <>
             {/* Tabs */}
             <div className="flex gap-4 border-b border-border mb-3">
-              {(["gamecast", "boxscore", "matchup"] as const).map((tab) => (
+              {(["gamecast", "boxscore", "standings"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -136,7 +136,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
                     activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Matchup"}
+                  {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Standings"}
                 </button>
               ))}
             </div>
