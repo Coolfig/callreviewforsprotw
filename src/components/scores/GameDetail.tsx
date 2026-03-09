@@ -11,7 +11,7 @@ interface GameDetailProps {
 const GameDetail = ({ game, onClose }: GameDetailProps) => {
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"gamecast" | "boxscore" | "matchup">("gamecast");
+  const [activeTab, setActiveTab] = useState<"gamecast" | "boxscore" | "standings">("gamecast");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -128,7 +128,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
           <>
             {/* Tabs */}
             <div className="flex gap-4 border-b border-border mb-3">
-              {(["gamecast", "boxscore", "matchup"] as const).map((tab) => (
+              {(["gamecast", "boxscore", "standings"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -136,7 +136,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
                     activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Matchup"}
+                  {tab === "boxscore" ? "Box Score" : tab === "gamecast" ? "Gamecast" : "Standings"}
                 </button>
               ))}
             </div>
@@ -149,7 +149,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
               <div className="max-h-60 overflow-y-auto subtle-scroll">
                 {activeTab === "gamecast" && <GamecastTab summary={summary} game={game} onPlayerClick={setSelectedPlayerId} />}
                 {activeTab === "boxscore" && <BoxScoreTab summary={summary} onPlayerClick={setSelectedPlayerId} />}
-                {activeTab === "matchup" && <MatchupTab summary={summary} game={game} />}
+                {activeTab === "standings" && <MatchupTab summary={summary} game={game} />}
               </div>
             )}
           </>
