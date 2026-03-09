@@ -105,9 +105,9 @@ const Messages = () => {
   useEffect(() => {
     const convoParam = searchParams.get("convo");
     if (convoParam && !activeConvo) {
-      setActiveConvo(convoParam);
+      loadMessages(convoParam);
     }
-  }, [searchParams, activeConvo]);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime messages
   useEffect(() => {
