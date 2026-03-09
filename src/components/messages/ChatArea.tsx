@@ -106,7 +106,7 @@ const ChatArea = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent side="top" align="start" className="p-0 w-auto border-none shadow-xl">
-            <EmojiPicker onEmojiClick={handleEmojiClick} theme="dark" as any />
+            <EmojiPicker onEmojiClick={handleEmojiClick} theme={Theme.DARK} />
           </PopoverContent>
         </Popover>
 
