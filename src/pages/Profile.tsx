@@ -9,6 +9,7 @@ import EditProfileModal from "@/components/profile/EditProfileModal";
 import PostItem from "@/components/post/PostItem";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 import refereeLogo from "@/assets/referee-logo.png";
 
 interface ProfileData {
