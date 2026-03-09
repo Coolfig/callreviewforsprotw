@@ -148,7 +148,7 @@ const PlayCard = ({
                   <img
                     src={LEAGUE_BALL[league] || ballFootball}
                     alt={league}
-                    className="w-20 h-20 object-contain drop-shadow-lg"
+                    className="w-28 h-28 object-contain drop-shadow-lg"
                   />
                 </div>
             )}
