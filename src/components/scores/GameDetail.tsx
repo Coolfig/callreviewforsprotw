@@ -227,7 +227,7 @@ const GamecastTab = ({ summary, game, onPlayerClick }: { summary: any; game: Gam
 };
 
 // Box score: team stats
-const BoxScoreTab = ({ summary }: { summary: any }) => {
+const BoxScoreTab = ({ summary, onPlayerClick }: { summary: any; onPlayerClick: (id: string) => void }) => {
   const boxscore = summary?.boxscore;
   if (!boxscore) return <p className="text-xs text-muted-foreground text-center py-4">Box score not available yet.</p>;
 
