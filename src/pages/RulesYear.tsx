@@ -126,10 +126,8 @@ const RulesYear = () => {
   const meta = leagueKey ? LEAGUE_META[leagueKey] : null;
 
   const [ruleYear, setRuleYear] = useState<RuleYear | null>(null);
-  const [ruleChanges, setRuleChanges] = useState<RuleChange[]>([]);
   const [relatedReviews, setRelatedReviews] = useState<RelatedReview[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedChange, setExpandedChange] = useState<string | null>(null);
 
   useEffect(() => {
     if (!meta || !ALL_YEARS.includes(year)) return;
