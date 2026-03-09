@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import {
-  ChevronRight, Zap, Scale, BookOpen, AlertCircle,
+  ChevronRight, Zap, Scale, AlertCircle,
   FileText, TrendingUp, ArrowLeft, ArrowRight, Tag, StickyNote
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { SafeExternalLink, isValidExternalUrl } from "@/components/SafeExternalLink";
-
+import { getInterpretationNotes } from "@/data/interpretationNotes";
+import { sportsVideos, getSeasonYear } from "@/data/sportsVideos";
 // ── League meta (self-contained, no external deps) ───────────────────────────
 const LEAGUE_META: Record<string, {
   name: string; short: string; emoji: string;
