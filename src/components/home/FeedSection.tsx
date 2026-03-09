@@ -152,23 +152,24 @@ const FeedSection = () => {
           {/* Main feed */}
           <div className="space-y-6">
             {visible.map((video) => (
-              <PlayCard
-                key={video.id}
-                id={video.id}
-                title={video.title}
-                description={video.description}
-                league={video.league}
-                teams={video.teams}
-                date={video.date}
-                gameContext={video.gameContext}
-                isHot={video.isHot}
-                voteCount={video.voteCount}
-                commentCount={video.commentCount}
-                embedUrl={video.embedUrl}
-                videoUrl={video.videoUrl}
-                videoSource={video.videoSource}
-                ruleData={video.ruleData}
-              />
+              <div key={video.id} id={`play-${video.id}`} onClick={() => {}}>
+                <PlayCard
+                  id={video.id}
+                  title={video.title}
+                  description={video.description}
+                  league={video.league}
+                  teams={video.teams}
+                  date={video.date}
+                  gameContext={video.gameContext}
+                  isHot={video.isHot}
+                  voteCount={video.voteCount}
+                  commentCount={video.commentCount}
+                  embedUrl={video.embedUrl}
+                  videoUrl={video.videoUrl}
+                  videoSource={video.videoSource}
+                  ruleData={video.ruleData}
+                />
+              </div>
             ))}
 
             <div ref={loaderRef} className="flex justify-center py-8">
