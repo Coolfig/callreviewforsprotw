@@ -140,20 +140,18 @@ const PlayCard = ({
             </div>
 
             {/* Video thumbnail */}
-            {(embedUrl || videoUrl) && (() => {
-              const ytMatch = embedUrl?.match(/(?:embed\/|v=)([\w-]+)/);
-              const thumbUrl = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg` : null;
-              return (
-                <div className="relative w-32 h-20 rounded-xl overflow-hidden shrink-0 bg-secondary border border-border flex items-center justify-center">
-                  {thumbUrl && <img src={thumbUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center">
-                      <Play className="w-4 h-4 text-foreground ml-0.5" />
-                    </div>
-                  </div>
+            {(embedUrl || videoUrl) && (
+                <div
+                  className="relative w-32 h-20 rounded-xl overflow-hidden shrink-0 bg-secondary border border-border flex items-center justify-center cursor-pointer"
+                  onClick={() => setIsExpanded(true)}
+                >
+                  <img
+                    src={LEAGUE_BALL[league] || ballFootball}
+                    alt={league}
+                    className="w-14 h-14 object-contain drop-shadow-md"
+                  />
                 </div>
-              );
-            })()}
+            )}
           </div>
 
           {/* Bottom row: stats + CTA */}
