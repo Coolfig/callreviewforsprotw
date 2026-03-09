@@ -76,6 +76,64 @@ export type Database = {
           },
         ]
       }
+      comment_bookmarks: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_bookmarks_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comment_dislikes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_dislikes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -109,6 +167,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          dislikes_count: number
           id: string
           likes_count: number
           parent_id: string | null
@@ -122,6 +181,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          dislikes_count?: number
           id?: string
           likes_count?: number
           parent_id?: string | null
@@ -135,6 +195,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          dislikes_count?: number
           id?: string
           likes_count?: number
           parent_id?: string | null
