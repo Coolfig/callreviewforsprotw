@@ -209,6 +209,15 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
               </button>
             </div>
           )}
+          {/* GIF preview */}
+          {selectedGifUrl && (
+            <div className="relative mt-2 inline-block">
+              <img src={selectedGifUrl} alt="GIF" className="rounded-xl max-h-48 object-contain" />
+              <button onClick={() => setSelectedGifUrl(null)} className="absolute top-2 right-2 bg-black/60 rounded-full p-1">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          )}
 
           {/* Link input */}
           {showLinkInput && (
@@ -225,6 +234,45 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
             </div>
           )}
 
+          {/* GIF Picker */}
+          {showGifPicker && (
+            <div className="mt-2 bg-card border border-border rounded-xl p-3 max-h-72 overflow-hidden flex flex-col">
+              <div className="flex items-center gap-2 mb-2">
+                <Search className="w-4 h-4 text-muted-foreground" />
+                <input
+                  value={gifSearch}
+                  onChange={(e) => setGifSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") searchGifs(gifSearch); }}
+                  placeholder="Search GIFs…"
+                  className="flex-1 bg-secondary/50 border-none rounded-lg px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+                  autoFocus
+                />
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => searchGifs(gifSearch)}>Search</Button>
+              </div>
+              <div className="overflow-y-auto subtle-scroll flex-1">
+                {gifLoading ? (
+                  <p className="text-xs text-muted-foreground text-center py-4">Loading…</p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1">
+                    {gifResults.map((gif: any) => {
+                      const url = gif.media_formats?.tinygif?.url || gif.media_formats?.gif?.url || "";
+                      return (
+                        <button
+                          key={gif.id}
+                          onClick={() => { setSelectedGifUrl(url); setShowGifPicker(false); setImageFile(null); setImagePreview(null); }}
+                          className="rounded overflow-hidden hover:opacity-80 transition-opacity"
+                        >
+                          <img src={url} alt="" className="w-full h-20 object-cover" loading="lazy" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <p className="text-[9px] text-muted-foreground mt-1 text-right">Powered by Tenor</p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-3 border-t border-border/30 pt-3">
             <div className="flex items-center gap-1">
               <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
@@ -238,11 +286,14 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
               <button onClick={() => setShowLinkInput(!showLinkInput)} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors" title="Add link">
                 <Link2 className="w-5 h-5" />
               </button>
+              <button onClick={() => { setShowGifPicker(v => !v); if (!showGifPicker) fetchTrendingGifs(); }} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors font-bold text-xs" title="Add GIF">
+                GIF
+              </button>
             </div>
             <Button
               size="sm"
               className="rounded-full px-5 font-semibold"
-              disabled={(!content.trim() && !imageFile && !videoFile && !linkUrl.trim()) || posting}
+              disabled={(!content.trim() && !imageFile && !videoFile && !linkUrl.trim() && !selectedGifUrl) || posting}
               onClick={handlePost}
             >
               {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
