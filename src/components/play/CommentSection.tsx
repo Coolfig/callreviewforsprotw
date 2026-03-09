@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import EmojiPicker, { Theme, EmojiClickData, EmojiStyle } from "emoji-picker-react";
+import { timeAgo } from "@/lib/utils/timeAgo";
 
 interface CommentData {
   id: string;
@@ -28,17 +29,6 @@ interface CommentData {
 }
 
 type SortMode = "top" | "recent" | "debated";
-
-const timeAgo = (dateStr: string) => {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-};
 
 const CommentSection = ({ playId }: { playId: string }) => {
   const { user, username: authUsername } = useAuth();
