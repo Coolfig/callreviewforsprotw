@@ -87,11 +87,6 @@ const LiveScoresTicker = () => {
   const fetchScores = async (league: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("sports-scores", {
-        body: null,
-        method: "GET",
-      });
-      // Use query params via URL construction
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const url = `https://${projectId}.supabase.co/functions/v1/sports-scores?league=${league}&type=scoreboard`;
