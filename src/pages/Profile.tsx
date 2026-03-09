@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Heart, MessageCircle } from "lucide-react";
+import { ArrowLeft, Calendar, Users, UserPlus, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -74,7 +74,6 @@ const Profile = () => {
         setIsFollowing(!!followData);
       }
 
-      // Fetch user's posts
       const { data: posts } = await supabase
         .from("posts").select("*").eq("user_id", p.user_id).order("created_at", { ascending: false });
 
@@ -104,7 +103,6 @@ const Profile = () => {
         })));
       }
 
-      // Fetch liked posts
       if (user && p.user_id === user.id) {
         const { data: likedData } = await supabase.from("post_likes").select("post_id").eq("user_id", p.user_id);
         if (likedData && likedData.length > 0) {
@@ -164,98 +162,115 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="max-w-2xl mx-auto pt-16">
-        {/* Top bar */}
-        <div className="flex items-center gap-4 px-4 py-3 sticky top-16 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50">
-          <button onClick={() => navigate(-1)} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h2 className="text-lg font-bold leading-tight">{profile.username}</h2>
-            <p className="text-xs text-muted-foreground">{userPosts.length} posts</p>
-          </div>
-        </div>
+      <main className="max-w-3xl mx-auto pt-20 px-4 pb-12">
+        {/* Back button */}
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
 
-        {/* Banner */}
-        <div className="relative">
-          <div className="h-48 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary overflow-hidden">
+        {/* Profile Hero Card */}
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden mb-6">
+          {/* Banner */}
+          <div className="h-36 bg-gradient-to-br from-primary/30 via-accent/10 to-secondary relative">
             {profile.banner_url ? (
               <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/10 to-secondary flex items-center justify-center">
-                <img src={refereeLogo} alt="" className="w-20 h-20 opacity-10" />
+              <div className="w-full h-full flex items-center justify-center">
+                <img src={refereeLogo} alt="" className="w-16 h-16 opacity-10" />
               </div>
             )}
           </div>
-          <div className="absolute -bottom-16 left-4">
-            <Avatar className="w-32 h-32 border-4 border-background">
-              {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : (
-                <AvatarFallback className="bg-secondary text-3xl font-bold">
-                  {profile.username.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              )}
-            </Avatar>
-          </div>
-        </div>
 
-        {/* Action button */}
-        <div className="flex justify-end px-4 pt-3">
-          {isOwnProfile ? (
-            <Button variant="outline" className="rounded-full font-semibold" onClick={() => setShowEditModal(true)}>
-              Edit Profile
-            </Button>
-          ) : user ? (
-            <Button variant={isFollowing ? "outline" : "default"} className="rounded-full font-semibold" onClick={handleFollow}>
-              {isFollowing ? "Following" : "Follow"}
-            </Button>
-          ) : null}
-        </div>
-
-        {/* Profile info */}
-        <div className="px-4 pt-8 pb-4">
-          <h1 className="text-xl font-extrabold">{profile.username}</h1>
-          <p className="text-muted-foreground text-sm">@{profile.username.toLowerCase()}</p>
-
-          {profile.favorite_teams && profile.favorite_teams.length > 0 && (
-            <div className="flex items-center gap-2 mt-3 flex-wrap">
-              {profile.favorite_teams.map((team) => (
-                <span key={team} className="inline-flex items-center gap-1 text-sm bg-secondary px-2.5 py-1 rounded-full">
-                  <span>{teamLogos[team] || "🏅"}</span>
-                  <span className="text-secondary-foreground">{team}</span>
-                </span>
-              ))}
+          {/* Profile info section */}
+          <div className="px-6 pb-6">
+            <div className="flex items-end gap-4 -mt-12 mb-4">
+              <Avatar className="w-24 h-24 border-4 border-card ring-2 ring-primary/20 shadow-lg">
+                {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : (
+                  <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
+                    {profile.username.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="flex-1" />
+              {isOwnProfile ? (
+                <Button variant="outline" size="sm" className="rounded-lg gap-2" onClick={() => setShowEditModal(true)}>
+                  <Edit3 className="w-3.5 h-3.5" />
+                  Edit Profile
+                </Button>
+              ) : user ? (
+                <Button variant={isFollowing ? "outline" : "default"} size="sm" className="rounded-lg gap-2" onClick={handleFollow}>
+                  <UserPlus className="w-3.5 h-3.5" />
+                  {isFollowing ? "Following" : "Follow"}
+                </Button>
+              ) : null}
             </div>
-          )}
 
-          <p className="mt-3 text-sm leading-relaxed">
-            {profile.bio || (isOwnProfile ? "Add a bio to tell fans about yourself" : "")}
-          </p>
+            <h1 className="text-2xl font-extrabold">{profile.username}</h1>
 
-          <div className="flex items-center gap-1 text-muted-foreground text-sm mt-3">
-            <Calendar className="w-4 h-4" />
-            <span>Joined {joinDate}</span>
-          </div>
+            {profile.bio && (
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-lg">
+                {profile.bio}
+              </p>
+            )}
+            {!profile.bio && isOwnProfile && (
+              <p className="mt-2 text-sm text-muted-foreground italic">Add a bio to tell fans about yourself</p>
+            )}
 
-          <div className="flex gap-4 mt-2 text-sm">
-            <span><strong className="text-foreground">{followingCount}</strong> <span className="text-muted-foreground">Following</span></span>
-            <span><strong className="text-foreground">{followersCount}</strong> <span className="text-muted-foreground">Followers</span></span>
+            {/* Stats row */}
+            <div className="flex items-center gap-6 mt-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Joined {joinDate}</span>
+              </div>
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-1 text-sm">
+                <Users className="w-4 h-4 text-muted-foreground" />
+                <strong className="text-foreground">{followingCount}</strong>
+                <span className="text-muted-foreground">Following</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm">
+                <strong className="text-foreground">{followersCount}</strong>
+                <span className="text-muted-foreground">Followers</span>
+              </div>
+            </div>
+
+            {/* Favorite teams */}
+            {profile.favorite_teams && profile.favorite_teams.length > 0 && (
+              <div className="flex items-center gap-2 mt-4 flex-wrap">
+                {profile.favorite_teams.map((team) => (
+                  <span key={team} className="inline-flex items-center gap-1.5 text-xs bg-secondary/80 px-3 py-1.5 rounded-lg border border-border/30">
+                    <span>{teamLogos[team] || "🏅"}</span>
+                    <span className="text-secondary-foreground font-medium">{team}</span>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="posts" className="border-t border-border/50">
-          <TabsList className="w-full bg-transparent rounded-none h-12 p-0 border-b border-border/50">
-            <TabsTrigger value="posts" className="flex-1 rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary h-full">Posts</TabsTrigger>
-            <TabsTrigger value="replies" className="flex-1 rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary h-full">Replies</TabsTrigger>
-            <TabsTrigger value="likes" className="flex-1 rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary h-full">Likes</TabsTrigger>
+        {/* Content Tabs */}
+        <Tabs defaultValue="posts">
+          <TabsList className="w-full bg-card border border-border/50 rounded-xl h-11 p-1 mb-4">
+            <TabsTrigger value="posts" className="flex-1 rounded-lg text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+              Posts ({userPosts.length})
+            </TabsTrigger>
+            <TabsTrigger value="replies" className="flex-1 rounded-lg text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+              Replies
+            </TabsTrigger>
+            <TabsTrigger value="likes" className="flex-1 rounded-lg text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+              Likes
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts" className="mt-0">
             {userPosts.length === 0 ? (
-              <div className="py-16 text-center text-muted-foreground">
+              <div className="py-16 text-center bg-card rounded-xl border border-border/50">
                 <img src={refereeLogo} alt="" className="w-12 h-12 mx-auto opacity-20 mb-4" />
                 <p className="font-semibold text-foreground">No posts yet</p>
-                <p className="text-sm mt-1">When {isOwnProfile ? "you post" : `@${profile.username} posts`}, it'll show up here.</p>
+                <p className="text-sm mt-1 text-muted-foreground">
+                  When {isOwnProfile ? "you post" : `${profile.username} posts`}, it'll show up here.
+                </p>
               </div>
             ) : (
               userPosts.map((post) => (
@@ -265,17 +280,17 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="replies" className="mt-0">
-            <div className="py-16 text-center text-muted-foreground">
+            <div className="py-16 text-center bg-card rounded-xl border border-border/50">
               <p className="font-semibold text-foreground">No replies yet</p>
-              <p className="text-sm mt-1">Replies to posts will appear here.</p>
+              <p className="text-sm mt-1 text-muted-foreground">Replies to posts will appear here.</p>
             </div>
           </TabsContent>
 
           <TabsContent value="likes" className="mt-0">
             {likedPosts.length === 0 ? (
-              <div className="py-16 text-center text-muted-foreground">
+              <div className="py-16 text-center bg-card rounded-xl border border-border/50">
                 <p className="font-semibold text-foreground">No likes yet</p>
-                <p className="text-sm mt-1">Liked posts will show up here.</p>
+                <p className="text-sm mt-1 text-muted-foreground">Liked posts will show up here.</p>
               </div>
             ) : (
               likedPosts.map((post) => (
@@ -286,7 +301,6 @@ const Profile = () => {
         </Tabs>
       </main>
 
-      {/* Edit modal */}
       {profile && showEditModal && (
         <EditProfileModal
           open={showEditModal}

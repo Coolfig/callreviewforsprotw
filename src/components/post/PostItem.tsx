@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Trash2, Share, Link2, ThumbsDown } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Share, ExternalLink } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,7 +22,6 @@ interface PostItemProps {
   onLikeToggle?: () => void;
 }
 
-// Parse @mentions into links
 const renderContent = (text: string) => {
   const parts = text.split(/(@\w+)/g);
   return parts.map((part, i) => {
@@ -38,7 +37,6 @@ const renderContent = (text: string) => {
   });
 };
 
-// Detect if a URL is a YouTube embed
 const getYouTubeEmbedUrl = (url: string): string | null => {
   if (url.includes("youtube.com/embed/")) return url;
   let videoId = "";
@@ -59,13 +57,17 @@ const PostItem = ({
   const [liked, setLiked] = useState(is_liked);
   const [likesNum, setLikesNum] = useState(likes_count);
 
-  const timeAgo = (date: string) => {
-    const diff = Date.now() - new Date(date).getTime();
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m`;
+    if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h`;
-    return `${Math.floor(hrs / 24)}d`;
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
   const toggleLike = async () => {
@@ -97,61 +99,76 @@ const PostItem = ({
   const isDirectVideo = video_url && !youtubeEmbed && (video_url.match(/\.(mp4|webm|mov)$/i) || video_url.startsWith("blob:"));
 
   return (
-    <div className="flex gap-3 p-4 border-b border-border/50 hover:bg-secondary/20 transition-colors">
-      <Link to={`/profile/${username}`}>
-        <Avatar className="w-10 h-10 shrink-0">
-          {avatar_url ? <AvatarImage src={avatar_url} /> : null}
-          <AvatarFallback className="bg-secondary text-sm font-bold">
-            {username.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </Link>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <Link to={`/profile/${username}`} className="font-bold text-sm hover:underline">{username}</Link>
-          <span className="text-muted-foreground text-xs">@{username.toLowerCase()}</span>
-          <span className="text-muted-foreground text-xs">· {timeAgo(created_at)}</span>
+    <div className="bg-card rounded-xl border border-border/50 overflow-hidden mb-3 hover:border-border transition-colors">
+      {/* Author bar */}
+      <div className="flex items-center gap-3 px-4 pt-4 pb-2">
+        <Link to={`/profile/${username}`}>
+          <Avatar className="w-9 h-9 ring-2 ring-primary/20">
+            {avatar_url ? <AvatarImage src={avatar_url} /> : null}
+            <AvatarFallback className="bg-primary/10 text-primary text-sm font-bold">
+              {username.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
+        <div className="flex-1 min-w-0">
+          <Link to={`/profile/${username}`} className="font-semibold text-sm hover:text-primary transition-colors">{username}</Link>
         </div>
-        {content && <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">{renderContent(content)}</p>}
+        <span className="text-muted-foreground text-xs bg-secondary/50 px-2 py-0.5 rounded-full">{formatDate(created_at)}</span>
+      </div>
 
-        {/* Media rendering */}
-        {image_url && (
-          <div className="mt-3 rounded-xl overflow-hidden border border-border">
+      {/* Content */}
+      {content && (
+        <div className="px-4 pb-3">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{renderContent(content)}</p>
+        </div>
+      )}
+
+      {/* Media */}
+      {image_url && (
+        <div className="px-4 pb-3">
+          <div className="rounded-lg overflow-hidden border border-border/30">
             <img src={image_url} alt="Post media" className="max-h-96 w-full object-cover" />
           </div>
-        )}
-        {youtubeEmbed && (
-          <div className="mt-3 rounded-xl overflow-hidden border border-border aspect-video">
+        </div>
+      )}
+      {youtubeEmbed && (
+        <div className="px-4 pb-3">
+          <div className="rounded-lg overflow-hidden border border-border/30 aspect-video">
             <iframe src={youtubeEmbed} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
           </div>
-        )}
-        {isDirectVideo && (
-          <div className="mt-3 rounded-xl overflow-hidden border border-border">
+        </div>
+      )}
+      {isDirectVideo && (
+        <div className="px-4 pb-3">
+          <div className="rounded-lg overflow-hidden border border-border/30">
             <video src={video_url!} className="max-h-96 w-full" controls playsInline />
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="flex items-center gap-5 mt-3">
-          <button className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs">
-            <MessageCircle className="w-4 h-4" />
-            <span>{replies_count}</span>
-          </button>
+      {/* Actions bar */}
+      <div className="flex items-center border-t border-border/30 px-4 py-2.5 bg-secondary/20">
+        <div className="flex items-center gap-1">
           <button
             onClick={toggleLike}
-            className={`flex items-center gap-1.5 transition-colors text-xs ${liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"}`}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${liked ? "bg-red-500/15 text-red-500" : "hover:bg-secondary text-muted-foreground hover:text-foreground"}`}
           >
-            <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+            <Heart className={`w-3.5 h-3.5 ${liked ? "fill-current" : ""}`} />
             <span>{likesNum}</span>
           </button>
-          <button onClick={handleCopyLink} className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs" title="Copy link">
-            <Share className="w-4 h-4" />
+          <button className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all">
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>{replies_count}</span>
           </button>
-          {user?.id === user_id && (
-            <button onClick={handleDelete} className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive transition-colors text-xs ml-auto">
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
+          <button onClick={handleCopyLink} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
+            <Share className="w-3.5 h-3.5" />
+          </button>
         </div>
+        {user?.id === user_id && (
+          <button onClick={handleDelete} className="ml-auto p-1.5 rounded-full text-muted-foreground hover:bg-destructive/15 hover:text-destructive transition-all" title="Delete">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </div>
   );
