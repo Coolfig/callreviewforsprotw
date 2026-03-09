@@ -349,7 +349,19 @@ const CommentSection = ({ playId }: { playId: string }) => {
               </div>
             )}
 
-            <p className="text-sm leading-relaxed text-secondary-foreground">{comment.content}</p>
+            {/* Render text content, detecting embedded GIF URLs */}
+            {(() => {
+              const gifMatch = comment.content.match(/\[gif\](https?:\/\/[^\s]+)\[\/gif\]/);
+              const textContent = comment.content.replace(/\[gif\]https?:\/\/[^\s]+\[\/gif\]/, "").trim();
+              return (
+                <>
+                  {textContent && <p className="text-sm leading-relaxed text-secondary-foreground">{textContent}</p>}
+                  {gifMatch && (
+                    <img src={gifMatch[1]} alt="GIF" className="mt-2 rounded-lg max-h-48 object-contain" />
+                  )}
+                </>
+              );
+            })()}
 
             <div className="flex items-center gap-4 mt-2.5">
               <button
