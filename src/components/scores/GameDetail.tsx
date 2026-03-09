@@ -162,14 +162,17 @@ const GamecastTab = ({ summary, game }: { summary: any; game: Game }) => {
                 {leader.leaders?.slice(0, 3).map((cat: any, j: number) => {
                   const topPlayer = cat.leaders?.[0];
                   if (!topPlayer) return null;
+                  const headshotUrl = topPlayer.athlete?.headshot?.href || topPlayer.athlete?.headshot || topPlayer.headshot?.href || topPlayer.headshot;
                   return (
                     <div key={j} className="flex items-center gap-2 mb-1">
-                      {topPlayer.athlete?.headshot && (
-                        <img src={topPlayer.athlete.headshot} alt="" className="w-6 h-6 rounded-full object-cover" />
+                      {headshotUrl ? (
+                        <img src={headshotUrl} alt="" className="w-6 h-6 rounded-full object-cover bg-secondary" />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-secondary" />
                       )}
                       <div>
-                        <p className="text-[10px] font-medium">{topPlayer.athlete?.shortName || "—"}</p>
-                        <p className="text-[9px] text-muted-foreground">{cat.shortDisplayName}: {topPlayer.displayValue}</p>
+                        <p className="text-[10px] font-medium">{topPlayer.athlete?.displayName || topPlayer.athlete?.shortName || "—"}</p>
+                        <p className="text-[9px] text-muted-foreground">{cat.shortDisplayName || cat.displayName}: {topPlayer.displayValue}</p>
                       </div>
                     </div>
                   );
