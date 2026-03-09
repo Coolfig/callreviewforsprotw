@@ -158,7 +158,7 @@ const LiveScoresTicker = () => {
           </button>
 
           {/* Games ticker */}
-          <div ref={scrollRef} className="flex-1 overflow-x-auto scrollbar-hide flex items-stretch">
+          <div ref={scrollRef} className="flex-1 overflow-x-auto flex items-stretch" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {loading ? (
               <div className="flex items-center justify-center w-full text-xs text-muted-foreground py-2">Loading scores...</div>
             ) : games.length === 0 ? (
