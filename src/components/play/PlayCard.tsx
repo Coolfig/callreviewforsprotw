@@ -146,18 +146,16 @@ const PlayCard = ({
               </div>
             </div>
 
-            {(embedUrl || videoUrl) && (
-              <div
-                className="w-32 h-28 shrink-0 flex items-center justify-center cursor-pointer"
-                onClick={() => setIsExpanded(true)}
-              >
-                <img
-                  src={LEAGUE_BALL[league] || ballFootball}
-                  alt={league}
-                  className="w-28 h-28 object-contain drop-shadow-lg"
-                />
-              </div>
-            )}
+            <div
+              className="w-36 h-36 shrink-0 flex items-center justify-center cursor-pointer"
+              onClick={() => setIsExpanded(true)}
+            >
+              <img
+                src={LEAGUE_BALL[league] || ballFootball}
+                alt={league}
+                className="w-32 h-32 object-contain drop-shadow-lg"
+              />
+            </div>
           </div>
 
           <div className="flex items-center mt-5 pt-4 border-t border-border/50">
