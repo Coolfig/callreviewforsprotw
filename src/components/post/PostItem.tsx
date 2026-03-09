@@ -90,11 +90,7 @@ const PostItem = ({
     onDelete?.();
   };
 
-  const handleCopyLink = () => {
-    const url = `${window.location.origin}/community`;
-    navigator.clipboard.writeText(url);
-    toast({ title: "Link copied!", description: "Post link copied to clipboard." });
-  };
+  const [shareOpen, setShareOpen] = useState(false);
 
   const youtubeEmbed = video_url ? getYouTubeEmbedUrl(video_url) : null;
   const isDirectVideo = video_url && !youtubeEmbed && (video_url.match(/\.(mp4|webm|mov)$/i) || video_url.startsWith("blob:"));
