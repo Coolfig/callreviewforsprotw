@@ -64,7 +64,7 @@ const Messages = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-16 h-[calc(100vh-0px)]">
+      <main className="pt-[104px] h-screen">
         <div className="flex h-full">
           <ConversationSidebar
             conversations={conversations}
