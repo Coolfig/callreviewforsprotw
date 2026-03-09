@@ -218,10 +218,14 @@ const CommentSection = ({ playId }: { playId: string }) => {
 
   const handlePost = async () => {
     if (!user) { toast({ title: "Sign up to participate" }); navigate("/auth"); return; }
-    if (!newComment.trim()) { toast({ title: "Write something first", variant: "destructive" }); return; }
-    const { error } = await supabase.from("comments").insert({ user_id: user.id, play_id: playId, content: newComment.trim(), rule_reference: ruleRef.trim() || null, timestamp_reference: timeRef.trim() || null });
+    if (!newComment.trim() && !selectedGifUrl) { toast({ title: "Write something first", variant: "destructive" }); return; }
+    let finalContent = newComment.trim();
+    if (selectedGifUrl) {
+      finalContent = finalContent ? `${finalContent} [gif]${selectedGifUrl}[/gif]` : `[gif]${selectedGifUrl}[/gif]`;
+    }
+    const { error } = await supabase.from("comments").insert({ user_id: user.id, play_id: playId, content: finalContent, rule_reference: ruleRef.trim() || null, timestamp_reference: timeRef.trim() || null });
     if (error) { toast({ title: "Error", description: "Failed to post.", variant: "destructive" }); return; }
-    setNewComment(""); setRuleRef(""); setTimeRef(""); setShowRuleInput(false); setShowTimeInput(false); setShowEmojiPicker(false);
+    setNewComment(""); setRuleRef(""); setTimeRef(""); setShowRuleInput(false); setShowTimeInput(false); setShowEmojiPicker(false); setSelectedGifUrl(null); setShowGifPicker(false);
     toast({ title: "Posted!" });
     fetchComments(0);
   };
