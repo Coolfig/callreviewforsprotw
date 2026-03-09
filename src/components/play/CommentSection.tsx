@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MessageSquare, ThumbsUp, ThumbsDown, Clock, BookOpen, ChevronDown, Smile, Bookmark } from "lucide-react";
+import { MessageSquare, ThumbsUp, ThumbsDown, Clock, BookOpen, ChevronDown, Smile, Bookmark, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -218,10 +218,14 @@ const CommentSection = ({ playId }: { playId: string }) => {
 
   const handlePost = async () => {
     if (!user) { toast({ title: "Sign up to participate" }); navigate("/auth"); return; }
-    if (!newComment.trim()) { toast({ title: "Write something first", variant: "destructive" }); return; }
-    const { error } = await supabase.from("comments").insert({ user_id: user.id, play_id: playId, content: newComment.trim(), rule_reference: ruleRef.trim() || null, timestamp_reference: timeRef.trim() || null });
+    if (!newComment.trim() && !selectedGifUrl) { toast({ title: "Write something first", variant: "destructive" }); return; }
+    let finalContent = newComment.trim();
+    if (selectedGifUrl) {
+      finalContent = finalContent ? `${finalContent} [gif]${selectedGifUrl}[/gif]` : `[gif]${selectedGifUrl}[/gif]`;
+    }
+    const { error } = await supabase.from("comments").insert({ user_id: user.id, play_id: playId, content: finalContent, rule_reference: ruleRef.trim() || null, timestamp_reference: timeRef.trim() || null });
     if (error) { toast({ title: "Error", description: "Failed to post.", variant: "destructive" }); return; }
-    setNewComment(""); setRuleRef(""); setTimeRef(""); setShowRuleInput(false); setShowTimeInput(false); setShowEmojiPicker(false);
+    setNewComment(""); setRuleRef(""); setTimeRef(""); setShowRuleInput(false); setShowTimeInput(false); setShowEmojiPicker(false); setSelectedGifUrl(null); setShowGifPicker(false);
     toast({ title: "Posted!" });
     fetchComments(0);
   };
@@ -264,6 +268,55 @@ const CommentSection = ({ playId }: { playId: string }) => {
     setReplyShowEmoji(false);
   };
 
+  // GIF picker state
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState("");
+  const [gifResults, setGifResults] = useState<any[]>([]);
+  const [gifLoading, setGifLoading] = useState(false);
+  const [selectedGifUrl, setSelectedGifUrl] = useState<string | null>(null);
+
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) { setGifResults([]); return; }
+    setGifLoading(true);
+    try {
+      const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch (e) {
+      console.error("GIF search failed:", e);
+    } finally {
+      setGifLoading(false);
+    }
+  };
+
+  const fetchTrendingGifs = async () => {
+    setGifLoading(true);
+    try {
+      const url = `https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch (e) {
+      console.error("GIF fetch failed:", e);
+    } finally {
+      setGifLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!user) return;
+    const confirmed = window.confirm("Delete this comment?");
+    if (!confirmed) return;
+    const { error } = await supabase.from("comments").delete().eq("id", commentId).eq("user_id", user.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete comment.", variant: "destructive" });
+    } else {
+      toast({ title: "Comment deleted" });
+      fetchComments(0);
+    }
+  };
+
   const sorted = [...comments].sort((a, b) => {
     if (sortMode === "top") return b.score - a.score;
     if (sortMode === "debated") return b.replies.length - a.replies.length;
@@ -300,7 +353,19 @@ const CommentSection = ({ playId }: { playId: string }) => {
               </div>
             )}
 
-            <p className="text-sm leading-relaxed text-secondary-foreground">{comment.content}</p>
+            {/* Render text content, detecting embedded GIF URLs */}
+            {(() => {
+              const gifMatch = comment.content.match(/\[gif\](https?:\/\/[^\s]+)\[\/gif\]/);
+              const textContent = comment.content.replace(/\[gif\]https?:\/\/[^\s]+\[\/gif\]/, "").trim();
+              return (
+                <>
+                  {textContent && <p className="text-sm leading-relaxed text-secondary-foreground">{textContent}</p>}
+                  {gifMatch && (
+                    <img src={gifMatch[1]} alt="GIF" className="mt-2 rounded-lg max-h-48 object-contain" />
+                  )}
+                </>
+              );
+            })()}
 
             <div className="flex items-center gap-4 mt-2.5">
               <button
@@ -329,6 +394,15 @@ const CommentSection = ({ playId }: { playId: string }) => {
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Reply
+                </button>
+              )}
+              {user && comment.user_id === user.id && (
+                <button
+                  onClick={() => handleDeleteComment(comment.id)}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                  title="Delete comment"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
               {comment.replies.length > 0 && (
@@ -456,6 +530,56 @@ const CommentSection = ({ playId }: { playId: string }) => {
                 className="mt-2 w-full bg-secondary/40 border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50" />
             )}
 
+            {/* GIF preview */}
+            {selectedGifUrl && (
+              <div className="relative mt-2 inline-block">
+                <img src={selectedGifUrl} alt="GIF" className="rounded-lg max-h-32 object-contain" />
+                <button onClick={() => setSelectedGifUrl(null)} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>
+              </div>
+            )}
+
+            {/* GIF Picker */}
+            {showGifPicker && (
+              <div className="mt-2 bg-card border border-border rounded-xl p-3 max-h-72 overflow-hidden flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <input
+                    value={gifSearch}
+                    onChange={(e) => { setGifSearch(e.target.value); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") searchGifs(gifSearch); }}
+                    placeholder="Search GIFs…"
+                    className="flex-1 bg-secondary/50 border-none rounded-lg px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+                    autoFocus
+                  />
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => searchGifs(gifSearch)}>Search</Button>
+                </div>
+                {gifResults.length === 0 && !gifLoading && (
+                  <button onClick={fetchTrendingGifs} className="text-xs text-primary hover:underline mb-2">Load trending GIFs</button>
+                )}
+                <div className="overflow-y-auto subtle-scroll flex-1">
+                  {gifLoading ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">Loading…</p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-1">
+                      {gifResults.map((gif: any) => {
+                        const url = gif.media_formats?.tinygif?.url || gif.media_formats?.gif?.url || "";
+                        return (
+                          <button
+                            key={gif.id}
+                            onClick={() => { setSelectedGifUrl(url); setShowGifPicker(false); }}
+                            className="rounded overflow-hidden hover:opacity-80 transition-opacity"
+                          >
+                            <img src={url} alt="" className="w-full h-20 object-cover" loading="lazy" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-1 text-right">Powered by Tenor</p>
+              </div>
+            )}
+
             <div className="flex justify-between items-center mt-3">
               <div className="flex gap-2">
                 <Button variant={showRuleInput ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => setShowRuleInput(v => !v)}>
@@ -463,6 +587,9 @@ const CommentSection = ({ playId }: { playId: string }) => {
                 </Button>
                 <Button variant={showTimeInput ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => setShowTimeInput(v => !v)}>
                   <Clock className="w-3.5 h-3.5" />Timestamp
+                </Button>
+                <Button variant={showGifPicker ? "default" : "ghost"} size="sm" className="text-xs gap-1 h-7 px-2.5" onClick={() => { setShowGifPicker(v => !v); if (!showGifPicker) fetchTrendingGifs(); }}>
+                  GIF
                 </Button>
               </div>
               <Button size="sm" className="h-8 px-4" onClick={handlePost}>Post</Button>

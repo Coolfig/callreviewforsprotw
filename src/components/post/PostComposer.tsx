@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Image, Film, Link2, X } from "lucide-react";
+import { Loader2, Image, Film, Link2, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,30 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState("");
+  const [gifResults, setGifResults] = useState<any[]>([]);
+  const [gifLoading, setGifLoading] = useState(false);
+  const [selectedGifUrl, setSelectedGifUrl] = useState<string | null>(null);
+
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) { setGifResults([]); return; }
+    setGifLoading(true);
+    try {
+      const res = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch { /* ignore */ } finally { setGifLoading(false); }
+  };
+
+  const fetchTrendingGifs = async () => {
+    setGifLoading(true);
+    try {
+      const res = await fetch(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=20`);
+      const data = await res.json();
+      setGifResults(data.results || []);
+    } catch { /* ignore */ } finally { setGifLoading(false); }
+  };
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -74,13 +98,15 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   };
 
   const handlePost = async () => {
-    if (!user || (!content.trim() && !imageFile && !videoFile && !linkUrl.trim())) return;
+    if (!user || (!content.trim() && !imageFile && !videoFile && !linkUrl.trim() && !selectedGifUrl)) return;
     setPosting(true);
 
     let imageUrl: string | null = null;
     let videoUrl: string | null = null;
 
-    if (imageFile) {
+    if (selectedGifUrl) {
+      imageUrl = selectedGifUrl;
+    } else if (imageFile) {
       const ext = imageFile.name.split(".").pop();
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("post-media").upload(path, imageFile);
@@ -100,7 +126,6 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
       }
     }
 
-    // If user pasted a link, store as video_url (for embeds) or image_url
     if (linkUrl.trim() && !imageUrl && !videoUrl) {
       const url = linkUrl.trim();
       if (url.match(/\.(mp4|webm|mov)$/i) || url.includes("youtube.com") || url.includes("youtu.be")) {
@@ -108,7 +133,7 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
       } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         imageUrl = url;
       } else {
-        videoUrl = url; // default to video/embed
+        videoUrl = url;
       }
     }
 
@@ -124,6 +149,7 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
     setImageFile(null); setImagePreview(null);
     setVideoFile(null); setVideoPreview(null);
     setLinkUrl(""); setShowLinkInput(false);
+    setSelectedGifUrl(null); setShowGifPicker(false);
     setPosting(false);
     onPostCreated?.();
   };
@@ -183,6 +209,15 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
               </button>
             </div>
           )}
+          {/* GIF preview */}
+          {selectedGifUrl && (
+            <div className="relative mt-2 inline-block">
+              <img src={selectedGifUrl} alt="GIF" className="rounded-xl max-h-48 object-contain" />
+              <button onClick={() => setSelectedGifUrl(null)} className="absolute top-2 right-2 bg-black/60 rounded-full p-1">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          )}
 
           {/* Link input */}
           {showLinkInput && (
@@ -199,6 +234,45 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
             </div>
           )}
 
+          {/* GIF Picker */}
+          {showGifPicker && (
+            <div className="mt-2 bg-card border border-border rounded-xl p-3 max-h-72 overflow-hidden flex flex-col">
+              <div className="flex items-center gap-2 mb-2">
+                <Search className="w-4 h-4 text-muted-foreground" />
+                <input
+                  value={gifSearch}
+                  onChange={(e) => setGifSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") searchGifs(gifSearch); }}
+                  placeholder="Search GIFs…"
+                  className="flex-1 bg-secondary/50 border-none rounded-lg px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+                  autoFocus
+                />
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => searchGifs(gifSearch)}>Search</Button>
+              </div>
+              <div className="overflow-y-auto subtle-scroll flex-1">
+                {gifLoading ? (
+                  <p className="text-xs text-muted-foreground text-center py-4">Loading…</p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1">
+                    {gifResults.map((gif: any) => {
+                      const url = gif.media_formats?.tinygif?.url || gif.media_formats?.gif?.url || "";
+                      return (
+                        <button
+                          key={gif.id}
+                          onClick={() => { setSelectedGifUrl(url); setShowGifPicker(false); setImageFile(null); setImagePreview(null); }}
+                          className="rounded overflow-hidden hover:opacity-80 transition-opacity"
+                        >
+                          <img src={url} alt="" className="w-full h-20 object-cover" loading="lazy" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <p className="text-[9px] text-muted-foreground mt-1 text-right">Powered by Tenor</p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-3 border-t border-border/30 pt-3">
             <div className="flex items-center gap-1">
               <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
@@ -212,11 +286,14 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
               <button onClick={() => setShowLinkInput(!showLinkInput)} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors" title="Add link">
                 <Link2 className="w-5 h-5" />
               </button>
+              <button onClick={() => { setShowGifPicker(v => !v); if (!showGifPicker) fetchTrendingGifs(); }} className="p-2 rounded-full hover:bg-secondary/50 text-primary transition-colors font-bold text-xs" title="Add GIF">
+                GIF
+              </button>
             </div>
             <Button
               size="sm"
               className="rounded-full px-5 font-semibold"
-              disabled={(!content.trim() && !imageFile && !videoFile && !linkUrl.trim()) || posting}
+              disabled={(!content.trim() && !imageFile && !videoFile && !linkUrl.trim() && !selectedGifUrl) || posting}
               onClick={handlePost}
             >
               {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
