@@ -7,17 +7,6 @@ import VotingSection from "./VotingSection";
 import CommentSection from "./CommentSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import ballFootball from "@/assets/ball-football.png";
-import ballBasketball from "@/assets/ball-basketball.png";
-import ballBaseball from "@/assets/ball-baseball.png";
-import ballHockey from "@/assets/ball-hockey.png";
-
-const LEAGUE_BALL: Record<string, string> = {
-  NFL: ballFootball,
-  NBA: ballBasketball,
-  MLB: ballBaseball,
-  NHL: ballHockey,
-};
 
 type VideoSource = "native" | "youtube" | "twitter" | "tiktok" | "instagram";
 
