@@ -7,17 +7,6 @@ import VotingSection from "./VotingSection";
 import CommentSection from "./CommentSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import ballFootball from "@/assets/ball-football.png";
-import ballBasketball from "@/assets/ball-basketball.png";
-import ballBaseball from "@/assets/ball-baseball.png";
-import ballHockey from "@/assets/ball-hockey.png";
-
-const LEAGUE_BALL: Record<string, string> = {
-  NFL: ballFootball,
-  NBA: ballBasketball,
-  MLB: ballBaseball,
-  NHL: ballHockey,
-};
 
 type VideoSource = "native" | "youtube" | "twitter" | "tiktok" | "instagram";
 
@@ -116,7 +105,10 @@ const PlayCard = ({
   // Compact card (collapsed)
   if (!isExpanded) {
     return (
-      <article className="bg-card rounded-2xl border border-border hover:border-border/80 transition-all duration-200 overflow-hidden group">
+      <article
+        className="bg-card rounded-2xl border border-border hover:border-border/80 transition-all duration-200 overflow-hidden group cursor-pointer"
+        onClick={() => setIsExpanded(true)}
+      >
         <div className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${leagueColor}`}>
@@ -131,30 +123,17 @@ const PlayCard = ({
             <span className="ml-auto text-xs text-muted-foreground">{date}</span>
           </div>
 
-          <div className={`flex gap-4 ${(embedUrl || videoUrl) ? 'items-center' : ''}`}>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold leading-tight mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                {title}
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4">
-                {description}
-              </p>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">{teams}</span>
-                <span>·</span>
-                <span>{gameContext}</span>
-              </div>
-            </div>
-
-            <div
-              className="w-44 h-44 shrink-0 flex items-center justify-center cursor-pointer"
-              onClick={() => setIsExpanded(true)}
-            >
-              <img
-                src={LEAGUE_BALL[league] || ballFootball}
-                alt={league}
-                className="w-44 h-44 object-contain drop-shadow-lg"
-              />
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold leading-tight mb-2 group-hover:text-primary transition-colors line-clamp-2">
+              {title}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4">
+              {description}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">{teams}</span>
+              <span>·</span>
+              <span>{gameContext}</span>
             </div>
           </div>
 
@@ -175,13 +154,10 @@ const PlayCard = ({
                   {isBookmarked ? <BookmarkCheck className="w-4 h-4 text-primary" /> : <Bookmark className="w-4 h-4" />}
                 </button>
               )}
-              <button
-                onClick={() => setIsExpanded(true)}
-                className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-              >
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-primary">
                 Open
                 <ChevronRight className="w-4 h-4" />
-              </button>
+              </span>
             </div>
           </div>
         </div>

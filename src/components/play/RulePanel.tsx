@@ -79,7 +79,7 @@ const RulePanel = ({
 
       {/* Content */}
       <div className="p-5">
-        <Accordion type="single" collapsible defaultValue="explanation" className="w-full">
+        <Accordion type="single" collapsible className="w-full">
 
           {/* Rule Explanation — summary + bullet points */}
           {ruleExplanation && (
