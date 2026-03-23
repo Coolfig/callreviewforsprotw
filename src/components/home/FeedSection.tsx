@@ -39,7 +39,7 @@ function getVideoThumbnail(video: typeof sportsVideos[0]): string | null {
   return null;
 }
 
-
+const FeedSection = () => {
   const { user } = useAuth();
   const [activeLeague, setActiveLeague] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
