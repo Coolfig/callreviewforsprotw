@@ -50,6 +50,7 @@ function parseGames(data: any, league: string): Game[] {
       id: event.id,
       name: event.name,
       shortName: event.shortName,
+      date: event.date,
       status: event.status,
       homeTeam: {
         id: home.team.id,
