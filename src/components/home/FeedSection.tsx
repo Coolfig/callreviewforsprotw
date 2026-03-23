@@ -3,7 +3,7 @@ import { Loader2, Send, TrendingUp, Users, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import PlayCard from "@/components/play/PlayCard";
 import { sportsVideos } from "@/data/sportsVideos";
 import { Link } from "react-router-dom";

@@ -189,7 +189,7 @@ const PlayCard = ({
               {date}
             </span>
             <button
-              onClick={() => setIsExpanded(false)}
+              onClick={(e) => { e.stopPropagation(); setIsExpanded(false); }}
               className="text-muted-foreground hover:text-foreground transition-colors text-xs underline underline-offset-2"
             >
               Collapse

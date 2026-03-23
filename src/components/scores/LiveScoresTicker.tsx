@@ -23,6 +23,7 @@ export interface Game {
   id: string;
   name: string;
   shortName: string;
+  date: string;
   status: GameStatus;
   homeTeam: Team;
   awayTeam: Team;
@@ -49,6 +50,7 @@ function parseGames(data: any, league: string): Game[] {
       id: event.id,
       name: event.name,
       shortName: event.shortName,
+      date: event.date,
       status: event.status,
       homeTeam: {
         id: home.team.id,
@@ -123,15 +125,15 @@ const LiveScoresTicker = () => {
     const s = game.status;
     if (s.type.state === "post") return "Final";
     if (s.type.state === "pre") {
-      const desc = s.type.description || s.type.name;
-      return desc;
+      try {
+        const d = new Date(game.date);
+        return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      } catch {
+        return s.type.description || s.type.name;
+      }
     }
     // In progress
-    const periodLabel = game.league === "NHL" || game.league === "NBA" 
-      ? `${ordinal(s.period)}` 
-      : game.league === "NFL" 
-        ? `${ordinal(s.period)}`
-        : `${ordinal(s.period)}`;
+    const periodLabel = `${ordinal(s.period)}`;
     return `${s.displayClock} - ${periodLabel}`;
   };
 
@@ -140,14 +142,14 @@ const LiveScoresTicker = () => {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-[60] bg-card border-b border-border">
-        <div className="flex items-center h-10">
+        <div className="flex items-center h-12">
           {/* League selector */}
           <div className="flex items-center gap-0 border-r border-border shrink-0">
             {LEAGUES.map((l) => (
               <button
                 key={l}
                 onClick={() => { setActiveLeague(l); setSelectedGame(null); }}
-                className={`px-3 h-10 text-xs font-bold transition-colors ${
+                className={`px-3 h-12 text-xs font-bold transition-colors ${
                   activeLeague === l
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
@@ -159,7 +161,7 @@ const LiveScoresTicker = () => {
           </div>
 
           {/* Scroll left */}
-          <button onClick={() => scroll("left")} className="shrink-0 px-1 h-10 text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => scroll("left")} className="shrink-0 px-1 h-12 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
 
@@ -174,21 +176,21 @@ const LiveScoresTicker = () => {
                 <button
                   key={game.id}
                   onClick={() => setSelectedGame(selectedGame?.id === game.id ? null : game)}
-                  className={`shrink-0 flex flex-col items-center justify-center px-4 h-10 border-r border-border/50 hover:bg-secondary/30 transition-colors min-w-[140px] ${
+                  className={`shrink-0 flex flex-col items-center justify-center px-5 h-12 border-r border-border/50 hover:bg-secondary/30 transition-colors min-w-[160px] ${
                     selectedGame?.id === game.id ? "bg-secondary/50" : ""
                   }`}
                 >
                   {/* Status line */}
-                  <div className={`text-[9px] font-semibold leading-none mb-0.5 ${isLive(game) ? "text-green-500" : "text-muted-foreground"}`}>
+                  <div className={`text-[10px] font-semibold leading-none mb-1 ${isLive(game) ? "text-green-500" : "text-muted-foreground"}`}>
                     {isLive(game) && <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1 animate-pulse" />}
                     {getStatusText(game)}
                     {game.broadcast && <span className="ml-1 text-muted-foreground/60">{game.broadcast}</span>}
                   </div>
 
                   {/* Teams */}
-                  <div className="flex items-center gap-3 text-[11px] leading-tight">
+                  <div className="flex items-center gap-3 text-xs leading-tight">
                     <div className="flex items-center gap-1">
-                      <img src={game.awayTeam.logo} alt="" className="w-3.5 h-3.5 object-contain" />
+                      <img src={game.awayTeam.logo} alt="" className="w-4 h-4 object-contain" />
                       <span className={`font-semibold ${game.awayTeam.winner ? "text-foreground" : "text-muted-foreground"}`}>
                         {game.awayTeam.abbreviation}
                       </span>
@@ -197,7 +199,7 @@ const LiveScoresTicker = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <img src={game.homeTeam.logo} alt="" className="w-3.5 h-3.5 object-contain" />
+                      <img src={game.homeTeam.logo} alt="" className="w-4 h-4 object-contain" />
                       <span className={`font-semibold ${game.homeTeam.winner ? "text-foreground" : "text-muted-foreground"}`}>
                         {game.homeTeam.abbreviation}
                       </span>
@@ -212,7 +214,7 @@ const LiveScoresTicker = () => {
           </div>
 
           {/* Scroll right */}
-          <button onClick={() => scroll("right")} className="shrink-0 px-1 h-10 text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => scroll("right")} className="shrink-0 px-1 h-12 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
