@@ -137,9 +137,14 @@ const Header = () => {
                   <Settings className="w-4 h-4" />
                 </Button>
 
-                <button onClick={() => navigate(`/profile/${username}`)} className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1.5 ml-1">
-                  <User className="w-4 h-4" />
-                  {username || "User"}
+                <button onClick={() => navigate(`/profile/${username}`)} className="flex items-center gap-1.5 ml-1 hover:opacity-80 transition-opacity">
+                  <Avatar className="w-7 h-7">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt={username || "User"} />}
+                    <AvatarFallback className="bg-secondary text-[10px] font-bold">
+                      {(username || "U").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-foreground">{username || "User"}</span>
                 </button>
                 <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
                   <LogOut className="w-4 h-4" />
