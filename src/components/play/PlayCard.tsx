@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Calendar, Users, MessageSquare, ChevronRight, Flame, Bookmark, BookmarkCheck } from "lucide-react";
+import { Calendar, Users, MessageSquare, ChevronRight, ChevronUp, Flame, Bookmark, BookmarkCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VideoPlayer from "./VideoPlayer";
 import RulePanel, { type RulePanelProps } from "./RulePanel";
