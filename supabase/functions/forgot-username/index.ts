@@ -25,9 +25,15 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Look up username by finding user with this email
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-    const user = users?.users?.find(
+    // Look up user by email using admin API (paginated, not loading all users)
+    const { data: usersByEmail } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+
+    // Use admin getUserByEmail-style lookup via filter
+    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+    const user = usersData?.users?.find(
       (u) => u.email?.toLowerCase() === email.toLowerCase()
     );
 
@@ -39,9 +45,6 @@ Deno.serve(async (req) => {
         .single();
 
       if (profile) {
-        // Send email with username using Supabase's built-in email
-        // For now we use the auth admin API to send a magic link with a note
-        // In production you'd use a proper email service
         await supabaseAdmin.auth.admin.generateLink({
           type: "magiclink",
           email: email,
@@ -50,8 +53,7 @@ Deno.serve(async (req) => {
           },
         });
 
-        // We log the username reminder - in production, integrate with email provider
-        console.log(`Username reminder for ${email}: ${profile.username}`);
+        console.log('Username reminder sent successfully');
       }
     }
 

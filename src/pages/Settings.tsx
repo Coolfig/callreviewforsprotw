@@ -157,6 +157,10 @@ const Settings = () => {
                 <p className="text-sm text-muted-foreground mb-8">Update your password to keep your account secure.</p>
                 <div className="max-w-md space-y-4">
                   <div>
+                    <label className="text-sm font-medium mb-1 block">Current password</label>
+                    <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter current password" />
+                  </div>
+                  <div>
                     <label className="text-sm font-medium mb-1 block">New password</label>
                     <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" />
                   </div>
