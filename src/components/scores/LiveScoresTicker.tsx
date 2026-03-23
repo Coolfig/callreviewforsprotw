@@ -23,6 +23,7 @@ export interface Game {
   id: string;
   name: string;
   shortName: string;
+  date: string;
   status: GameStatus;
   homeTeam: Team;
   awayTeam: Team;
