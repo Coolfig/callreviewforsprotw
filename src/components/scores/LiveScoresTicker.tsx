@@ -184,7 +184,7 @@ const LiveScoresTicker = () => {
                   <div className={`text-[10px] font-semibold leading-none mb-1 ${isLive(game) ? "text-green-500" : "text-muted-foreground"}`}>
                     {isLive(game) && <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1 animate-pulse" />}
                     {getStatusText(game)}
-                    {game.broadcast && <span className="ml-1 text-muted-foreground/60">{game.broadcast}</span>}
+                    {/* broadcast removed */}
                   </div>
 
                   {/* Teams */}
