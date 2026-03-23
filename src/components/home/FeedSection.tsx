@@ -39,40 +39,7 @@ function getVideoThumbnail(video: typeof sportsVideos[0]): string | null {
   return null;
 }
 
-const CurrentUserCard = ({ userId }: { userId: string }) => {
-  const [profile, setProfile] = useState<{ username: string; avatar_url: string | null; bio: string | null } | null>(null);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("username, avatar_url, bio")
-        .eq("user_id", userId)
-        .single();
-      if (data) setProfile(data);
-    };
-    fetch();
-  }, [userId]);
-
-  if (!profile) return null;
-
-  return (
-    <Link to={`/profile/${profile.username}`} className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 hover:bg-secondary/30 transition-colors">
-      <Avatar className="w-10 h-10 shrink-0">
-        {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.username} />}
-        <AvatarFallback className="bg-secondary text-xs font-bold">
-          {profile.username.slice(0, 2).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <div className="min-w-0">
-        <p className="text-sm font-semibold">{profile.username}</p>
-        <p className="text-xs text-muted-foreground line-clamp-1">@{profile.username}</p>
-      </div>
-    </Link>
-  );
-};
-
-const FeedSection = () => {
   const { user } = useAuth();
   const [activeLeague, setActiveLeague] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
