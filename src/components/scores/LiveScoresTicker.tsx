@@ -110,7 +110,7 @@ const LiveScoresTicker = () => {
 
   useEffect(() => {
     fetchScores(activeLeague);
-    const interval = setInterval(() => fetchScores(activeLeague), 30000);
+    const interval = setInterval(() => fetchScores(activeLeague, true), 30000);
     return () => clearInterval(interval);
   }, [activeLeague]);
 

@@ -287,7 +287,6 @@ const FeedSection = () => {
                 </div>
 
               </div>
-            </ScrollArea>
           </aside>
         </div>
       </div>
