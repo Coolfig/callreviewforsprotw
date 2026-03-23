@@ -167,124 +167,132 @@ const FeedSection = () => {
           </div>
 
           {/* Right Sidebar */}
-          <aside className="hidden lg:flex flex-col gap-6 sticky top-20">
+          <aside className="hidden lg:block sticky top-20 max-h-[calc(100vh-6rem)]">
+            <ScrollArea className="h-full max-h-[calc(100vh-6rem)]">
+              <div className="flex flex-col gap-6 pr-2">
 
-            {/* Trending */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                <span className="font-semibold text-sm tracking-wide uppercase">Trending</span>
-                <TrendingUp className="w-4 h-4 text-primary" />
-              </div>
-              <div className="divide-y divide-border">
-                {trendingVideos.map((v) => {
-                  const thumb = getVideoThumbnail(v);
-                  return (
-                    <button
-                      key={v.id}
-                      onClick={() => {
-                        setExpandedPlayId(v.id);
-                        setTimeout(() => {
-                          const el = document.getElementById(`play-${v.id}`);
-                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }, 100);
-                      }}
-                      className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
-                    >
-                      <div className="w-14 h-14 shrink-0 flex items-center justify-center">
-                        <img
-                          src={refereeCharacter}
-                          alt={v.league}
-                          className="w-12 h-12 object-contain drop-shadow-md"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
-                          <span className="text-xs text-primary">Open</span>
+                {/* Current User Profile Card */}
+                {user && (
+                  <CurrentUserCard userId={user.id} />
+                )}
+
+                {/* Trending */}
+                <div className="bg-card rounded-xl border border-border overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                    <span className="font-semibold text-sm tracking-wide uppercase">Trending</span>
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="divide-y divide-border">
+                    {trendingVideos.map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => {
+                          setExpandedPlayId(v.id);
+                          setTimeout(() => {
+                            const el = document.getElementById(`play-${v.id}`);
+                            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }, 100);
+                        }}
+                        className="flex items-start gap-3 px-5 py-4 hover:bg-secondary/30 transition-colors cursor-pointer w-full text-left"
+                      >
+                        <div className="w-14 h-14 shrink-0 flex items-center justify-center">
+                          <img
+                            src={refereeCharacter}
+                            alt={v.league}
+                            className="w-12 h-12 object-contain drop-shadow-md"
+                          />
                         </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="px-5 py-3">
-                <a
-                  href="https://forms.gle/SticowSatRJgssuY9"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full text-center bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
-                >
-                  Submit a Clip
-                </a>
-              </div>
-            </div>
-
-            {/* Who to Follow */}
-            {suggestedUsers.length > 0 && (
-              <div className="bg-card rounded-xl border border-border overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                  <span className="font-semibold text-sm tracking-wide uppercase">Who to Follow</span>
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <div className="divide-y divide-border">
-                  {suggestedUsers
-                    .filter((u) => u.user_id !== user?.id)
-                    .slice(0, 5)
-                    .map((u) => {
-                      const isFollowing = followingIds.has(u.user_id);
-                      return (
-                        <div key={u.user_id} className="flex items-center gap-3 px-5 py-3.5">
-                          <Avatar className="w-9 h-9 shrink-0">
-                            <AvatarFallback className="bg-secondary text-xs font-bold">
-                              {u.username.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <Link to={`/profile/${u.username}`} className="text-sm font-semibold leading-tight hover:underline">
-                              {u.username}
-                            </Link>
-                            <p className="text-xs text-muted-foreground line-clamp-1">@{u.username}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
+                            <span className="text-xs text-primary">Open</span>
                           </div>
-                          <button
-                            onClick={() => handleFollow(u.user_id)}
-                            className={`text-xs font-semibold rounded-full px-3 py-1 transition-colors ${
-                              isFollowing
-                                ? "bg-secondary text-foreground border border-border"
-                                : "text-primary border border-primary/40 hover:bg-primary/10"
-                            }`}
-                          >
-                            {isFollowing ? "Following" : "Follow"}
-                          </button>
                         </div>
-                      );
-                    })}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="px-5 py-3">
+                    <a
+                      href="https://forms.gle/SticowSatRJgssuY9"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full text-center bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      Submit a Clip
+                    </a>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* League jump */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="px-5 py-4 border-b border-border">
-                <span className="font-semibold text-sm tracking-wide uppercase">Explore by League</span>
+                {/* Who to Follow */}
+                {suggestedUsers.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                      <span className="font-semibold text-sm tracking-wide uppercase">Who to Follow</span>
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div className="divide-y divide-border">
+                      {suggestedUsers
+                        .filter((u) => u.user_id !== user?.id)
+                        .slice(0, 5)
+                        .map((u) => {
+                          const isFollowing = followingIds.has(u.user_id);
+                          return (
+                            <div key={u.user_id} className="flex items-center gap-3 px-5 py-3.5">
+                              <Avatar className="w-9 h-9 shrink-0">
+                                {u.avatar_url && <AvatarImage src={u.avatar_url} alt={u.username} />}
+                                <AvatarFallback className="bg-secondary text-xs font-bold">
+                                  {u.username.slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <Link to={`/profile/${u.username}`} className="text-sm font-semibold leading-tight hover:underline">
+                                  {u.username}
+                                </Link>
+                                <p className="text-xs text-muted-foreground line-clamp-1">@{u.username}</p>
+                              </div>
+                              <button
+                                onClick={() => handleFollow(u.user_id)}
+                                className={`text-xs font-semibold rounded-full px-3 py-1 transition-colors ${
+                                  isFollowing
+                                    ? "bg-secondary text-foreground border border-border"
+                                    : "text-primary border border-primary/40 hover:bg-primary/10"
+                                }`}
+                              >
+                                {isFollowing ? "Following" : "Follow"}
+                              </button>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+
+                {/* League jump */}
+                <div className="bg-card rounded-xl border border-border overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border">
+                    <span className="font-semibold text-sm tracking-wide uppercase">Explore by League</span>
+                  </div>
+                  <div className="p-3 grid grid-cols-2 gap-2">
+                    {["NFL", "NBA", "MLB", "NHL"].map((lg) => (
+                      <button
+                        key={lg}
+                        onClick={() => { setActiveLeague(lg); setVisibleCount(BATCH_SIZE); }}
+                        className={`rounded-lg py-3 text-sm font-bold transition-all border ${
+                          activeLeague === lg
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border hover:bg-secondary text-foreground"
+                        }`}
+                      >
+                        {lg}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
               </div>
-              <div className="p-3 grid grid-cols-2 gap-2">
-                {["NFL", "NBA", "MLB", "NHL"].map((lg) => (
-                  <button
-                    key={lg}
-                    onClick={() => { setActiveLeague(lg); setVisibleCount(BATCH_SIZE); }}
-                    className={`rounded-lg py-3 text-sm font-bold transition-all border ${
-                      activeLeague === lg
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border hover:bg-secondary text-foreground"
-                    }`}
-                  >
-                    {lg}
-                  </button>
-                ))}
-              </div>
-            </div>
+            </ScrollArea>
           </aside>
         </div>
       </div>
