@@ -25,17 +25,15 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Look up user by email using admin API (paginated, not loading all users)
-    const { data: usersByEmail } = await supabaseAdmin.auth.admin.listUsers({
+    // Look up profile by checking auth users via email
+    // Use getUserById is not possible without an id, so we look up via profiles
+    // We need the user_id to fetch the profile, so use admin.listUsers with a filter
+    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers({
       page: 1,
       perPage: 1,
+      filter: email.toLowerCase(),
     });
-
-    // Use admin getUserByEmail-style lookup via filter
-    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
-    const user = usersData?.users?.find(
-      (u) => u.email?.toLowerCase() === email.toLowerCase()
-    );
+    const user = usersData?.users?.[0];
 
     if (user) {
       const { data: profile } = await supabaseAdmin
