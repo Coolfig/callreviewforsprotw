@@ -157,18 +157,22 @@ const PostItem = ({
     if (!query.trim()) { setGifResults([]); return; }
     setGifLoading(true);
     try {
-      const res = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=16`);
-      const data = await res.json();
-      setGifResults(data.results || []);
+      const { data, error } = await supabase.functions.invoke('gif-search', {
+        body: { query, type: 'search' },
+      });
+      if (error) throw error;
+      setGifResults(data?.results || []);
     } catch { /* ignore */ } finally { setGifLoading(false); }
   };
 
   const fetchTrendingGifs = async () => {
     setGifLoading(true);
     try {
-      const res = await fetch(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=callreview&limit=16`);
-      const data = await res.json();
-      setGifResults(data.results || []);
+      const { data, error } = await supabase.functions.invoke('gif-search', {
+        body: { type: 'trending' },
+      });
+      if (error) throw error;
+      setGifResults(data?.results || []);
     } catch { /* ignore */ } finally { setGifLoading(false); }
   };
 
