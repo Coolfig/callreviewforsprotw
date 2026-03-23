@@ -149,7 +149,7 @@ const LiveScoresTicker = () => {
               <button
                 key={l}
                 onClick={() => { setActiveLeague(l); setSelectedGame(null); }}
-                className={`px-3 h-10 text-xs font-bold transition-colors ${
+                className={`px-3 h-12 text-xs font-bold transition-colors ${
                   activeLeague === l
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
