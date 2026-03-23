@@ -201,7 +201,6 @@ const FeedSection = () => {
                           <p className="text-sm font-medium leading-snug line-clamp-2">{v.title}</p>
                           <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
                           <div className="flex items-center gap-3 mt-1">
-                            <span className="text-xs text-muted-foreground">{v.voteCount.toLocaleString()} votes</span>
                             <span className="text-xs text-primary">Open</span>
                           </div>
                         </div>

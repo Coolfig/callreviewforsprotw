@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Calendar, Users, MessageSquare, ChevronRight, Flame, Bookmark, BookmarkCheck } from "lucide-react";
+import { Calendar, Users, MessageSquare, ChevronRight, ChevronUp, Flame, Bookmark, BookmarkCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VideoPlayer from "./VideoPlayer";
 import RulePanel, { type RulePanelProps } from "./RulePanel";
@@ -58,7 +58,10 @@ const PlayCard = ({
   const [realCommentCount, setRealCommentCount] = useState(0);
 
   useEffect(() => {
-    if (defaultExpanded) setIsExpanded(true);
+    if (defaultExpanded) {
+      // Use a microtask to avoid race with click handlers
+      queueMicrotask(() => setIsExpanded(true));
+    }
   }, [defaultExpanded]);
 
   // Fetch real counts from DB
@@ -167,8 +170,12 @@ const PlayCard = ({
 
   // Expanded card (full detail)
   return (
-    <article className="bg-card rounded-2xl border border-border overflow-hidden">
-      <div className="p-6 border-b border-border">
+    <article className="bg-card rounded-2xl border border-border overflow-hidden relative">
+      {/* Clickable header to collapse */}
+      <div
+        className="p-6 border-b border-border cursor-pointer hover:bg-secondary/20 transition-colors"
+        onClick={() => setIsExpanded(false)}
+      >
         <div className="flex items-center gap-2 mb-4">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${leagueColor}`}>
             {league}
@@ -188,12 +195,10 @@ const PlayCard = ({
               <Calendar className="w-3.5 h-3.5" />
               {date}
             </span>
-            <button
-              onClick={(e) => { e.stopPropagation(); setIsExpanded(false); }}
-              className="text-muted-foreground hover:text-foreground transition-colors text-xs underline underline-offset-2"
-            >
+            <span className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+              <ChevronUp className="w-4 h-4" />
               Collapse
-            </button>
+            </span>
           </div>
         </div>
 
@@ -207,7 +212,7 @@ const PlayCard = ({
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6" onClick={(e) => e.stopPropagation()}>
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <VideoPlayer embedUrl={embedUrl} videoUrl={videoUrl} source={videoSource} onError={handleVideoError} />
@@ -222,6 +227,15 @@ const PlayCard = ({
           <CommentSection playId={id} />
         </div>
       </div>
+
+      {/* Floating collapse button bottom right */}
+      <button
+        onClick={() => setIsExpanded(false)}
+        className="sticky bottom-4 float-right mr-4 mb-4 bg-primary text-primary-foreground rounded-full p-2.5 shadow-lg hover:bg-primary/90 transition-colors z-10"
+        title="Collapse"
+      >
+        <ChevronUp className="w-5 h-5" />
+      </button>
     </article>
   );
 };
