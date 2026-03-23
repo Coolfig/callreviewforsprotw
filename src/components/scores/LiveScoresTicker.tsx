@@ -188,7 +188,7 @@ const LiveScoresTicker = () => {
                   </div>
 
                   {/* Teams */}
-                  <div className="flex items-center gap-3 text-[11px] leading-tight">
+                  <div className="flex items-center gap-3 text-xs leading-tight">
                     <div className="flex items-center gap-1">
                       <img src={game.awayTeam.logo} alt="" className="w-3.5 h-3.5 object-contain" />
                       <span className={`font-semibold ${game.awayTeam.winner ? "text-foreground" : "text-muted-foreground"}`}>
