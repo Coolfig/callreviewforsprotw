@@ -199,7 +199,7 @@ const LiveScoresTicker = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <img src={game.homeTeam.logo} alt="" className="w-3.5 h-3.5 object-contain" />
+                      <img src={game.homeTeam.logo} alt="" className="w-4 h-4 object-contain" />
                       <span className={`font-semibold ${game.homeTeam.winner ? "text-foreground" : "text-muted-foreground"}`}>
                         {game.homeTeam.abbreviation}
                       </span>
