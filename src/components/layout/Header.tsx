@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Search, LogOut, User, Bell, MessageSquare, Settings, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { timeAgo } from "@/lib/utils/timeAgo";
+import { supabase } from "@/integrations/supabase/client";
 import refereeCharacter from "@/assets/referee-character.png";
 
 const Header = () => {
