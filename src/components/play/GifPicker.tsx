@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GifPickerProps {
   onSelect: (url: string) => void;
 }
-
-const TENOR_KEY = "AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ";
 
 const GifPicker = ({ onSelect }: GifPickerProps) => {
   const [search, setSearch] = useState("");
@@ -17,10 +16,11 @@ const GifPicker = ({ onSelect }: GifPickerProps) => {
     if (!query.trim()) { setResults([]); return; }
     setLoading(true);
     try {
-      const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=${TENOR_KEY}&client_key=callreview&limit=20`;
-      const res = await fetch(url);
-      const data = await res.json();
-      setResults(data.results || []);
+      const { data, error } = await supabase.functions.invoke('gif-search', {
+        body: { query, type: 'search' },
+      });
+      if (error) throw error;
+      setResults(data?.results || []);
     } catch (e) {
       console.error("GIF search failed:", e);
     } finally {
@@ -31,10 +31,11 @@ const GifPicker = ({ onSelect }: GifPickerProps) => {
   const fetchTrending = async () => {
     setLoading(true);
     try {
-      const url = `https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&client_key=callreview&limit=20`;
-      const res = await fetch(url);
-      const data = await res.json();
-      setResults(data.results || []);
+      const { data, error } = await supabase.functions.invoke('gif-search', {
+        body: { type: 'trending' },
+      });
+      if (error) throw error;
+      setResults(data?.results || []);
     } catch (e) {
       console.error("GIF fetch failed:", e);
     } finally {
