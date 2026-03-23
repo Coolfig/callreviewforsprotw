@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { timeAgo } from "@/lib/utils/timeAgo";
-import refereeLogo from "@/assets/referee-logo.png";
+import refereeCharacter from "@/assets/referee-character.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
