@@ -58,7 +58,10 @@ const PlayCard = ({
   const [realCommentCount, setRealCommentCount] = useState(0);
 
   useEffect(() => {
-    if (defaultExpanded) setIsExpanded(true);
+    if (defaultExpanded) {
+      // Use a microtask to avoid race with click handlers
+      queueMicrotask(() => setIsExpanded(true));
+    }
   }, [defaultExpanded]);
 
   // Fetch real counts from DB
