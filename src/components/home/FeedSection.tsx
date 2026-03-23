@@ -167,8 +167,7 @@ const FeedSection = () => {
           </div>
 
           {/* Right Sidebar */}
-          <aside className="hidden lg:block sticky top-20 max-h-[calc(100vh-6rem)]">
-            <ScrollArea className="h-full max-h-[calc(100vh-6rem)]">
+          <aside className="hidden lg:block sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
               <div className="flex flex-col gap-6 pr-2">
 
 
