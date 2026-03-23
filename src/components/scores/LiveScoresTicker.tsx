@@ -83,8 +83,8 @@ const LiveScoresTicker = () => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const fetchScores = async (league: string) => {
-    setLoading(true);
+  const fetchScores = async (league: string, isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
     try {
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -110,7 +110,7 @@ const LiveScoresTicker = () => {
 
   useEffect(() => {
     fetchScores(activeLeague);
-    const interval = setInterval(() => fetchScores(activeLeague), 30000);
+    const interval = setInterval(() => fetchScores(activeLeague, true), 30000);
     return () => clearInterval(interval);
   }, [activeLeague]);
 
