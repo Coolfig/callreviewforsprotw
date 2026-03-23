@@ -28,11 +28,25 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
 
   const handleChangePassword = async () => {
+    if (!currentPassword) {
+      toast({ title: "Please enter your current password", variant: "destructive" });
+      return;
+    }
     if (!newPassword || newPassword.length < 6) {
-      toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+      toast({ title: "New password must be at least 6 characters", variant: "destructive" });
       return;
     }
     setSaving(true);
+    // Re-authenticate with current password first
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: user!.email!,
+      password: currentPassword,
+    });
+    if (authError) {
+      setSaving(false);
+      toast({ title: "Current password is incorrect", variant: "destructive" });
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSaving(false);
     if (error) {
