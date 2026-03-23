@@ -85,8 +85,16 @@ export interface DetectionResponse {
 export async function verifyContent(
   content: ContentToVerify[]
 ): Promise<VerificationResponse> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error('Authentication required for content verification');
+  }
+
   const { data, error } = await supabase.functions.invoke('verify-content', {
     body: { content },
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
   });
 
   if (error) {
