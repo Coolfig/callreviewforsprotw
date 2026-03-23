@@ -45,7 +45,7 @@ const Header = () => {
             className="flex items-center gap-2 group"
           >
             <div className="w-10 h-10 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <img src={refereeLogo} alt="CallReview" className="w-8 h-8 object-contain" />
+              <img src={refereeCharacter} alt="CallReview" className="w-8 h-8 object-contain" />
             </div>
             <span className="text-lg font-semibold tracking-tight">
               Call<span className="text-primary">Review</span>
