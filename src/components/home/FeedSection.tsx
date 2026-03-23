@@ -204,10 +204,6 @@ const FeedSection = () => {
             <ScrollArea className="h-full max-h-[calc(100vh-6rem)]">
               <div className="flex flex-col gap-6 pr-2">
 
-                {/* Current User Profile Card */}
-                {user && (
-                  <CurrentUserCard userId={user.id} />
-                )}
 
                 {/* Trending */}
                 <div className="bg-card rounded-xl border border-border overflow-hidden">
