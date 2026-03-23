@@ -176,7 +176,7 @@ const LiveScoresTicker = () => {
                 <button
                   key={game.id}
                   onClick={() => setSelectedGame(selectedGame?.id === game.id ? null : game)}
-                  className={`shrink-0 flex flex-col items-center justify-center px-4 h-10 border-r border-border/50 hover:bg-secondary/30 transition-colors min-w-[140px] ${
+                  className={`shrink-0 flex flex-col items-center justify-center px-5 h-12 border-r border-border/50 hover:bg-secondary/30 transition-colors min-w-[160px] ${
                     selectedGame?.id === game.id ? "bg-secondary/50" : ""
                   }`}
                 >
