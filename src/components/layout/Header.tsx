@@ -16,6 +16,13 @@ const Header = () => {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const { notifications, unreadCount, markAllRead, markOneRead } = useNotifications(user?.id);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("avatar_url").eq("user_id", user.id).single()
+      .then(({ data }) => { if (data) setAvatarUrl(data.avatar_url); });
+  }, [user]);
 
   const navLinks = [
     { name: "Feed", href: "/feed" },
