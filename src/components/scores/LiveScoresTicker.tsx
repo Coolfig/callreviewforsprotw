@@ -161,7 +161,7 @@ const LiveScoresTicker = () => {
           </div>
 
           {/* Scroll left */}
-          <button onClick={() => scroll("left")} className="shrink-0 px-1 h-10 text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => scroll("left")} className="shrink-0 px-1 h-12 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
 
