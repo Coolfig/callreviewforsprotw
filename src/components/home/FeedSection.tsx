@@ -191,7 +191,7 @@ const FeedSection = () => {
                     >
                       <div className="w-14 h-14 shrink-0 flex items-center justify-center">
                         <img
-                          src={LEAGUE_BALL[v.league] || ballFootball}
+                          src={refereeCharacter}
                           alt={v.league}
                           className="w-12 h-12 object-contain drop-shadow-md"
                         />

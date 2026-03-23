@@ -58,21 +58,6 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.3s' }}>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">2,847</div>
-              <div className="text-sm text-muted-foreground">Plays Analyzed</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">156K</div>
-              <div className="text-sm text-muted-foreground">Fan Votes Cast</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">4</div>
-              <div className="text-sm text-muted-foreground">Major Leagues</div>
-            </div>
-          </div>
         </div>
       </div>
 
