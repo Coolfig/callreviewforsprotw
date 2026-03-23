@@ -125,15 +125,15 @@ const LiveScoresTicker = () => {
     const s = game.status;
     if (s.type.state === "post") return "Final";
     if (s.type.state === "pre") {
-      const desc = s.type.description || s.type.name;
-      return desc;
+      try {
+        const d = new Date(game.date);
+        return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      } catch {
+        return s.type.description || s.type.name;
+      }
     }
     // In progress
-    const periodLabel = game.league === "NHL" || game.league === "NBA" 
-      ? `${ordinal(s.period)}` 
-      : game.league === "NFL" 
-        ? `${ordinal(s.period)}`
-        : `${ordinal(s.period)}`;
+    const periodLabel = `${ordinal(s.period)}`;
     return `${s.displayClock} - ${periodLabel}`;
   };
 
