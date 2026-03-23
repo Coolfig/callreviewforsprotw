@@ -8,17 +8,7 @@ import { sportsVideos } from "@/data/sportsVideos";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import ballFootball from "@/assets/ball-football.png";
-import ballBasketball from "@/assets/ball-basketball.png";
-import ballBaseball from "@/assets/ball-baseball.png";
-import ballHockey from "@/assets/ball-hockey.png";
-
-const LEAGUE_BALL: Record<string, string> = {
-  NFL: ballFootball,
-  NBA: ballBasketball,
-  MLB: ballBaseball,
-  NHL: ballHockey,
-};
+import refereeCharacter from "@/assets/referee-character.png";
 
 const leagues = ["All", "NFL", "NBA", "MLB", "NHL"];
 const BATCH_SIZE = 10;
@@ -201,7 +191,7 @@ const FeedSection = () => {
                     >
                       <div className="w-14 h-14 shrink-0 flex items-center justify-center">
                         <img
-                          src={LEAGUE_BALL[v.league] || ballFootball}
+                          src={refereeCharacter}
                           alt={v.league}
                           className="w-12 h-12 object-contain drop-shadow-md"
                         />
