@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import refereeLogo from "@/assets/referee-logo.png";
+import refereeCharacter from "@/assets/referee-character.png";
 
 const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
