@@ -8,17 +8,7 @@ import { sportsVideos } from "@/data/sportsVideos";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import ballFootball from "@/assets/ball-football.png";
-import ballBasketball from "@/assets/ball-basketball.png";
-import ballBaseball from "@/assets/ball-baseball.png";
-import ballHockey from "@/assets/ball-hockey.png";
-
-const LEAGUE_BALL: Record<string, string> = {
-  NFL: ballFootball,
-  NBA: ballBasketball,
-  MLB: ballBaseball,
-  NHL: ballHockey,
-};
+import refereeCharacter from "@/assets/referee-character.png";
 
 const leagues = ["All", "NFL", "NBA", "MLB", "NHL"];
 const BATCH_SIZE = 10;
