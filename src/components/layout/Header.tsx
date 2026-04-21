@@ -162,6 +162,22 @@ const Header = () => {
                 </Button>
               </>
             )}
+
+            {/* Always-visible Submit a Call CTA */}
+            <Button
+              size="sm"
+              variant="default"
+              className="ml-1 font-bold shadow-[0_4px_20px_-6px_hsl(var(--primary)/0.6)] hover:-translate-y-0.5 transition-all"
+              onClick={() => {
+                if (location.pathname === "/") {
+                  document.getElementById("feed")?.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  navigate("/feed");
+                }
+              }}
+            >
+              Submit a Call
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}

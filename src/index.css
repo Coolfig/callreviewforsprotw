@@ -16,8 +16,8 @@
     --popover: 220 18% 11%;
     --popover-foreground: 210 20% 98%;
 
-    /* Primary - subtle blue accent */
-    --primary: 210 100% 52%;
+    /* Primary - bold sports red (CTA, votes, trending) */
+    --primary: 358 78% 52%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - muted slate */
@@ -25,11 +25,15 @@
     --secondary-foreground: 210 20% 85%;
 
     --muted: 220 14% 14%;
-    --muted-foreground: 215 15% 55%;
+    --muted-foreground: 215 15% 60%;
 
-    /* Accent - warm amber for highlights */
-    --accent: 38 95% 55%;
+    /* Accent - electric yellow for highlights / "Top This Week" */
+    --accent: 48 100% 55%;
     --accent-foreground: 220 20% 8%;
+
+    /* Tertiary highlight - electric blue for league + info */
+    --info: 210 100% 56%;
+    --info-foreground: 0 0% 100%;
 
     /* Semantic colors */
     --success: 142 70% 45%;
@@ -48,24 +52,25 @@
 
     --border: 220 14% 18%;
     --input: 220 14% 18%;
-    --ring: 210 100% 52%;
+    --ring: 358 78% 52%;
 
     --radius: 0.75rem;
 
     /* Sidebar */
     --sidebar-background: 220 18% 9%;
     --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 210 100% 52%;
+    --sidebar-primary: 358 78% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 14%;
     --sidebar-accent-foreground: 210 20% 85%;
     --sidebar-border: 220 14% 16%;
-    --sidebar-ring: 210 100% 52%;
+    --sidebar-ring: 358 78% 52%;
 
     /* Custom gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220 20% 8%) 0%, hsl(220 25% 12%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(220 22% 6%) 0%, hsl(358 50% 14%) 60%, hsl(220 25% 10%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(220 18% 13%) 0%, hsl(220 18% 10%) 100%);
-    --gradient-highlight: linear-gradient(90deg, hsl(38 95% 55% / 0.15) 0%, transparent 100%);
+    --gradient-highlight: linear-gradient(90deg, hsl(48 100% 55% / 0.18) 0%, transparent 100%);
+    --gradient-cta: linear-gradient(135deg, hsl(358 78% 52%) 0%, hsl(358 90% 60%) 100%);
   }
 
   .dark {
@@ -119,7 +124,11 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary;
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.35)];
   }
 
   .rule-highlight {

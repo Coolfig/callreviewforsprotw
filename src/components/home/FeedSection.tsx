@@ -174,7 +174,7 @@ const FeedSection = () => {
                 {/* Trending */}
                 <div className="bg-card rounded-xl border border-border overflow-hidden">
                   <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                    <span className="font-semibold text-sm tracking-wide uppercase">Trending</span>
+                    <span className="font-bold text-sm tracking-wide uppercase">Trending Calls</span>
                     <TrendingUp className="w-4 h-4 text-primary" />
                   </div>
                   <div className="divide-y divide-border">

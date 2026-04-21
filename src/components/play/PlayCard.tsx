@@ -109,16 +109,22 @@ const PlayCard = ({
   if (!isExpanded) {
     return (
       <article
-        className="bg-card rounded-2xl border border-border hover:border-border/80 transition-all duration-200 overflow-hidden group cursor-pointer"
+        className="bg-card rounded-2xl border border-border card-hover overflow-hidden group cursor-pointer relative"
         onClick={() => setIsExpanded(true)}
       >
-        <div className="p-6">
+        {/* Vote count rail (left) — makes votes prominent */}
+        <div className="absolute left-0 top-0 bottom-0 w-16 bg-secondary/30 border-r border-border/50 flex flex-col items-center justify-center group-hover:bg-primary/10 transition-colors">
+          <span className="text-2xl font-extrabold text-foreground leading-none">{realVoteCount.toLocaleString()}</span>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1 font-semibold">votes</span>
+        </div>
+
+        <div className="p-6 pl-20">
           <div className="flex items-center gap-2 mb-4">
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${leagueColor}`}>
               {league}
             </span>
             {isHot && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border border-orange-500/30 text-orange-400 bg-orange-500/10">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border border-primary/40 text-primary bg-primary/10">
                 <Flame className="w-3 h-3" />
                 Trending
               </span>
@@ -143,24 +149,23 @@ const PlayCard = ({
           <div className="flex items-center mt-5 pt-4 border-t border-border/50">
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" />
-                <span className="font-medium">{realVoteCount.toLocaleString()}</span> votes
-              </span>
-              <span className="flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span className="font-medium">{realCommentCount}</span> comments
               </span>
             </div>
             <div className="ml-auto flex items-center gap-2">
               {user && (
-                <button onClick={toggleBookmark} className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={toggleBookmark} className="text-muted-foreground hover:text-primary transition-colors p-1">
                   {isBookmarked ? <BookmarkCheck className="w-4 h-4 text-primary" /> : <Bookmark className="w-4 h-4" />}
                 </button>
               )}
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-                Open
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsExpanded(true); }}
+                className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-bold hover:bg-primary/90 hover:-translate-y-0.5 transition-all shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.5)]"
+              >
+                Vote
                 <ChevronRight className="w-4 h-4" />
-              </span>
+              </button>
             </div>
           </div>
         </div>
