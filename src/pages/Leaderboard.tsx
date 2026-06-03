@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Loader2, ThumbsUp, ThumbsDown, FileText } from "lucide-react";
+import { Trophy, Loader2, ThumbsUp, ThumbsDown, FileText, Flame, Crown, Medal } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -16,10 +16,45 @@ type Row = {
   points: number;
 };
 
-// Scoring: +2 per post, +1 per like received, -1 per dislike received
 const POINTS_PER_POST = 2;
 const POINTS_PER_LIKE = 1;
 const POINTS_PER_DISLIKE = -1;
+
+const useCountUp = (target: number, duration = 900) => {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const from = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(from + (target - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return val;
+};
+
+const BigPoints = ({ value, size = "md" }: { value: number; size?: "xl" | "lg" | "md" | "sm" }) => {
+  const n = useCountUp(value);
+  const sizes = {
+    xl: "text-6xl md:text-7xl",
+    lg: "text-5xl",
+    md: "text-4xl",
+    sm: "text-2xl",
+  };
+  return (
+    <span
+      className={`${sizes[size]} font-black tracking-tight bg-gradient-to-br from-primary via-accent to-info bg-clip-text text-transparent leading-none tabular-nums`}
+      style={{ filter: "drop-shadow(0 2px 12px hsl(var(--primary) / 0.25))" }}
+    >
+      {n.toLocaleString()}
+    </span>
+  );
+};
 
 const Leaderboard = () => {
   const [rows, setRows] = useState<Row[]>([]);
@@ -28,7 +63,6 @@ const Leaderboard = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-
       const [{ data: profiles }, { data: posts }, { data: postLikes }, { data: comments }, { data: cLikes }, { data: cDislikes }] = await Promise.all([
         supabase.from("profiles").select("user_id, username, avatar_url"),
         supabase.from("posts").select("id, user_id"),
@@ -44,7 +78,6 @@ const Leaderboard = () => {
         postOwner.set(p.id, p.user_id);
         postsByUser.set(p.user_id, (postsByUser.get(p.user_id) || 0) + 1);
       });
-
       const commentOwner = new Map<string, string>();
       (comments || []).forEach((c: any) => commentOwner.set(c.id, c.user_id));
 
@@ -57,7 +90,6 @@ const Leaderboard = () => {
         const u = commentOwner.get(l.comment_id);
         if (u) likesByUser.set(u, (likesByUser.get(u) || 0) + 1);
       });
-
       const dislikesByUser = new Map<string, number>();
       (cDislikes || []).forEach((d: any) => {
         const u = commentOwner.get(d.comment_id);
@@ -65,11 +97,11 @@ const Leaderboard = () => {
       });
 
       const ranked: Row[] = (profiles || []).map((p: any) => {
-        const posts = postsByUser.get(p.user_id) || 0;
+        const postsN = postsByUser.get(p.user_id) || 0;
         const likes = likesByUser.get(p.user_id) || 0;
         const dislikes = dislikesByUser.get(p.user_id) || 0;
-        const points = posts * POINTS_PER_POST + likes * POINTS_PER_LIKE + dislikes * POINTS_PER_DISLIKE;
-        return { user_id: p.user_id, username: p.username, avatar_url: p.avatar_url, posts, likes, dislikes, points };
+        const points = postsN * POINTS_PER_POST + likes * POINTS_PER_LIKE + dislikes * POINTS_PER_DISLIKE;
+        return { user_id: p.user_id, username: p.username, avatar_url: p.avatar_url, posts: postsN, likes, dislikes, points };
       })
         .filter(r => r.posts > 0 || r.likes > 0 || r.dislikes > 0)
         .sort((a, b) => b.points - a.points);
@@ -79,68 +111,140 @@ const Leaderboard = () => {
     })();
   }, []);
 
+  const podium = rows.slice(0, 3);
+  const rest = rows.slice(3);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-24 pb-16">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <div className="mb-10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-primary" />
+        <div className="container mx-auto px-6 max-w-5xl">
+          {/* Hero header */}
+          <div className="relative mb-10 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-info/10 p-8 md:p-12">
+            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-accent/20 blur-3xl" />
+            <div className="relative flex flex-col md:flex-row md:items-end gap-6 justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 mb-4">
+                  <Flame className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-[11px] font-bold text-primary uppercase tracking-widest">Live Rankings</span>
+                </div>
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-none">
+                  The <span className="bg-gradient-to-br from-primary via-accent to-info bg-clip-text text-transparent">Leaderboard</span>
+                </h1>
+                <p className="text-muted-foreground mt-3 max-w-lg">
+                  Earn points. Win arguments. Climb the ranks.
+                </p>
               </div>
-              <h1 className="text-3xl font-bold">Leaderboard</h1>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-sm font-bold">
+                  <FileText className="w-3.5 h-3.5 text-info" /> +{POINTS_PER_POST} post
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-sm font-bold">
+                  <ThumbsUp className="w-3.5 h-3.5 text-accent" /> +{POINTS_PER_LIKE} like
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-sm font-bold">
+                  <ThumbsDown className="w-3.5 h-3.5 text-destructive" /> {POINTS_PER_DISLIKE} dislike
+                </span>
+              </div>
             </div>
-            <p className="text-muted-foreground">
-              Ranked by community points. <span className="text-foreground font-semibold">+{POINTS_PER_POST}</span> per post,
-              {" "}<span className="text-foreground font-semibold">+{POINTS_PER_LIKE}</span> per like received,
-              {" "}<span className="text-destructive font-semibold">{POINTS_PER_DISLIKE}</span> per dislike received.
-            </p>
           </div>
 
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
           ) : rows.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-12 text-center">
-              <Trophy className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No rankings yet</h3>
+            <div className="bg-card border border-border rounded-2xl p-16 text-center">
+              <Trophy className="w-14 h-14 text-muted-foreground/30 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">No rankings yet</h3>
               <p className="text-sm text-muted-foreground">Start posting and engaging to climb the board.</p>
             </div>
           ) : (
-            <div className="bg-card border border-border rounded-2xl overflow-hidden">
-              {rows.map((r, i) => {
-                const medal = i === 0 ? "bg-primary text-primary-foreground" : i === 1 ? "bg-accent text-accent-foreground" : i === 2 ? "bg-info text-info-foreground" : "bg-secondary text-foreground";
-                return (
-                  <Link
-                    key={r.user_id}
-                    to={`/profile/${r.username}`}
-                    className="flex items-center gap-4 px-5 py-4 hover:bg-secondary/30 transition-colors border-b border-border/60 last:border-b-0 group"
-                  >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-extrabold text-lg shrink-0 ${medal}`}>
-                      {i + 1}
-                    </div>
-                    <Avatar className="w-10 h-10">
-                      {r.avatar_url ? <AvatarImage src={r.avatar_url} /> : null}
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                        {r.username?.charAt(0).toUpperCase() || "?"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold group-hover:text-primary transition-colors truncate">@{r.username}</p>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                        <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{r.posts}</span>
-                        <span className="inline-flex items-center gap-1 text-green-500"><ThumbsUp className="w-3 h-3" />{r.likes}</span>
-                        <span className="inline-flex items-center gap-1 text-destructive"><ThumbsDown className="w-3 h-3" />{r.dislikes}</span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-2xl font-extrabold tracking-tight">{r.points}</div>
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">points</div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            <>
+              {/* Podium */}
+              {podium.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                  {[1, 0, 2].map((order) => {
+                    const r = podium[order];
+                    if (!r) return <div key={order} className="hidden md:block" />;
+                    const rank = order + 1;
+                    const styles = [
+                      { ring: "ring-primary", bg: "from-primary/25 to-primary/5", icon: <Crown className="w-6 h-6 text-primary" />, label: "CHAMPION", height: "md:pt-0" },
+                      { ring: "ring-accent", bg: "from-accent/25 to-accent/5", icon: <Medal className="w-6 h-6 text-accent" />, label: "RUNNER-UP", height: "md:pt-8" },
+                      { ring: "ring-info", bg: "from-info/25 to-info/5", icon: <Medal className="w-6 h-6 text-info" />, label: "THIRD", height: "md:pt-8" },
+                    ][order];
+                    return (
+                      <Link
+                        key={r.user_id}
+                        to={`/profile/${r.username}`}
+                        className={`group relative ${styles.height}`}
+                      >
+                        <div className={`relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br ${styles.bg} p-6 hover:scale-[1.02] transition-transform`}>
+                          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] font-black tracking-widest">
+                            {styles.icon}
+                            <span>#{rank}</span>
+                          </div>
+                          <Avatar className={`w-20 h-20 ring-4 ${styles.ring} ring-offset-2 ring-offset-background mb-4`}>
+                            {r.avatar_url ? <AvatarImage src={r.avatar_url} /> : null}
+                            <AvatarFallback className="bg-primary/10 text-primary text-2xl font-black">
+                              {r.username?.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <p className="font-bold text-lg group-hover:text-primary transition-colors truncate">@{r.username}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-bold">{styles.label}</p>
+                          <div className="flex items-baseline gap-2">
+                            <BigPoints value={r.points} size={order === 0 ? "xl" : "lg"} />
+                            <span className="text-xs uppercase tracking-widest text-muted-foreground font-bold">pts</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50">
+                            <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{r.posts}</span>
+                            <span className="inline-flex items-center gap-1 text-accent"><ThumbsUp className="w-3 h-3" />{r.likes}</span>
+                            <span className="inline-flex items-center gap-1 text-destructive"><ThumbsDown className="w-3 h-3" />{r.dislikes}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Rest of the board */}
+              {rest.length > 0 && (
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  {rest.map((r, i) => {
+                    const rank = i + 4;
+                    return (
+                      <Link
+                        key={r.user_id}
+                        to={`/profile/${r.username}`}
+                        className="flex items-center gap-4 px-5 py-4 hover:bg-secondary/30 transition-colors border-b border-border/60 last:border-b-0 group"
+                      >
+                        <div className="w-12 text-center font-black text-2xl text-muted-foreground/60 tabular-nums shrink-0">
+                          {rank}
+                        </div>
+                        <Avatar className="w-12 h-12">
+                          {r.avatar_url ? <AvatarImage src={r.avatar_url} /> : null}
+                          <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                            {r.username?.charAt(0).toUpperCase() || "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-base group-hover:text-primary transition-colors truncate">@{r.username}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                            <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{r.posts}</span>
+                            <span className="inline-flex items-center gap-1 text-accent"><ThumbsUp className="w-3 h-3" />{r.likes}</span>
+                            <span className="inline-flex items-center gap-1 text-destructive"><ThumbsDown className="w-3 h-3" />{r.dislikes}</span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0 flex items-baseline gap-1.5">
+                          <BigPoints value={r.points} size="md" />
+                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">pts</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

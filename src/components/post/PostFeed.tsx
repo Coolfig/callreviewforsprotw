@@ -19,7 +19,7 @@ interface PostWithProfile {
   video_url: string | null;
 }
 
-const PostFeed = () => {
+const PostFeed = ({ keywords = [] }: { keywords?: string[] }) => {
   const { user } = useAuth();
   const [posts, setPosts] = useState<PostWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,11 +92,25 @@ const PostFeed = () => {
           <p className="font-semibold text-foreground">No posts yet</p>
           <p className="text-sm mt-1 text-muted-foreground">Be the first to share your take!</p>
         </div>
-      ) : (
-        posts.map((post) => (
+      ) : (() => {
+        const filtered = keywords.length === 0
+          ? posts
+          : posts.filter((p) => {
+              const text = (p.content || "").toLowerCase();
+              return keywords.some((k) => text.includes(`#${k}`) || text.includes(k));
+            });
+        if (filtered.length === 0) {
+          return (
+            <div className="text-center py-16 bg-card rounded-xl border border-border/50">
+              <p className="font-semibold text-foreground">No posts in this group yet</p>
+              <p className="text-sm mt-1 text-muted-foreground">Be the first to post a hot take here!</p>
+            </div>
+          );
+        }
+        return filtered.map((post) => (
           <PostItem key={post.id} {...post} onDelete={fetchPosts} onLikeToggle={fetchPosts} />
-        ))
-      )}
+        ));
+      })()}
     </div>
   );
 };
