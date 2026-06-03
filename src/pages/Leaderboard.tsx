@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Loader2, ThumbsUp, ThumbsDown, FileText, Flame, Crown, Medal } from "lucide-react";
+import { Trophy, Loader2, ThumbsUp, ThumbsDown, FileText, Flame, Crown, Medal, DollarSign, Calendar } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -149,6 +149,11 @@ const Leaderboard = () => {
               </div>
             </div>
           </div>
+
+          {/* Prize Pool */}
+          <PrizePool />
+
+
 
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
