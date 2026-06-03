@@ -120,10 +120,10 @@ const PrizePool = () => {
     </div>
   );
 };
-
-
+const Leaderboard = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     (async () => {
