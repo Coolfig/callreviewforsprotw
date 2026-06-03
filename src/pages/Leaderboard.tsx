@@ -56,7 +56,72 @@ const BigPoints = ({ value, size = "md" }: { value: number; size?: "xl" | "lg" |
   );
 };
 
-const Leaderboard = () => {
+const PRIZE_POOL_TOTAL = 1000;
+const PRIZE_SPLITS = [
+  { rank: 1, pct: 0.5, label: "1st Place", color: "from-primary to-primary/60", icon: <Crown className="w-5 h-5" /> },
+  { rank: 2, pct: 0.3, label: "2nd Place", color: "from-accent to-accent/60", icon: <Medal className="w-5 h-5" /> },
+  { rank: 3, pct: 0.2, label: "3rd Place", color: "from-info to-info/60", icon: <Medal className="w-5 h-5" /> },
+];
+
+const getNextPayoutDate = () => {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+};
+
+const PrizePool = () => {
+  const nextPayout = getNextPayoutDate();
+  return (
+    <div className="relative mb-8 overflow-hidden rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 md:p-8">
+      <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+      <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 border border-primary/40">
+        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        <span className="text-[10px] font-black tracking-widest text-primary uppercase">Live Pool</span>
+      </div>
+
+      <div className="relative grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <DollarSign className="w-5 h-5 text-primary" />
+            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Monthly Prize Pool</span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-6xl md:text-7xl font-black tracking-tighter bg-gradient-to-br from-primary via-accent to-info bg-clip-text text-transparent leading-none tabular-nums"
+              style={{ filter: "drop-shadow(0 4px 16px hsl(var(--primary) / 0.4))" }}>
+              ${PRIZE_POOL_TOTAL.toLocaleString()}
+            </span>
+            <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">USD</span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Pays out <span className="font-bold text-foreground">{nextPayout}</span></span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          {PRIZE_SPLITS.map((s) => (
+            <div key={s.rank} className="bg-background/60 backdrop-blur border border-border rounded-xl p-4 text-center">
+              <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${s.color} text-white mb-2 shadow-lg`}>
+                {s.icon}
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</p>
+              <p className="text-2xl md:text-3xl font-black tracking-tight mt-1">
+                ${Math.round(PRIZE_POOL_TOTAL * s.pct).toLocaleString()}
+              </p>
+              <p className="text-[10px] text-muted-foreground font-bold">{Math.round(s.pct * 100)}%</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="relative text-[11px] text-muted-foreground mt-5 pt-4 border-t border-border/50">
+        Top 3 ranked users at month-end get paid via PayPal or Stripe. Points earned this month count toward the pool.
+      </p>
+    </div>
+  );
+};
+
+
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
