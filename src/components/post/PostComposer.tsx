@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCelebration } from "@/components/celebration/CelebrationProvider";
 
 interface MentionSuggestion {
   username: string;
@@ -12,6 +13,7 @@ interface MentionSuggestion {
 
 const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   const { user, username } = useAuth();
+  const { celebrate } = useCelebration();
   const [content, setContent] = useState("");
   const [posting, setPosting] = useState(false);
   const [suggestions, setSuggestions] = useState<MentionSuggestion[]>([]);
@@ -142,12 +144,13 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
     }
 
     const postContent = content.trim() || "";
-    await supabase.from("posts").insert({
+    const { error: insertErr } = await supabase.from("posts").insert({
       user_id: user.id,
       content: postContent,
       image_url: imageUrl,
       video_url: videoUrl,
     });
+    if (!insertErr) celebrate("post");
 
     setContent("");
     setImageFile(null); setImagePreview(null);

@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import ShareDialog from "./ShareDialog";
+import { useCelebration } from "@/components/celebration/CelebrationProvider";
 
 interface PostItemProps {
   id: string;
@@ -97,6 +98,8 @@ const PostItem = ({
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  const { celebrate } = useCelebration();
+
   const toggleLike = async () => {
     if (!user) return;
     if (liked) {
@@ -107,6 +110,7 @@ const PostItem = ({
       await supabase.from("post_likes").insert({ post_id: id, user_id: user.id });
       setLiked(true);
       setLikesNum((c) => c + 1);
+      celebrate("like");
     }
     onLikeToggle?.();
   };

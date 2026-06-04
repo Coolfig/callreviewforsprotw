@@ -29,6 +29,7 @@ import Bookmarks from "./pages/Bookmarks";
 import Standings from "./pages/Standings";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { CelebrationProvider } from "@/components/celebration/CelebrationProvider";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
+        <CelebrationProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -67,6 +69,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </CelebrationProvider>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
