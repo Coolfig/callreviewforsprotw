@@ -162,7 +162,7 @@ const RulesLeague = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-24 pb-20">
+        <main className="pt-[176px] pb-20">
           <div className="container mx-auto px-6 max-w-6xl">
 
             {/* Breadcrumb */}

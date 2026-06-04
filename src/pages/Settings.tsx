@@ -68,7 +68,7 @@ const Settings = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-20 text-center">
+        <main className="pt-[152px] text-center">
           <p className="text-muted-foreground">Please sign in to access settings.</p>
           <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
         </main>
@@ -79,7 +79,7 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-16">
+      <main className="pt-[112px]">
         <div className="max-w-5xl mx-auto flex min-h-[calc(100vh-4rem)]">
           {/* Left sidebar */}
           <div className="w-80 border-r border-border p-6 hidden md:block">

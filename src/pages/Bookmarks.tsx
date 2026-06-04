@@ -30,7 +30,7 @@ const Bookmarks = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-20 text-center">
+        <main className="pt-[152px] text-center">
           <p className="text-muted-foreground">Please sign in to view bookmarks.</p>
           <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
         </main>
@@ -41,7 +41,7 @@ const Bookmarks = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-20 pb-16">
+      <main className="pt-[152px] pb-16">
         <div className="max-w-3xl mx-auto px-4">
           <div className="flex items-center gap-3 mb-8">
             <Bookmark className="w-6 h-6 text-primary" />

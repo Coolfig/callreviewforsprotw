@@ -11,12 +11,28 @@ const SubmitCTA = () => {
           className="relative rounded-3xl border border-primary/30 p-10 md:p-16 text-center overflow-hidden"
           style={{ background: "var(--gradient-cta)" }}
         >
-          <div className="absolute inset-0 opacity-10"
-               style={{
-                 backgroundImage: `linear-gradient(hsl(0 0% 100%) 1px, transparent 1px),
-                                   linear-gradient(90deg, hsl(0 0% 100%) 1px, transparent 1px)`,
-                 backgroundSize: '32px 32px'
-               }} />
+          {/* Sports balls background */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+            {[
+              { e: "🏈", t: "8%",  l: "4%",  s: "text-6xl", r: "-12deg", o: "opacity-20" },
+              { e: "🏀", t: "62%", l: "10%", s: "text-7xl", r: "18deg",  o: "opacity-25" },
+              { e: "⚾", t: "20%", l: "88%", s: "text-5xl", r: "10deg",  o: "opacity-20" },
+              { e: "⚽", t: "72%", l: "82%", s: "text-7xl", r: "-20deg", o: "opacity-20" },
+              { e: "🏒", t: "6%",  l: "46%", s: "text-5xl", r: "30deg",  o: "opacity-15" },
+              { e: "🎾", t: "78%", l: "48%", s: "text-4xl", r: "-8deg",  o: "opacity-20" },
+              { e: "🏐", t: "40%", l: "94%", s: "text-4xl", r: "12deg",  o: "opacity-15" },
+              { e: "🥊", t: "44%", l: "2%",  s: "text-5xl", r: "-15deg", o: "opacity-15" },
+            ].map((b, i) => (
+              <span
+                key={i}
+                className={`absolute ${b.s} ${b.o} drop-shadow-[0_4px_12px_rgba(0,0,0,0.45)]`}
+                style={{ top: b.t, left: b.l, transform: `rotate(${b.r})` }}
+              >
+                {b.e}
+              </span>
+            ))}
+          </div>
+
           <div className="relative">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-primary-foreground">
               See a blown call we missed?

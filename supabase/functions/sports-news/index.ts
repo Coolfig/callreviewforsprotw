@@ -30,11 +30,16 @@ async function fetchLeague(league: typeof LEAGUES[number]) {
     const data = await res.json();
     const articles = Array.isArray(data?.articles) ? data.articles : [];
     return articles.slice(0, 3).map((a: any) => {
-      const link =
+      const rawLink =
         a?.links?.web?.href ||
         a?.links?.mobile?.href ||
-        a?.links?.api?.self?.href ||
         "";
+      // ESPN sometimes returns API self URLs; build a guaranteed-good story URL from id when possible.
+      const id = a?.id || a?.dataSourceIdentifier;
+      const fallback = id ? `https://www.espn.com/${league.path}/story/_/id/${id}` : "";
+      const isUsableWebLink =
+        rawLink && /^https?:\/\//.test(rawLink) && !rawLink.includes("site.api.espn.com");
+      const link = isUsableWebLink ? rawLink : fallback || rawLink;
       return {
         league: league.label,
         emoji: league.emoji,
@@ -43,6 +48,7 @@ async function fetchLeague(league: typeof LEAGUES[number]) {
         published: a?.published || a?.lastModified || null,
       };
     }).filter((a: any) => a.headline && a.link);
+
   } catch (err) {
     console.error("news fetch failed", league.key, err);
     return [];
