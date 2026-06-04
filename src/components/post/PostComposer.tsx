@@ -13,6 +13,7 @@ interface MentionSuggestion {
 
 const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
   const { user, username } = useAuth();
+  const { celebrate } = useCelebration();
   const [content, setContent] = useState("");
   const [posting, setPosting] = useState(false);
   const [suggestions, setSuggestions] = useState<MentionSuggestion[]>([]);
