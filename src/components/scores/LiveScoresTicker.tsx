@@ -141,7 +141,7 @@ const LiveScoresTicker = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-card border-b border-border">
+      <div className="fixed top-10 left-0 right-0 z-[55] bg-card border-b border-border">
         <div className="flex items-center h-12">
           {/* League selector */}
           <div className="flex items-center gap-0 border-r border-border shrink-0">
