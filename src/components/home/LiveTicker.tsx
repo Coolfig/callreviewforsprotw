@@ -47,7 +47,7 @@ const LiveTicker = () => {
                 href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 text-sm font-medium inline-flex items-center gap-2 group hover:text-primary transition-colors cursor-pointer"
+                className="px-8 text-xs font-medium inline-flex items-center gap-2 group hover:text-primary transition-colors cursor-pointer"
                 title={item.headline}
               >
                 <span>{item.emoji}</span>
