@@ -33,7 +33,7 @@ const LiveTicker = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[60] h-10 border-b border-border/40 bg-black/90 backdrop-blur-md overflow-hidden">
+    <div className="fixed top-0 left-0 right-0 z-[60] h-12 border-b border-border/40 bg-black/95 backdrop-blur-md overflow-hidden">
       <div className="flex items-center h-full">
         <div className="flex-shrink-0 flex items-center gap-2 px-4 h-full bg-primary text-primary-foreground font-extrabold text-xs tracking-widest uppercase">
           <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
