@@ -144,12 +144,13 @@ const PostComposer = ({ onPostCreated }: { onPostCreated?: () => void }) => {
     }
 
     const postContent = content.trim() || "";
-    await supabase.from("posts").insert({
+    const { error: insertErr } = await supabase.from("posts").insert({
       user_id: user.id,
       content: postContent,
       image_url: imageUrl,
       video_url: videoUrl,
     });
+    if (!insertErr) celebrate("post");
 
     setContent("");
     setImageFile(null); setImagePreview(null);
