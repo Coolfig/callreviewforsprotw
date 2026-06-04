@@ -29,6 +29,7 @@ import Bookmarks from "./pages/Bookmarks";
 import Standings from "./pages/Standings";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { CelebrationProvider } from "@/components/celebration/CelebrationProvider";
 
 const queryClient = new QueryClient();
 
