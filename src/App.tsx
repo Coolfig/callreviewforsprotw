@@ -43,6 +43,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <LiveScoresTicker />
+          <OnboardingModal />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/feed" element={<Feed />} />
