@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.gif-search]
 verify_jwt = false
+
+[functions.sports-news]
+verify_jwt = false
