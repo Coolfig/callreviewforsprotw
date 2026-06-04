@@ -36,6 +36,23 @@ const HeroSection = () => {
   const votes = useCountUp(48329);
   const calls = useCountUp(127);
   const debates = useCountUp(2841);
+  const [news, setNews] = useState<NewsItem[]>(FALLBACK_NEWS);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("sports-news", { body: {} });
+        const items = (data as any)?.items as NewsItem[] | undefined;
+        if (!cancelled && items && items.length) setNews(items);
+      } catch {
+        /* keep fallback */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const scrollToFeed = () => {
     const el = document.getElementById("feed");
