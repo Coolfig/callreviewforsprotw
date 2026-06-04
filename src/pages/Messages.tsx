@@ -53,7 +53,7 @@ const Messages = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-[152px] text-center">
+        <main className="pt-[160px] text-center">
           <p className="text-muted-foreground">Please sign in to use messages.</p>
           <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
         </main>
@@ -64,7 +64,7 @@ const Messages = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-[152px] h-screen">
+      <main className="pt-[160px] h-screen">
         <div className="flex h-full">
           <ConversationSidebar
             conversations={conversations}

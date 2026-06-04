@@ -16,14 +16,16 @@ interface CelebrationContextValue {
 
 const CelebrationContext = createContext<CelebrationContextValue | null>(null);
 
-// Free, CORS-friendly hosted crowd cheer (Google Sound Library, CC-BY)
+// Rewarding "level up" / coin chime — free, CORS-friendly hosted
 const CHEER_URL =
-  "https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg";
+  "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg";
+const REWARD_URL =
+  "https://cdn.pixabay.com/download/audio/2022/03/15/audio_3c7e9ef6c7.mp3?filename=success-1-6297.mp3";
 
 const CONFIG: Record<CelebrationType, { points: number; label: string }> = {
-  post: { points: 2, label: "POSTED!" },
-  like: { points: 1, label: "LIKED!" },
-  vote: { points: 1, label: "VOTED!" },
+  post: { points: 1, label: "" },
+  like: { points: 1, label: "" },
+  vote: { points: 1, label: "" },
 };
 
 const COLORS = [
@@ -50,8 +52,8 @@ export const CelebrationProvider = ({ children }: { children: ReactNode }) => {
       lastPlay.current = now;
       try {
         if (!audioRef.current) {
-          audioRef.current = new Audio(CHEER_URL);
-          audioRef.current.volume = 0.35;
+          audioRef.current = new Audio(REWARD_URL);
+          audioRef.current.volume = 0.5;
         }
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch(() => {});
@@ -147,12 +149,14 @@ const CelebrationOverlay = ({ celebration }: { celebration: Celebration }) => {
               </div>
             </div>
           </div>
-          <div
-            className="text-sm font-extrabold tracking-[0.3em] uppercase"
-            style={{ color: "hsl(48 100% 55%)", textShadow: "0 2px 12px hsl(48 100% 55% / 0.5)" }}
-          >
-            {celebration.label}
-          </div>
+          {celebration.label ? (
+            <div
+              className="text-sm font-extrabold tracking-[0.3em] uppercase"
+              style={{ color: "hsl(48 100% 55%)", textShadow: "0 2px 12px hsl(48 100% 55% / 0.5)" }}
+            >
+              {celebration.label}
+            </div>
+          ) : null}
         </div>
       </div>
     </>

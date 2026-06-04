@@ -182,7 +182,7 @@ const Leaderboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-[176px] pb-16">
+      <main className="pt-[184px] pb-16">
         <div className="container mx-auto px-6 max-w-5xl">
           {/* Hero header */}
           <div className="relative mb-10 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-info/10 p-8 md:p-12">

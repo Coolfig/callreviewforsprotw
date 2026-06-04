@@ -8,7 +8,7 @@ const Feed = () => {
     <div className="min-h-screen bg-background">
       <LiveScoresTicker />
       <Header />
-      <main className="pt-[200px]">
+      <main className="pt-[208px]">
         <FeedSection />
       </main>
       <Footer />
