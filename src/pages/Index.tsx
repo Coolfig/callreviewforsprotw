@@ -19,7 +19,7 @@ const Index = () => {
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <LiveTicker />
       <Header />
-      <main className="pt-10">
+      <main className="pt-[88px]">
         <HeroSection />
         <TopThisWeek />
         <FeedSection />
