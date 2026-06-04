@@ -30,6 +30,7 @@ import Standings from "./pages/Standings";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { CelebrationProvider } from "@/components/celebration/CelebrationProvider";
+import OnboardingModal from "@/components/onboarding/OnboardingModal";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <LiveScoresTicker />
+          <OnboardingModal />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/feed" element={<Feed />} />

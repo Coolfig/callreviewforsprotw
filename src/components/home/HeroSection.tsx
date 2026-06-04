@@ -1,17 +1,18 @@
-import { Vote, Send, Flame, Play, TrendingUp, Zap } from "lucide-react";
+import { Vote, Send, Flame, Play, TrendingUp, Zap, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const TICKER = [
-  "🏈 NFL · Suh roughing the passer — Week 12",
-  "🏀 NBA · Foul on Tatum game-winner",
-  "⚾ MLB · Blown call at 1st, ALCS Gm 3",
-  "🏒 NHL · No-goal review overturned",
-  "🥊 UFC · Split decision controversy",
-  "⚽ EPL · VAR overturn in stoppage",
-  "🏈 NFL · Defensive PI no-call",
-  "🏀 NBA · Travel call in OT",
+interface NewsItem {
+  league: string;
+  emoji: string;
+  headline: string;
+  link: string;
+}
+
+const FALLBACK_NEWS: NewsItem[] = [
+  { league: "NFL", emoji: "🏈", headline: "Loading latest headlines…", link: "#" },
 ];
 
 const useCountUp = (target: number, duration = 1400) => {
@@ -35,6 +36,23 @@ const HeroSection = () => {
   const votes = useCountUp(48329);
   const calls = useCountUp(127);
   const debates = useCountUp(2841);
+  const [news, setNews] = useState<NewsItem[]>(FALLBACK_NEWS);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("sports-news", { body: {} });
+        const items = (data as any)?.items as NewsItem[] | undefined;
+        if (!cancelled && items && items.length) setNews(items);
+      } catch {
+        /* keep fallback */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const scrollToFeed = () => {
     const el = document.getElementById("feed");
@@ -76,11 +94,24 @@ const HeroSection = () => {
           </div>
           <div className="flex-1 overflow-hidden">
             <div className="marquee flex whitespace-nowrap py-2">
-              {[...TICKER, ...TICKER].map((item, i) => (
-                <span key={i} className="px-8 text-sm text-muted-foreground font-medium">
-                  <span className="text-foreground">{item}</span>
-                  <span className="ml-8 text-border">•</span>
-                </span>
+              {[...news, ...news].map((item, i) => (
+                <a
+                  key={i}
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-8 text-sm font-medium inline-flex items-center gap-2 group hover:text-primary transition-colors"
+                  title={item.headline}
+                >
+                  <span>{item.emoji}</span>
+                  <span className="text-muted-foreground font-bold">{item.league}</span>
+                  <span className="text-border">·</span>
+                  <span className="text-foreground group-hover:text-primary transition-colors max-w-[420px] truncate">
+                    {item.headline}
+                  </span>
+                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-70 transition-opacity" />
+                  <span className="ml-6 text-border">•</span>
+                </a>
               ))}
             </div>
           </div>
