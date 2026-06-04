@@ -1,58 +1,9 @@
-import { Vote, Send, Flame, Play, TrendingUp, Zap, ExternalLink } from "lucide-react";
+import { Send, Flame, Play, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-interface NewsItem {
-  league: string;
-  emoji: string;
-  headline: string;
-  link: string;
-}
-
-const FALLBACK_NEWS: NewsItem[] = [
-  { league: "NFL", emoji: "🏈", headline: "Loading latest headlines…", link: "#" },
-];
-
-const useCountUp = (target: number, duration = 1400) => {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let raf: number;
-    const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / duration);
-      setVal(Math.floor(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return val;
-};
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const votes = useCountUp(48329);
-  const calls = useCountUp(127);
-  const debates = useCountUp(2841);
-  const [news, setNews] = useState<NewsItem[]>(FALLBACK_NEWS);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase.functions.invoke("sports-news", { body: {} });
-        const items = (data as any)?.items as NewsItem[] | undefined;
-        if (!cancelled && items && items.length) setNews(items);
-      } catch {
-        /* keep fallback */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const scrollToFeed = () => {
     const el = document.getElementById("feed");
@@ -60,19 +11,30 @@ const HeroSection = () => {
     else navigate("/feed");
   };
 
+
   return (
     <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 bg-black">
       {/* Stadium gradient backdrop */}
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
 
-      {/* Grid pattern */}
+      {/* Sports field — diagonal stripes + center line + halo */}
       <div
-        className="absolute inset-0 opacity-[0.06]"
+        className="absolute inset-0 opacity-[0.08]"
         style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
-                            linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
+          backgroundImage: `repeating-linear-gradient(115deg, hsl(var(--foreground)) 0 2px, transparent 2px 90px)`,
         }}
+      />
+      {/* Center circle (basketball/soccer) */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full border-[3px] border-foreground/[0.07]" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border-2 border-foreground/[0.05]" />
+      {/* Field side hash marks */}
+      <div
+        className="absolute inset-y-0 left-0 w-1 opacity-30"
+        style={{ background: `repeating-linear-gradient(to bottom, hsl(var(--primary)) 0 14px, transparent 14px 40px)` }}
+      />
+      <div
+        className="absolute inset-y-0 right-0 w-1 opacity-30"
+        style={{ background: `repeating-linear-gradient(to bottom, hsl(var(--info)) 0 14px, transparent 14px 40px)` }}
       />
 
       {/* Stadium light sweeps */}
@@ -85,38 +47,6 @@ const HeroSection = () => {
       {/* Yellow accent glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1100px] h-[450px] bg-accent/10 rounded-full blur-[140px]" />
 
-      {/* Scoreboard ticker (top) */}
-      <div className="absolute top-16 left-0 right-0 z-10 border-y border-border/40 bg-black/60 backdrop-blur-md overflow-hidden">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-extrabold text-xs tracking-widest uppercase">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            Live
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <div className="marquee flex whitespace-nowrap py-2">
-              {[...news, ...news].map((item, i) => (
-                <a
-                  key={i}
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 text-sm font-medium inline-flex items-center gap-2 group hover:text-primary transition-colors"
-                  title={item.headline}
-                >
-                  <span>{item.emoji}</span>
-                  <span className="text-muted-foreground font-bold">{item.league}</span>
-                  <span className="text-border">·</span>
-                  <span className="text-foreground group-hover:text-primary transition-colors max-w-[420px] truncate">
-                    {item.headline}
-                  </span>
-                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-70 transition-opacity" />
-                  <span className="ml-6 text-border">•</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="container mx-auto px-6 relative z-10 pt-12">
         <div className="max-w-5xl mx-auto text-center">
@@ -128,9 +58,10 @@ const HeroSection = () => {
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/15 border border-accent/40">
               <Zap className="w-3.5 h-3.5 text-accent" />
-              <span className="text-xs font-bold text-accent uppercase tracking-widest">{votes.toLocaleString()} votes cast</span>
+              <span className="text-xs font-bold text-accent uppercase tracking-widest">Live Now</span>
             </div>
           </div>
+
 
           {/* Headline */}
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 animate-slide-up leading-[0.9]">
@@ -173,32 +104,6 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          {/* Live scoreboard stats */}
-          <div
-            className="grid grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto animate-fade-in"
-            style={{ animationDelay: "0.4s" }}
-          >
-            {[
-              { label: "Votes Cast", value: votes.toLocaleString(), color: "text-primary", icon: Vote },
-              { label: "Calls Reviewed", value: calls.toLocaleString(), color: "text-accent", icon: TrendingUp },
-              { label: "Active Debates", value: debates.toLocaleString(), color: "text-info", icon: Flame },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="relative group rounded-2xl border border-border/60 bg-card/40 backdrop-blur-md p-4 md:p-5 hover:border-primary/40 transition-all"
-              >
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                  <span className="text-[10px] md:text-xs uppercase tracking-widest text-muted-foreground font-bold">
-                    {stat.label}
-                  </span>
-                </div>
-                <div className={`text-2xl md:text-4xl font-black tabular-nums ${stat.color}`}>
-                  {stat.value}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

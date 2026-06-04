@@ -6,6 +6,7 @@ import TopThisWeek from "@/components/home/TopThisWeek";
 import LeaderboardPreview from "@/components/home/LeaderboardPreview";
 import SubmitCTA from "@/components/home/SubmitCTA";
 import FeedSection from "@/components/home/FeedSection";
+import LiveTicker from "@/components/home/LiveTicker";
 import SplashScreen from "@/components/SplashScreen";
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      <LiveTicker />
       <Header />
       <main className="pt-10">
         <HeroSection />
