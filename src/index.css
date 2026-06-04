@@ -6,11 +6,11 @@
 
 @layer base {
   :root {
-    /* Core neutrals - dark slate theme */
-    --background: 220 20% 8%;
+    /* Core neutrals - pure black theme */
+    --background: 0 0% 0%;
     --foreground: 210 20% 98%;
 
-    --card: 220 18% 11%;
+    --card: 0 0% 6%;
     --card-foreground: 210 20% 98%;
 
     --popover: 220 18% 11%;
