@@ -181,3 +181,55 @@
     }
   }
 }
+
+@layer utilities {
+  /* Celebration */
+  .celebration-badge {
+    animation: badgePop 1.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes badgePop {
+    0% { opacity: 0; transform: translate(-50%, -30%) scale(0.4) rotate(-8deg); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(2deg); }
+    40% { transform: translate(-50%, -50%) scale(1) rotate(-2deg); }
+    70% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -90%) scale(0.9) rotate(0deg); }
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 14px;
+    top: -20px;
+    border-radius: 2px;
+    animation: confettiFall var(--dur, 2s) linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate3d(var(--dx, 0), 110vh, 0) rotate(720deg); opacity: 0.9; }
+  }
+
+  .ring-pulse {
+    animation: ringPulse 1.4s ease-out forwards;
+  }
+  @keyframes ringPulse {
+    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0.7; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+  }
+
+  /* Hero stadium lights */
+  .stadium-sweep {
+    animation: stadiumSweep 8s ease-in-out infinite;
+  }
+  @keyframes stadiumSweep {
+    0%, 100% { transform: translateX(-20%) rotate(-12deg); opacity: 0.4; }
+    50% { transform: translateX(20%) rotate(12deg); opacity: 0.75; }
+  }
+
+  .marquee {
+    animation: marquee 35s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+}
