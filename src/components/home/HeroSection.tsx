@@ -1,64 +1,16 @@
-import { Vote, Send, Flame, Play, TrendingUp, Zap, ExternalLink } from "lucide-react";
+import { Send, Flame, Play, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-interface NewsItem {
-  league: string;
-  emoji: string;
-  headline: string;
-  link: string;
-}
-
-const FALLBACK_NEWS: NewsItem[] = [
-  { league: "NFL", emoji: "🏈", headline: "Loading latest headlines…", link: "#" },
-];
-
-const useCountUp = (target: number, duration = 1400) => {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let raf: number;
-    const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / duration);
-      setVal(Math.floor(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return val;
-};
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const votes = useCountUp(48329);
-  const calls = useCountUp(127);
-  const debates = useCountUp(2841);
-  const [news, setNews] = useState<NewsItem[]>(FALLBACK_NEWS);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase.functions.invoke("sports-news", { body: {} });
-        const items = (data as any)?.items as NewsItem[] | undefined;
-        if (!cancelled && items && items.length) setNews(items);
-      } catch {
-        /* keep fallback */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const scrollToFeed = () => {
     const el = document.getElementById("feed");
     if (el) el.scrollIntoView({ behavior: "smooth" });
     else navigate("/feed");
   };
+
 
   return (
     <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 bg-black">
