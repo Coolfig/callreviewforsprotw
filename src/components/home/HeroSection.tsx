@@ -1,17 +1,18 @@
-import { Vote, Send, Flame, Play, TrendingUp, Zap } from "lucide-react";
+import { Vote, Send, Flame, Play, TrendingUp, Zap, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const TICKER = [
-  "🏈 NFL · Suh roughing the passer — Week 12",
-  "🏀 NBA · Foul on Tatum game-winner",
-  "⚾ MLB · Blown call at 1st, ALCS Gm 3",
-  "🏒 NHL · No-goal review overturned",
-  "🥊 UFC · Split decision controversy",
-  "⚽ EPL · VAR overturn in stoppage",
-  "🏈 NFL · Defensive PI no-call",
-  "🏀 NBA · Travel call in OT",
+interface NewsItem {
+  league: string;
+  emoji: string;
+  headline: string;
+  link: string;
+}
+
+const FALLBACK_NEWS: NewsItem[] = [
+  { league: "NFL", emoji: "🏈", headline: "Loading latest headlines…", link: "#" },
 ];
 
 const useCountUp = (target: number, duration = 1400) => {
