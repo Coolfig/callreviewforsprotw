@@ -149,12 +149,14 @@ const CelebrationOverlay = ({ celebration }: { celebration: Celebration }) => {
               </div>
             </div>
           </div>
-          <div
-            className="text-sm font-extrabold tracking-[0.3em] uppercase"
-            style={{ color: "hsl(48 100% 55%)", textShadow: "0 2px 12px hsl(48 100% 55% / 0.5)" }}
-          >
-            {celebration.label}
-          </div>
+          {celebration.label ? (
+            <div
+              className="text-sm font-extrabold tracking-[0.3em] uppercase"
+              style={{ color: "hsl(48 100% 55%)", textShadow: "0 2px 12px hsl(48 100% 55% / 0.5)" }}
+            >
+              {celebration.label}
+            </div>
+          ) : null}
         </div>
       </div>
     </>
