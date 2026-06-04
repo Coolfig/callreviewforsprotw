@@ -65,7 +65,7 @@ const Standings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-10">
+    <div className="min-h-screen bg-background pt-[152px]">
       <Header />
       <main className="container mx-auto max-w-6xl px-4 py-8">
         <h1 className="text-2xl font-bold text-foreground mb-6">
