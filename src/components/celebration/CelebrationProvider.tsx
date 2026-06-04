@@ -52,8 +52,8 @@ export const CelebrationProvider = ({ children }: { children: ReactNode }) => {
       lastPlay.current = now;
       try {
         if (!audioRef.current) {
-          audioRef.current = new Audio(CHEER_URL);
-          audioRef.current.volume = 0.35;
+          audioRef.current = new Audio(REWARD_URL);
+          audioRef.current.volume = 0.5;
         }
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch(() => {});
