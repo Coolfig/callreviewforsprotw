@@ -69,7 +69,7 @@ const Rulebook = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-[176px] pb-16">
+      <main className="pt-[184px] pb-16">
         <div className="container mx-auto px-6 max-w-4xl">
           {/* Header */}
           <div className="mb-10">
