@@ -119,35 +119,46 @@ function ReelItem({
   return (
     <section
       data-reel-id={clip.id}
-      className="snap-start h-[calc(100vh-104px)] w-full flex items-center justify-center relative bg-black"
+      className="snap-start h-[calc(100vh-104px)] w-full flex items-center justify-center relative bg-black px-6"
     >
-      <div className="relative h-full aspect-[9/16] max-h-full bg-black overflow-hidden">
-        {youtubeId ? (
-          <div id={containerId} className="absolute inset-0 w-full h-full pointer-events-auto" />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-2">
-            <Film className="h-10 w-10 opacity-40" />
-            <p className="text-sm">Video unavailable</p>
-          </div>
-        )}
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-center">
+        {/* Video */}
+        <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border/40 shadow-2xl">
+          {youtubeId ? (
+            <div id={containerId} className="absolute inset-0 w-full h-full" />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-2">
+              <Film className="h-10 w-10 opacity-40" />
+              <p className="text-sm">Video unavailable</p>
+            </div>
+          )}
+        </div>
 
-        {/* Overlay info */}
-        <div className="absolute left-0 right-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
-          <h2 className="text-white font-semibold text-base mb-1 line-clamp-2">
-            {clip.clip_title}
-          </h2>
+        {/* Info panel */}
+        <div className="text-white space-y-3 lg:pl-2">
+          <h2 className="font-bold text-xl leading-tight">{clip.clip_title}</h2>
+          {video?.title && (
+            <p className="text-white/60 text-sm line-clamp-2">{video.title}</p>
+          )}
           {clip.notes && (
-            <p className="text-white/80 text-xs mb-2 line-clamp-2">{clip.notes}</p>
+            <p className="text-white/80 text-sm leading-relaxed">{clip.notes}</p>
           )}
           {clip.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {clip.tags.slice(0, 4).map((t: string) => (
-                <Badge key={t} variant="outline" className="text-[10px] border-white/30 text-white">
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {clip.tags.slice(0, 6).map((t: string) => (
+                <Badge
+                  key={t}
+                  variant="outline"
+                  className="text-[10px] border-white/30 text-white"
+                >
                   {t}
                 </Badge>
               ))}
             </div>
           )}
+          <p className="text-white/40 text-xs pt-2">
+            Use ↑ ↓ to navigate · M to mute
+          </p>
         </div>
       </div>
     </section>
