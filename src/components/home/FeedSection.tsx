@@ -316,11 +316,26 @@ const FeedSection = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [scrollByCard]);
 
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setFullscreen(false); };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, []);
+
   return (
     <section id="feed" className={`bg-background ${fullscreen ? "fixed inset-0 z-50" : ""}`}>
       <div ref={scrollerRef} className={`${fullscreen ? "h-screen" : "h-[calc(100vh-104px)]"} overflow-y-scroll snap-y snap-mandatory scroll-smooth`} style={{ scrollbarWidth: "none" }}>
         {videos.map((video) => (
-          <ShortsCard key={video.id} video={video} active={activeId === video.id} muted={muted} fullscreen={fullscreen} onEnded={() => scrollByCard(1)} />
+          <ShortsCard
+            key={video.id}
+            video={video}
+            active={activeId === video.id}
+            muted={muted}
+            fullscreen={fullscreen}
+            voteCount={counts[video.id]?.votes ?? 0}
+            commentCount={counts[video.id]?.comments ?? 0}
+            onEnded={() => scrollByCard(1)}
+          />
         ))}
       </div>
 
