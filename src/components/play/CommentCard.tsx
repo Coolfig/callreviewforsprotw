@@ -69,7 +69,7 @@ const CommentCard = ({ comment, isReply = false, onLike, onDislike, onBookmark, 
   const textContent = comment.content.replace(/\[gif\]https?:\/\/[^\s]+\[\/gif\]/, "").trim();
 
   return (
-    <div className={`${isReply ? "ml-10 pl-4 border-l-2 border-border" : ""}`}>
+    <div id={`comment-${comment.id}`} className={`rounded-lg transition-shadow ${isReply ? "ml-10 pl-4 border-l-2 border-border" : ""}`}>
       <div className="flex gap-3">
         <Avatar className="h-8 w-8 shrink-0">
           {comment.avatar_url && <AvatarImage src={comment.avatar_url} alt={comment.username} />}
