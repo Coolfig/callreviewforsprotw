@@ -449,11 +449,20 @@ const PostItem = ({
                     </div>
                     <div className="text-sm mt-0.5 whitespace-pre-wrap">{renderReplyContent(reply.content)}</div>
                   </div>
-                  {user?.id === reply.user_id && (
-                    <button onClick={() => handleDeleteReply(reply.id)} className="p-1 rounded-full text-muted-foreground hover:text-destructive transition-colors shrink-0 self-start" title="Delete reply">
-                      <Trash2 className="w-3 h-3" />
+                  <div className="flex items-center gap-1 shrink-0 self-start">
+                    <button
+                      onClick={() => toggleReplyBookmark(reply.id)}
+                      className={`p-1 rounded-full transition-colors ${reply.bookmarked_by_me ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                      title={reply.bookmarked_by_me ? "Remove from vault" : "Save to vault"}
+                    >
+                      <Bookmark className={`w-3 h-3 ${reply.bookmarked_by_me ? "fill-current" : ""}`} />
                     </button>
-                  )}
+                    {user?.id === reply.user_id && (
+                      <button onClick={() => handleDeleteReply(reply.id)} className="p-1 rounded-full text-muted-foreground hover:text-destructive transition-colors" title="Delete reply">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             )}
