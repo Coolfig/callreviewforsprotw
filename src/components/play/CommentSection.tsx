@@ -5,6 +5,7 @@ import { useComments } from "@/hooks/useComments";
 import CommentComposer from "./CommentComposer";
 import CommentCard from "./CommentCard";
 import type { SortMode } from "@/types/comments";
+import { useCelebration } from "@/components/celebration/CelebrationProvider";
 
 const CommentSection = ({ playId }: { playId: string }) => {
   const {
