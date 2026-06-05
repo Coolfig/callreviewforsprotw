@@ -204,6 +204,7 @@ function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: Spor
         </div>
 
         {/* Right: What's Your Call + Discussion */}
+        {!fullscreen && (
         <aside className="hidden w-[340px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
