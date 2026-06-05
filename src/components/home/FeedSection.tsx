@@ -255,6 +255,7 @@ function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: Spor
             </Link>
           </div>
         </aside>
+        )}
 
       </div>
     </section>
