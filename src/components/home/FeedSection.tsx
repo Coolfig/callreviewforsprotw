@@ -39,7 +39,7 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; active: boolean; muted: boolean; onEnded: () => void }) {
+function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; onEnded: () => void }) {
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
