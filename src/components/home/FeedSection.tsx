@@ -178,7 +178,7 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
         )}
 
         {/* Center: Player */}
-        <div className={`relative overflow-hidden border border-border bg-card shadow-2xl ${fullscreen ? "h-full w-full rounded-none" : "h-full aspect-[9/16] rounded-2xl"}`}>
+        <div className={`relative overflow-hidden border border-border bg-card shadow-2xl ${fullscreen ? "mx-auto h-full w-auto aspect-[9/16] max-w-full rounded-none" : "h-full aspect-[9/16] rounded-2xl"}`}>
           {youtube && active ? (
             <div id={containerId} className="absolute inset-0 h-full w-full" />
           ) : youtube ? (
