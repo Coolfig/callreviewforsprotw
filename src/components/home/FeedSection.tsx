@@ -115,10 +115,54 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
   }, [active, muted, onEnded, youtube]);
 
   const tweetId = video.videoSource === "twitter" ? getTwitterId(video.embedUrl) : "";
+  const rules = video.ruleData?.rules ?? [];
+  const season = video.ruleData?.season;
 
   return (
     <section data-short-id={video.id} className="flex h-[calc(100vh-104px)] snap-start items-center justify-center px-4 py-6">
-      <div className="flex h-full max-h-[720px] items-end justify-center gap-4">
+      <div className="flex h-full max-h-[760px] items-stretch justify-center gap-4">
+        {/* Left: Rulebook panel */}
+        <aside className="hidden w-[300px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">Official Rulebook</div>
+                  <div className="text-xs text-muted-foreground">{video.league} {season ?? ""}</div>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-[10px]">{video.league}</Badge>
+            </div>
+            <Accordion type="single" collapsible className="mt-3">
+              <AccordionItem value="explain" className="border-border">
+                <AccordionTrigger className="py-3 text-sm font-semibold">Rule Explanation</AccordionTrigger>
+                <AccordionContent className="text-xs text-muted-foreground">
+                  {video.ruleData?.ruleExplanation?.plainEnglishSummary ?? video.ruleData?.keyInterpretation ?? "No explanation available for this play yet."}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="text" className="border-border">
+                <AccordionTrigger className="py-3 text-sm font-semibold">Official Rule Text</AccordionTrigger>
+                <AccordionContent className="space-y-2 text-xs text-muted-foreground">
+                  {rules.length === 0 ? (
+                    <p>No rule citation provided.</p>
+                  ) : (
+                    rules.map((r, i) => (
+                      <div key={i}>
+                        <div className="text-xs font-semibold text-foreground">Rule {r.ruleNumber} · {r.ruleTitle}</div>
+                        <p className="mt-1 leading-relaxed">{r.ruleText}</p>
+                      </div>
+                    ))
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </aside>
+
+        {/* Center: Player */}
         <div className="relative h-full aspect-[9/16] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
           {youtube ? (
             <div id={containerId} className="absolute inset-0 h-full w-full" />
@@ -143,6 +187,59 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
           </div>
         </div>
 
+        {/* Right: What's Your Call + Discussion */}
+        <aside className="hidden w-[340px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-foreground">What's Your Call?</h3>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Users className="h-3.5 w-3.5" /> {video.voteCount} votes
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {[
+                { icon: <Check className="h-4 w-4" />, label: "Correct" },
+                { icon: <X className="h-4 w-4" />, label: "Missed" },
+                { icon: <HelpCircle className="h-4 w-4" />, label: "Unclear" },
+              ].map((opt) => (
+                <Link
+                  key={opt.label}
+                  to={`/play/${video.id}`}
+                  className="flex flex-col items-center gap-1 rounded-lg border border-border bg-background/40 p-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  {opt.icon}
+                  {opt.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-1 rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                <MessageCircle className="h-4 w-4 text-primary" /> Discussion
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{video.commentCount}</span>
+              </div>
+            </div>
+            <Link
+              to={`/play/${video.id}#discussion`}
+              className="mt-3 flex items-center justify-between rounded-lg border border-border bg-background/40 px-3 py-3 text-sm text-muted-foreground transition-colors hover:border-primary"
+            >
+              <span>Share your take on this call…</span>
+              <Smile className="h-4 w-4" />
+            </Link>
+            <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" /> Cite Rule</span>
+              <span>· Timestamp</span>
+              <span>· GIF</span>
+            </div>
+            <Link to={`/play/${video.id}#discussion`} className="mt-4 block text-center text-xs font-semibold text-primary hover:underline">
+              Open full discussion →
+            </Link>
+          </div>
+        </aside>
+
+        {/* Far right: Action rail */}
         <div className="hidden flex-col items-center gap-4 pb-6 lg:flex">
           <ActionButton icon={<ThumbsUp className="h-5 w-5" />} label="Like" />
           <ActionButton icon={<ThumbsDown className="h-5 w-5" />} label="Missed" />
