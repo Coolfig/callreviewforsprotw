@@ -40,8 +40,8 @@ const Header = () => {
   return (
     <header className="fixed top-[96px] left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-28">
-          {/* Logo — centered */}
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
           <button
             onClick={() => {
               if (location.pathname === "/" || location.pathname === "/feed") {
@@ -51,13 +51,13 @@ const Header = () => {
                 navigate("/");
               }
             }}
-            className="col-start-2 flex items-center justify-center group"
+            className="flex items-center gap-2 group"
           >
-            <img src={underTheHoodLogo.url} alt="Under The Hood" className="h-24 w-auto object-contain group-hover:opacity-90 transition-opacity" />
+            <img src={underTheHoodLogo.url} alt="Under The Hood" className="h-15 w-auto object-contain group-hover:opacity-90 transition-opacity" style={{ height: "60px" }} />
           </button>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8 col-start-1">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -70,7 +70,7 @@ const Header = () => {
           </nav>
 
           {/* Actions */}
-          <div className="hidden md:flex items-center justify-end gap-2 col-start-3">
+          <div className="hidden md:flex items-center gap-2">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/search")}>
               <Search className="w-5 h-5" />
             </Button>
