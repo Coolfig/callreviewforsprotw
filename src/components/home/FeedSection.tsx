@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Smile, Users, Volume2, VolumeX, X } from "lucide-react";
+import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, Maximize2, MessageCircle, Minimize2, Smile, Users, Volume2, VolumeX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
