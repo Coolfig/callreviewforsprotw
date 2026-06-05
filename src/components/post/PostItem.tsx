@@ -69,6 +69,25 @@ const PostItem = ({
   const [liked, setLiked] = useState(is_liked);
   const [likesNum, setLikesNum] = useState(likes_count);
   const [shareOpen, setShareOpen] = useState(false);
+  const [postBookmarked, setPostBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setPostBookmarked(false); return; }
+    supabase.from("post_bookmarks").select("id").eq("user_id", user.id).eq("post_id", id).maybeSingle()
+      .then(({ data }) => setPostBookmarked(!!data));
+  }, [user, id]);
+
+  const togglePostBookmark = async () => {
+    if (!user) { toast({ title: "Sign in to save posts" }); return; }
+    if (postBookmarked) {
+      setPostBookmarked(false);
+      await supabase.from("post_bookmarks").delete().eq("user_id", user.id).eq("post_id", id);
+    } else {
+      setPostBookmarked(true);
+      await supabase.from("post_bookmarks").insert({ user_id: user.id, post_id: id });
+      toast({ title: "Post saved to your vault" });
+    }
+  };
 
   // Reply state
   const [showReplies, setShowReplies] = useState(false);
@@ -88,15 +107,10 @@ const PostItem = ({
 
   const formatDate = (date: string) => {
     const d = new Date(date);
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    if (days < 7) return `${days}d ago`;
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return d.toLocaleString("en-US", {
+      month: "short", day: "numeric", year: "numeric",
+      hour: "numeric", minute: "2-digit",
+    });
   };
 
   const { celebrate } = useCelebration();
@@ -325,6 +339,13 @@ const PostItem = ({
           </button>
           <button onClick={() => setShareOpen(true)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
             <Share className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={togglePostBookmark}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${postBookmarked ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+            title={postBookmarked ? "Remove from vault" : "Save to vault"}
+          >
+            <Bookmark className={`w-3.5 h-3.5 ${postBookmarked ? "fill-current" : ""}`} />
           </button>
         </div>
         {user?.id === user_id && (

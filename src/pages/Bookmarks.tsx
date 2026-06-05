@@ -27,6 +27,7 @@ interface BookmarkedReply {
   created_at: string;
   username: string;
   avatar_url: string | null;
+  kind: "post" | "reply";
 }
 
 // Parse [gif]URL[/gif] segments and inline @mentions; render text + <img> for gifs.
@@ -106,12 +107,35 @@ const Bookmarks = () => {
       const pMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       const mapped: BookmarkedReply[] = (replies || []).map(r => {
         const p = pMap.get(r.user_id);
-        return { id: r.id, content: r.content, post_id: r.post_id, created_at: r.created_at, username: p?.username || "Unknown", avatar_url: p?.avatar_url || null };
+        return { id: r.id, content: r.content, post_id: r.post_id, created_at: r.created_at, username: p?.username || "Unknown", avatar_url: p?.avatar_url || null, kind: "reply" as const };
       });
       mapped.sort((a, b) => replyIds.indexOf(a.id) - replyIds.indexOf(b.id));
       setBookmarkedReplies(mapped);
     } else {
       setBookmarkedReplies([]);
+    }
+
+    // Community post bookmarks
+    const { data: pb } = await supabase
+      .from("post_bookmarks")
+      .select("post_id, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    const pIds = pb?.map(b => b.post_id) || [];
+    if (pIds.length) {
+      const { data: posts } = await supabase
+        .from("posts")
+        .select("id, content, created_at, user_id")
+        .in("id", pIds);
+      const uIds = [...new Set(posts?.map(p => p.user_id) || [])];
+      const { data: profs } = await supabase.from("profiles").select("user_id, username, avatar_url").in("user_id", uIds);
+      const pMap2 = new Map(profs?.map(p => [p.user_id, p]) || []);
+      const mappedPosts: BookmarkedReply[] = (posts || []).map(p => {
+        const pr = pMap2.get(p.user_id);
+        return { id: p.id, content: p.content, post_id: p.id, created_at: p.created_at, username: pr?.username || "Unknown", avatar_url: pr?.avatar_url || null, kind: "post" as const };
+      });
+      mappedPosts.sort((a, b) => pIds.indexOf(a.id) - pIds.indexOf(b.id));
+      setBookmarkedReplies(prev => [...mappedPosts, ...prev]);
     }
 
     setLoading(false);
