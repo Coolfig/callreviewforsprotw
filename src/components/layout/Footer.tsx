@@ -12,8 +12,8 @@ const Footer = () => {
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Scale className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-lg font-semibold tracking-tight">
-                Call<span className="text-primary">Review</span>
+              <span className="text-lg font-bold tracking-tight uppercase">
+                Under The <span className="text-primary">Hood</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
