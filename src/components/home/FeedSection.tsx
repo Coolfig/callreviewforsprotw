@@ -131,9 +131,10 @@ function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: Spor
   const season = video.ruleData?.season;
 
   return (
-    <section data-short-id={video.id} className="flex h-[calc(100vh-104px)] snap-start items-center justify-center px-4 py-6">
-      <div className="flex h-full max-h-[760px] items-stretch justify-center gap-4">
+    <section data-short-id={video.id} className={`flex snap-start items-center justify-center ${fullscreen ? "h-screen px-0 py-0" : "h-[calc(100vh-104px)] px-4 py-6"}`}>
+      <div className={`flex items-stretch justify-center gap-4 ${fullscreen ? "h-full w-full max-h-none" : "h-full max-h-[760px]"}`}>
         {/* Left: Rulebook panel */}
+        {!fullscreen && (
         <aside className="hidden w-[300px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-start justify-between gap-2">
