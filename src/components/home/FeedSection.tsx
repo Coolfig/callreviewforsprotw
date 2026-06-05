@@ -267,6 +267,13 @@ const FeedSection = () => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setFullscreen(false); };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, []);
 
   const scrollByCard = useCallback((direction: 1 | -1) => {
     const root = scrollerRef.current;
