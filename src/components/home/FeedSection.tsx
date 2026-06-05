@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Repeat2, Share2, Smile, ThumbsDown, ThumbsUp, Users, Volume2, VolumeX, X } from "lucide-react";
+import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Smile, Users, Volume2, VolumeX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -39,17 +39,6 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ActionButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
-  return (
-    <button onClick={onClick} className="flex flex-col items-center gap-1 text-foreground transition-colors hover:text-primary">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card shadow-lg">
-        {icon}
-      </span>
-      <span className="text-xs font-semibold">{label}</span>
-    </button>
-  );
-}
-
 function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; active: boolean; muted: boolean; onEnded: () => void }) {
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
@@ -58,7 +47,7 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
   const containerId = `short-player-${video.id}`;
 
   useEffect(() => {
-    if (!youtube) return;
+    if (!youtube || !active) return;
     let cancelled = false;
     loadYT().then(() => {
       if (cancelled || playerRef.current) return;
@@ -87,7 +76,7 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
       } catch {}
       playerRef.current = null;
     };
-  }, [containerId, youtube?.id, youtube?.start, youtube?.end]);
+  }, [active, containerId, youtube?.id, youtube?.start, youtube?.end]);
 
   useEffect(() => {
     if (!youtube || !ready) return;
@@ -111,8 +100,9 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
     } else {
       try {
         player.mute();
-        player.pauseVideo();
+        player.pauseVideo?.();
         player.stopVideo?.();
+        player.clearVideo?.();
       } catch {}
       if (timerRef.current) clearInterval(timerRef.current);
     }
@@ -120,6 +110,20 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [active, muted, onEnded, youtube, ready]);
+
+  useEffect(() => {
+    if (active) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+    try {
+      playerRef.current?.mute?.();
+      playerRef.current?.pauseVideo?.();
+      playerRef.current?.stopVideo?.();
+      playerRef.current?.clearVideo?.();
+      playerRef.current?.destroy?.();
+    } catch {}
+    playerRef.current = null;
+    setReady(false);
+  }, [active]);
 
 
   const tweetId = video.videoSource === "twitter" ? getTwitterId(video.embedUrl) : "";
@@ -172,9 +176,11 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
 
         {/* Center: Player */}
         <div className="relative h-full aspect-[9/16] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
-          {youtube ? (
+          {youtube && active ? (
             <div id={containerId} className="absolute inset-0 h-full w-full" />
-          ) : tweetId ? (
+          ) : youtube ? (
+            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-muted-foreground">Loading next call…</div>
+          ) : tweetId && active ? (
             <iframe
               src={`https://platform.twitter.com/embed/Tweet.html?id=${tweetId}&theme=dark`}
               className="absolute inset-0 h-full w-full border-0"
