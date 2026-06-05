@@ -88,9 +88,6 @@ const PostItem = ({
       toast({ title: "Post saved to your vault" });
     }
   };
-  const [liked, setLiked] = useState(is_liked);
-  const [likesNum, setLikesNum] = useState(likes_count);
-  const [shareOpen, setShareOpen] = useState(false);
 
   // Reply state
   const [showReplies, setShowReplies] = useState(false);
