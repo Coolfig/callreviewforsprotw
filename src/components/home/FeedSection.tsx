@@ -174,6 +174,7 @@ function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: Spor
             </Accordion>
           </div>
         </aside>
+        )}
 
         {/* Center: Player */}
         <div className="relative h-full aspect-[9/16] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
