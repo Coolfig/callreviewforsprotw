@@ -204,26 +204,26 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
           </div>
         </div>
 
-        {/* Right: What's Your Call + Discussion */}
+        {/* Right: What's Your Call + Discussion (condensed) */}
         {!fullscreen && (
-        <aside className="hidden w-[340px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
-          <div className="rounded-2xl border border-border bg-card p-4">
+        <aside className="hidden w-[300px] flex-col gap-2 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-foreground">What's Your Call?</h3>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Users className="h-3.5 w-3.5" /> {video.voteCount} votes
+              <h3 className="text-xs font-bold text-foreground">What's Your Call?</h3>
+              <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Users className="h-3 w-3" /> {voteCount.toLocaleString()} votes
               </div>
             </div>
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
               {[
-                { icon: <Check className="h-4 w-4" />, label: "Correct" },
-                { icon: <X className="h-4 w-4" />, label: "Missed" },
-                { icon: <HelpCircle className="h-4 w-4" />, label: "Unclear" },
+                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct" },
+                { icon: <X className="h-3.5 w-3.5" />, label: "Missed" },
+                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear" },
               ].map((opt) => (
                 <Link
                   key={opt.label}
                   to={`/play/${video.id}`}
-                  className="flex flex-col items-center gap-1 rounded-lg border border-border bg-background/40 p-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="flex flex-col items-center gap-1 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   {opt.icon}
                   {opt.label}
@@ -232,29 +232,16 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
             </div>
           </div>
 
-          <div className="flex-1 rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-bold text-foreground">
-                <MessageCircle className="h-4 w-4 text-primary" /> Discussion
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{video.commentCount}</span>
-              </div>
+          <Link
+            to={`/play/${video.id}#discussion`}
+            className="flex items-center justify-between rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary"
+          >
+            <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+              <MessageCircle className="h-4 w-4 text-primary" /> Discussion
+              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{commentCount.toLocaleString()}</span>
             </div>
-            <Link
-              to={`/play/${video.id}#discussion`}
-              className="mt-3 flex items-center justify-between rounded-lg border border-border bg-background/40 px-3 py-3 text-sm text-muted-foreground transition-colors hover:border-primary"
-            >
-              <span>Share your take on this call…</span>
-              <Smile className="h-4 w-4" />
-            </Link>
-            <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" /> Cite Rule</span>
-              <span>· Timestamp</span>
-              <span>· GIF</span>
-            </div>
-            <Link to={`/play/${video.id}#discussion`} className="mt-4 block text-center text-xs font-semibold text-primary hover:underline">
-              Open full discussion →
-            </Link>
-          </div>
+            <span className="text-[11px] font-semibold text-primary">Open →</span>
+          </Link>
         </aside>
         )}
 
