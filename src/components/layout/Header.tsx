@@ -57,7 +57,7 @@ const Header = () => {
           </button>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8 col-start-1">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -70,7 +70,7 @@ const Header = () => {
           </nav>
 
           {/* Actions */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center justify-end gap-2 col-start-3">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/search")}>
               <Search className="w-5 h-5" />
             </Button>
