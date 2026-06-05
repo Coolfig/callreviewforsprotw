@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, Send, TrendingUp, Users, ChevronRight } from "lucide-react";
+import { Loader2, Send, TrendingUp, Users, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -112,6 +112,41 @@ const FeedSection = () => {
     observer.observe(el);
     return () => observer.disconnect();
   }, [loadMore]);
+
+  // Computer-friendly navigation: jump card-to-card with keys and buttons
+  const jumpToCard = useCallback((dir: 1 | -1) => {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[id^="play-"]'));
+    if (cards.length === 0) return;
+    const headerOffset = 120;
+    const currentIdx = cards.findIndex((el) => {
+      const top = el.getBoundingClientRect().top;
+      return top > headerOffset - 10;
+    });
+    let targetIdx: number;
+    if (currentIdx === -1) {
+      targetIdx = dir === 1 ? cards.length - 1 : 0;
+    } else if (dir === 1) {
+      // if current is already at top, go to next
+      const top = cards[currentIdx].getBoundingClientRect().top;
+      targetIdx = Math.abs(top - headerOffset) < 20 ? Math.min(currentIdx + 1, cards.length - 1) : currentIdx;
+    } else {
+      targetIdx = Math.max(currentIdx - 1, 0);
+      const top = cards[currentIdx].getBoundingClientRect().top;
+      if (Math.abs(top - headerOffset) > 20) targetIdx = Math.max(currentIdx - 1, 0);
+    }
+    cards[targetIdx]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.matches('input, textarea, [contenteditable="true"]')) return;
+      if (e.key === "j" || e.key === "ArrowDown" && e.shiftKey) { e.preventDefault(); jumpToCard(1); }
+      else if (e.key === "k" || e.key === "ArrowUp" && e.shiftKey) { e.preventDefault(); jumpToCard(-1); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [jumpToCard]);
 
   // Auto-expand and scroll to a play from ?play=ID query param
   useEffect(() => {
