@@ -69,6 +69,28 @@ const PostItem = ({
   const [liked, setLiked] = useState(is_liked);
   const [likesNum, setLikesNum] = useState(likes_count);
   const [shareOpen, setShareOpen] = useState(false);
+  const [postBookmarked, setPostBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setPostBookmarked(false); return; }
+    supabase.from("post_bookmarks").select("id").eq("user_id", user.id).eq("post_id", id).maybeSingle()
+      .then(({ data }) => setPostBookmarked(!!data));
+  }, [user, id]);
+
+  const togglePostBookmark = async () => {
+    if (!user) { toast({ title: "Sign in to save posts" }); return; }
+    if (postBookmarked) {
+      setPostBookmarked(false);
+      await supabase.from("post_bookmarks").delete().eq("user_id", user.id).eq("post_id", id);
+    } else {
+      setPostBookmarked(true);
+      await supabase.from("post_bookmarks").insert({ user_id: user.id, post_id: id });
+      toast({ title: "Post saved to your vault" });
+    }
+  };
+  const [liked, setLiked] = useState(is_liked);
+  const [likesNum, setLikesNum] = useState(likes_count);
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Reply state
   const [showReplies, setShowReplies] = useState(false);
