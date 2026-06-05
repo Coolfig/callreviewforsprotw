@@ -315,14 +315,14 @@ const FeedSection = () => {
   }, [scrollByCard]);
 
   return (
-    <section id="feed" className="bg-background">
-      <div ref={scrollerRef} className="h-[calc(100vh-104px)] overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollbarWidth: "none" }}>
+    <section id="feed" className={`bg-background ${fullscreen ? "fixed inset-0 z-50" : ""}`}>
+      <div ref={scrollerRef} className={`${fullscreen ? "h-screen" : "h-[calc(100vh-104px)]"} overflow-y-scroll snap-y snap-mandatory scroll-smooth`} style={{ scrollbarWidth: "none" }}>
         {videos.map((video) => (
-          <ShortsCard key={video.id} video={video} active={activeId === video.id} muted={muted} onEnded={() => scrollByCard(1)} />
+          <ShortsCard key={video.id} video={video} active={activeId === video.id} muted={muted} fullscreen={fullscreen} onEnded={() => scrollByCard(1)} />
         ))}
       </div>
 
-      <div className="fixed right-6 top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-3 lg:flex">
+      <div className="fixed right-6 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 lg:flex">
         <Button size="icon" variant="secondary" onClick={() => scrollByCard(-1)} className="h-12 w-12 rounded-full border border-border shadow-lg" aria-label="Previous video">
           <ChevronUp className="h-6 w-6" />
         </Button>
@@ -331,6 +331,9 @@ const FeedSection = () => {
         </Button>
         <Button size="icon" variant="secondary" onClick={() => setMuted((value) => !value)} className="mt-2 h-12 w-12 rounded-full border border-border shadow-lg" aria-label={muted ? "Unmute" : "Mute"}>
           {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </Button>
+        <Button size="icon" variant="secondary" onClick={() => setFullscreen((v) => !v)} className="h-12 w-12 rounded-full border border-border shadow-lg" aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}>
+          {fullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
         </Button>
       </div>
     </section>
