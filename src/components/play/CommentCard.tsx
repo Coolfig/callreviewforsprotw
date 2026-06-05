@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import EmojiPicker, { Theme, EmojiClickData, EmojiStyle } from "emoji-picker-react";
-import { timeAgo } from "@/lib/utils/timeAgo";
+import { formatFullDate } from "@/lib/utils/formatFullDate";
 import type { CommentData } from "@/types/comments";
 
 interface CommentCardProps {
