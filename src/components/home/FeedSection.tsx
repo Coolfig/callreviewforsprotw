@@ -173,6 +173,27 @@ const FeedSection = () => {
 
   return (
     <section id="feed" className="py-10 bg-background min-h-screen">
+      {/* Desktop card-to-card nav */}
+      <div className="hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 flex-col gap-2 z-30">
+        <Button
+          size="icon"
+          variant="secondary"
+          onClick={() => jumpToCard(-1)}
+          className="rounded-full h-11 w-11 shadow-lg border border-border"
+          title="Previous play (K)"
+        >
+          <ChevronUp className="h-5 w-5" />
+        </Button>
+        <Button
+          size="icon"
+          variant="secondary"
+          onClick={() => jumpToCard(1)}
+          className="rounded-full h-11 w-11 shadow-lg border border-border"
+          title="Next play (J)"
+        >
+          <ChevronDown className="h-5 w-5" />
+        </Button>
+      </div>
       <div className="container mx-auto px-4 max-w-7xl">
 
         {/* League filter strip */}
