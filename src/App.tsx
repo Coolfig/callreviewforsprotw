@@ -20,6 +20,7 @@ import About from "./pages/About";
 import Admin from "./pages/Admin";
 import AdminClipper from "./pages/AdminClipper";
 import Clips from "./pages/Clips";
+import Reels from "./pages/Reels";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
             <Route path="/admin/clipper" element={<ProtectedRoute requiredRole="admin"><AdminClipper /></ProtectedRoute>} />
             <Route path="/clips" element={<Clips />} />
+            <Route path="/reels" element={<Reels />} />
             <Route path="/profile/:username" element={<Profile />} />
             <Route path="/community" element={<Community />} />
             <Route path="/messages" element={<Messages />} />
