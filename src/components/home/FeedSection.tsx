@@ -131,7 +131,7 @@ function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: Spor
   const season = video.ruleData?.season;
 
   return (
-    <section data-short-id={video.id} className={`flex snap-start items-center justify-center ${fullscreen ? "h-screen px-0 py-0" : "h-[calc(100vh-208px)] px-4 py-6"}`}>
+    <section data-short-id={video.id} className={`flex snap-start items-center justify-center ${fullscreen ? "h-screen px-0 py-0" : "h-[calc(100vh-104px)] px-4 py-6"}`}>
       <div className={`flex items-stretch justify-center gap-4 ${fullscreen ? "h-full w-full max-h-none" : "h-full max-h-[760px]"}`}>
         {/* Left: Rulebook panel */}
         {!fullscreen && (
@@ -316,7 +316,7 @@ const FeedSection = () => {
 
   return (
     <section id="feed" className={`bg-background ${fullscreen ? "fixed inset-0 z-50" : ""}`}>
-      <div ref={scrollerRef} className={`${fullscreen ? "h-screen" : "h-[calc(100vh-208px)]"} overflow-y-scroll snap-y snap-mandatory scroll-smooth`} style={{ scrollbarWidth: "none" }}>
+      <div ref={scrollerRef} className={`${fullscreen ? "h-screen" : "h-[calc(100vh-104px)]"} overflow-y-scroll snap-y snap-mandatory scroll-smooth`} style={{ scrollbarWidth: "none" }}>
         {videos.map((video) => (
           <ShortsCard key={video.id} video={video} active={activeId === video.id} muted={muted} fullscreen={fullscreen} onEnded={() => scrollByCard(1)} />
         ))}
