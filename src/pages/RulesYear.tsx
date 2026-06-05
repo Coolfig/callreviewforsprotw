@@ -154,7 +154,7 @@ const RulesYear = () => {
 
   // ── SEO ─────────────────────────────────────────────────────────────────────
   const h1 = `${meta.short} Rule Changes ${year}`;
-  const pageTitle = `${meta.short} Rule Changes ${year} – Official Interpretation & Analysis | CallReview`;
+  const pageTitle = `${meta.short} Rule Changes ${year} – Official Interpretation & Analysis | Under The Hood`;
   const metaDesc =
     ruleYear?.overview_summary
       ? ruleYear.overview_summary.slice(0, 155) + "…"

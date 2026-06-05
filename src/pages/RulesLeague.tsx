@@ -136,7 +136,7 @@ const RulesLeague = () => {
 
   if (!meta || !leagueKey) return <Navigate to="/rules" replace />;
 
-  const title = `${meta.short} Rule Changes & Interpretations (2000–2026) | CallReview`;
+  const title = `${meta.short} Rule Changes & Interpretations (2000–2026) | Under The Hood`;
   const metaDesc = meta.description;
 
   const structuredData = {
