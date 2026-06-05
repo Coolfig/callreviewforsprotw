@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { supabase } from "@/integrations/supabase/client";
-import refereeCharacter from "@/assets/referee-character.png";
+import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
