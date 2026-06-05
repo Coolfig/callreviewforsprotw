@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import ShareDialog from "./ShareDialog";
 import { useCelebration } from "@/components/celebration/CelebrationProvider";
+import { formatFullDate } from "@/lib/utils/formatFullDate";
 
 interface PostItemProps {
   id: string;
