@@ -1,5 +1,5 @@
-import { Scale } from "lucide-react";
 import { Link } from "react-router-dom";
+import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
 
 const Footer = () => {
   return (
