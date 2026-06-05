@@ -47,7 +47,7 @@ const CommentSection = ({ playId }: { playId: string }) => {
         </select>
       </div>
 
-      <CommentComposer onPost={handlePost} />
+      <CommentComposer onPost={handlePostWithCelebration} />
 
       <div className="px-5 py-4 space-y-6">
         {loading ? (
