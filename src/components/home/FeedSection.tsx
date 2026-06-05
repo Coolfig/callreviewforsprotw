@@ -163,9 +163,9 @@ const FeedSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
 
           {/* Main feed */}
-          <div className="space-y-6">
+          <div className="space-y-6 scroll-smooth">
             {visible.map((video) => (
-              <div key={video.id} id={`play-${video.id}`}>
+              <div key={video.id} id={`play-${video.id}`} className="scroll-mt-24">
                 <PlayCard
                   id={video.id}
                   title={video.title}
