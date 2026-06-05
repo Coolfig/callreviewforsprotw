@@ -137,6 +137,17 @@ const PostItem = ({
         .in("user_id", userIds);
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
+      let myBookmarks = new Set<string>();
+      if (user) {
+        const replyIds = repliesData.map(r => r.id);
+        const { data: bms } = await supabase
+          .from("post_reply_bookmarks")
+          .select("reply_id")
+          .eq("user_id", user.id)
+          .in("reply_id", replyIds);
+        myBookmarks = new Set(bms?.map(b => b.reply_id) || []);
+      }
+
       setReplies(repliesData.map(r => ({
         id: r.id,
         content: r.content,
@@ -144,11 +155,25 @@ const PostItem = ({
         user_id: r.user_id,
         username: profileMap.get(r.user_id)?.username || "Unknown",
         avatar_url: profileMap.get(r.user_id)?.avatar_url || null,
+        bookmarked_by_me: myBookmarks.has(r.id),
       })));
     } else {
       setReplies([]);
     }
     setLoadingReplies(false);
+  };
+
+  const toggleReplyBookmark = async (replyId: string) => {
+    if (!user) { toast({ title: "Sign in to save comments" }); return; }
+    const reply = replies.find(r => r.id === replyId);
+    const isBookmarked = reply?.bookmarked_by_me;
+    setReplies(prev => prev.map(r => r.id === replyId ? { ...r, bookmarked_by_me: !isBookmarked } : r));
+    if (isBookmarked) {
+      await supabase.from("post_reply_bookmarks").delete().eq("user_id", user.id).eq("reply_id", replyId);
+    } else {
+      await supabase.from("post_reply_bookmarks").insert({ user_id: user.id, reply_id: replyId });
+      toast({ title: "Comment saved to your vault" });
+    }
   };
 
   const toggleReplies = () => {
