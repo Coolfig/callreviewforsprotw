@@ -27,6 +27,7 @@ interface BookmarkedReply {
   created_at: string;
   username: string;
   avatar_url: string | null;
+  kind: "post" | "reply";
 }
 
 // Parse [gif]URL[/gif] segments and inline @mentions; render text + <img> for gifs.
