@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Smile, Users, Volume2, VolumeX, X } from "lucide-react";
+import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, Maximize2, MessageCircle, Minimize2, Smile, Users, Volume2, VolumeX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -39,7 +39,7 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; active: boolean; muted: boolean; onEnded: () => void }) {
+function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; onEnded: () => void }) {
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
@@ -131,9 +131,10 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
   const season = video.ruleData?.season;
 
   return (
-    <section data-short-id={video.id} className="flex h-[calc(100vh-104px)] snap-start items-center justify-center px-4 py-6">
-      <div className="flex h-full max-h-[760px] items-stretch justify-center gap-4">
+    <section data-short-id={video.id} className={`flex snap-start items-center justify-center ${fullscreen ? "h-screen px-0 py-0" : "h-[calc(100vh-104px)] px-4 py-6"}`}>
+      <div className={`flex items-stretch justify-center gap-4 ${fullscreen ? "h-full w-full max-h-none" : "h-full max-h-[760px]"}`}>
         {/* Left: Rulebook panel */}
+        {!fullscreen && (
         <aside className="hidden w-[300px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-start justify-between gap-2">
@@ -173,9 +174,10 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
             </Accordion>
           </div>
         </aside>
+        )}
 
         {/* Center: Player */}
-        <div className="relative h-full aspect-[9/16] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div className={`relative overflow-hidden border border-border bg-card shadow-2xl ${fullscreen ? "h-full w-full rounded-none" : "h-full aspect-[9/16] rounded-2xl"}`}>
           {youtube && active ? (
             <div id={containerId} className="absolute inset-0 h-full w-full" />
           ) : youtube ? (
@@ -202,6 +204,7 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
         </div>
 
         {/* Right: What's Your Call + Discussion */}
+        {!fullscreen && (
         <aside className="hidden w-[340px] flex-col gap-4 overflow-y-auto lg:flex" style={{ scrollbarWidth: "none" }}>
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
@@ -252,6 +255,7 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
             </Link>
           </div>
         </aside>
+        )}
 
       </div>
     </section>
@@ -263,6 +267,13 @@ const FeedSection = () => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setFullscreen(false); };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, []);
 
   const scrollByCard = useCallback((direction: 1 | -1) => {
     const root = scrollerRef.current;
@@ -304,14 +315,14 @@ const FeedSection = () => {
   }, [scrollByCard]);
 
   return (
-    <section id="feed" className="bg-background">
-      <div ref={scrollerRef} className="h-[calc(100vh-104px)] overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollbarWidth: "none" }}>
+    <section id="feed" className={`bg-background ${fullscreen ? "fixed inset-0 z-50" : ""}`}>
+      <div ref={scrollerRef} className={`${fullscreen ? "h-screen" : "h-[calc(100vh-104px)]"} overflow-y-scroll snap-y snap-mandatory scroll-smooth`} style={{ scrollbarWidth: "none" }}>
         {videos.map((video) => (
-          <ShortsCard key={video.id} video={video} active={activeId === video.id} muted={muted} onEnded={() => scrollByCard(1)} />
+          <ShortsCard key={video.id} video={video} active={activeId === video.id} muted={muted} fullscreen={fullscreen} onEnded={() => scrollByCard(1)} />
         ))}
       </div>
 
-      <div className="fixed right-6 top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-3 lg:flex">
+      <div className="fixed right-6 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 lg:flex">
         <Button size="icon" variant="secondary" onClick={() => scrollByCard(-1)} className="h-12 w-12 rounded-full border border-border shadow-lg" aria-label="Previous video">
           <ChevronUp className="h-6 w-6" />
         </Button>
@@ -320,6 +331,9 @@ const FeedSection = () => {
         </Button>
         <Button size="icon" variant="secondary" onClick={() => setMuted((value) => !value)} className="mt-2 h-12 w-12 rounded-full border border-border shadow-lg" aria-label={muted ? "Unmute" : "Mute"}>
           {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </Button>
+        <Button size="icon" variant="secondary" onClick={() => setFullscreen((v) => !v)} className="h-12 w-12 rounded-full border border-border shadow-lg" aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}>
+          {fullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
         </Button>
       </div>
     </section>
