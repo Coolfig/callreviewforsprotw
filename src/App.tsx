@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import LiveScoresTicker from "@/components/scores/LiveScoresTicker";
+import LiveTicker from "@/components/home/LiveTicker";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import Rulebook from "./pages/Rulebook";
