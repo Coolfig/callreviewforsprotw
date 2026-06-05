@@ -105,13 +105,7 @@ const PostItem = ({
   const [gifLoading, setGifLoading] = useState(false);
   const [selectedGifUrl, setSelectedGifUrl] = useState<string | null>(null);
 
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    return d.toLocaleString("en-US", {
-      month: "short", day: "numeric", year: "numeric",
-      hour: "numeric", minute: "2-digit",
-    });
-  };
+  const formatDate = (date: string) => formatFullDate(date);
 
   const { celebrate } = useCelebration();
 
