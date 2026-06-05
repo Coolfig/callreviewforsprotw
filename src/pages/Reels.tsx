@@ -4,7 +4,19 @@ import { fetchAllClips } from "@/lib/api/clips";
 import Header from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Volume2, VolumeX, ChevronUp, ChevronDown, Loader2, Film } from "lucide-react";
+import {
+  Volume2,
+  VolumeX,
+  ChevronUp,
+  ChevronDown,
+  Loader2,
+  Film,
+  ThumbsUp,
+  ThumbsDown,
+  MessageCircle,
+  Share2,
+  Repeat2,
+} from "lucide-react";
 
 
 const ytReadyPromise: { current: Promise<void> | null } = { current: null };
@@ -24,14 +36,40 @@ function loadYT(): Promise<void> {
   return ytReadyPromise.current;
 }
 
+function ActionButton({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-1 group"
+    >
+      <span className="h-12 w-12 rounded-full bg-secondary/80 hover:bg-secondary text-foreground flex items-center justify-center transition-colors">
+        {icon}
+      </span>
+      {label && (
+        <span className="text-xs text-foreground/80 font-medium">{label}</span>
+      )}
+    </button>
+  );
+}
+
 function ReelItem({
   clip,
   active,
   muted,
+  onEnded,
 }: {
   clip: any;
   active: boolean;
   muted: boolean;
+  onEnded: () => void;
 }) {
   const video = clip.videos;
   const youtubeId = video?.youtube_id;
@@ -72,7 +110,7 @@ function ReelItem({
     };
   }, [youtubeId, clip.id, clip.start_seconds, clip.end_seconds, containerId]);
 
-  // play/pause + loop based on active
+  // play/pause + auto-advance when clip ends
   useEffect(() => {
     if (!ready || !playerRef.current) return;
     const p = playerRef.current;
@@ -86,8 +124,10 @@ function ReelItem({
         try {
           const t = p.getCurrentTime();
           if (t >= clip.end_seconds) {
-            p.seekTo(clip.start_seconds, true);
-            p.playVideo();
+            p.pauseVideo();
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            intervalRef.current = null;
+            onEnded();
           }
         } catch {}
       }, 300);
@@ -106,7 +146,7 @@ function ReelItem({
         intervalRef.current = null;
       }
     };
-  }, [active, ready, clip.start_seconds, clip.end_seconds]);
+  }, [active, ready, clip.start_seconds, clip.end_seconds, onEnded]);
 
   // mute toggle
   useEffect(() => {
@@ -116,14 +156,21 @@ function ReelItem({
     } catch {}
   }, [muted, ready]);
 
+  const shareClip = async () => {
+    const url = `${window.location.origin}/reels#${clip.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {}
+  };
+
   return (
     <section
       data-reel-id={clip.id}
-      className="snap-start h-[calc(100vh-104px)] w-full flex items-center justify-center relative bg-black px-6"
+      className="snap-start h-[calc(100vh-104px)] w-full flex items-center justify-center relative bg-background"
     >
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-center">
-        {/* Video */}
-        <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border/40 shadow-2xl">
+      <div className="relative h-full flex items-center justify-center gap-4 py-6">
+        {/* Vertical 9:16 video */}
+        <div className="relative h-full max-h-[calc(100vh-140px)] aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl">
           {youtubeId ? (
             <div id={containerId} className="absolute inset-0 w-full h-full" />
           ) : (
@@ -132,33 +179,45 @@ function ReelItem({
               <p className="text-sm">Video unavailable</p>
             </div>
           )}
+
+          {/* Bottom-left title/info overlay */}
+          <div className="absolute left-0 right-16 bottom-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none">
+            <h2 className="text-white font-semibold text-base mb-1 line-clamp-2">
+              {clip.clip_title}
+            </h2>
+            {video?.title && (
+              <p className="text-white/70 text-xs line-clamp-1 mb-1">
+                {video.title}
+              </p>
+            )}
+            {clip.tags?.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {clip.tags.slice(0, 3).map((t: string) => (
+                  <Badge
+                    key={t}
+                    variant="outline"
+                    className="text-[10px] border-white/30 text-white bg-black/30"
+                  >
+                    #{t}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Info panel */}
-        <div className="text-white space-y-3 lg:pl-2">
-          <h2 className="font-bold text-xl leading-tight">{clip.clip_title}</h2>
-          {video?.title && (
-            <p className="text-white/60 text-sm line-clamp-2">{video.title}</p>
-          )}
-          {clip.notes && (
-            <p className="text-white/80 text-sm leading-relaxed">{clip.notes}</p>
-          )}
-          {clip.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {clip.tags.slice(0, 6).map((t: string) => (
-                <Badge
-                  key={t}
-                  variant="outline"
-                  className="text-[10px] border-white/30 text-white"
-                >
-                  {t}
-                </Badge>
-              ))}
-            </div>
-          )}
-          <p className="text-white/40 text-xs pt-2">
-            Use ↑ ↓ to navigate · M to mute
-          </p>
+        {/* Right action rail */}
+        <div className="flex flex-col items-center gap-4 pb-12">
+          <ActionButton icon={<ThumbsUp className="h-5 w-5" />} label="Like" />
+          <ActionButton icon={<ThumbsDown className="h-5 w-5" />} label="Dislike" />
+          <ActionButton icon={<MessageCircle className="h-5 w-5" />} label="0" />
+          <ActionButton icon={<Share2 className="h-5 w-5" />} label="Share" onClick={shareClip} />
+          <ActionButton icon={<Repeat2 className="h-5 w-5" />} label="Replay" onClick={() => {
+            try {
+              playerRef.current?.seekTo(clip.start_seconds, true);
+              playerRef.current?.playVideo();
+            } catch {}
+          }} />
         </div>
       </div>
     </section>
@@ -206,16 +265,29 @@ export default function Reels() {
     root.scrollBy({ top: dir * root.clientHeight, behavior: "smooth" });
   };
 
-  // keyboard nav
+  // keyboard nav: arrows/J/K to navigate, M to mute
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "j") scrollBy(1);
-      if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "k") scrollBy(-1);
-      if (e.key === "m") setMuted((m) => !m);
+      const target = e.target as HTMLElement;
+      if (target?.matches('input, textarea, [contenteditable="true"]')) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "j") {
+        e.preventDefault();
+        scrollBy(1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "k") {
+        e.preventDefault();
+        scrollBy(-1);
+      } else if (e.key === "m") {
+        setMuted((m) => !m);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // auto-advance to next when a clip's end is reached
+  const handleEnded = () => {
+    scrollBy(1);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -243,36 +315,40 @@ export default function Reels() {
                   clip={clip}
                   active={activeId === clip.id}
                   muted={muted}
+                  onEnded={handleEnded}
                 />
               ))}
             </div>
 
-            {/* Side controls */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-20">
+            {/* Far-right up/down nav (YouTube Shorts style) */}
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-20">
               <Button
                 size="icon"
                 variant="secondary"
                 onClick={() => scrollBy(-1)}
-                className="rounded-full h-11 w-11 bg-background/70 backdrop-blur"
+                className="rounded-full h-12 w-12 bg-secondary/80 hover:bg-secondary"
                 aria-label="Previous"
+                title="Up arrow"
               >
-                <ChevronUp className="h-5 w-5" />
+                <ChevronUp className="h-6 w-6" />
               </Button>
               <Button
                 size="icon"
                 variant="secondary"
                 onClick={() => scrollBy(1)}
-                className="rounded-full h-11 w-11 bg-background/70 backdrop-blur"
+                className="rounded-full h-12 w-12 bg-secondary/80 hover:bg-secondary"
                 aria-label="Next"
+                title="Down arrow"
               >
-                <ChevronDown className="h-5 w-5" />
+                <ChevronDown className="h-6 w-6" />
               </Button>
               <Button
                 size="icon"
                 variant="secondary"
                 onClick={() => setMuted((m) => !m)}
-                className="rounded-full h-11 w-11 bg-background/70 backdrop-blur"
+                className="rounded-full h-12 w-12 bg-secondary/80 hover:bg-secondary mt-2"
                 aria-label={muted ? "Unmute" : "Mute"}
+                title="M to toggle"
               >
                 {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
               </Button>
