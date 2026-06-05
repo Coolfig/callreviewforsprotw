@@ -43,6 +43,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <LiveTicker />
           <LiveScoresTicker />
           <OnboardingModal />
           <Routes>
