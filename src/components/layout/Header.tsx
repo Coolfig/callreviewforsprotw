@@ -8,7 +8,6 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { supabase } from "@/integrations/supabase/client";
 import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
-import { Scale } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
