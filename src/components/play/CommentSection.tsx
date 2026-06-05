@@ -13,6 +13,12 @@ const CommentSection = ({ playId }: { playId: string }) => {
     handleLike, handleDislike, handleBookmark, handlePost, handleReply, handleDelete,
   } = useComments(playId);
   const [sortMode, setSortMode] = useState<SortMode>("top");
+  const { celebrate } = useCelebration();
+  const handlePostWithCelebration = async (...args: Parameters<typeof handlePost>) => {
+    const ok = await handlePost(...args);
+    if (ok) celebrate("post");
+    return ok;
+  };
 
   useEffect(() => { fetchComments(0); }, [fetchComments]);
 
