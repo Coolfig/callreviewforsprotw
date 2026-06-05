@@ -259,7 +259,7 @@ const PostItem = ({
   const isDirectVideo = video_url && !youtubeEmbed && (video_url.match(/\.(mp4|webm|mov)$/i) || video_url.startsWith("blob:"));
 
   return (
-    <div className="bg-card rounded-xl border border-border/50 overflow-hidden mb-3 hover:border-border transition-colors">
+    <div id={`post-${id}`} className="bg-card rounded-xl border border-border/50 overflow-hidden mb-3 hover:border-border transition-colors">
       {/* Author bar */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-2">
         <Link to={`/profile/${username}`}>
