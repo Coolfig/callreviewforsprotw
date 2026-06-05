@@ -340,6 +340,13 @@ const PostItem = ({
           <button onClick={() => setShareOpen(true)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Share">
             <Share className="w-3.5 h-3.5" />
           </button>
+          <button
+            onClick={togglePostBookmark}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${postBookmarked ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+            title={postBookmarked ? "Remove from vault" : "Save to vault"}
+          >
+            <Bookmark className={`w-3.5 h-3.5 ${postBookmarked ? "fill-current" : ""}`} />
+          </button>
         </div>
         {user?.id === user_id && (
           <button onClick={handleDelete} className="ml-auto p-1.5 rounded-full text-muted-foreground hover:bg-destructive/15 hover:text-destructive transition-all" title="Delete">
