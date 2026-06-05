@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import refereeCharacter from "@/assets/referee-character.png";
+import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
 
 const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
@@ -17,9 +17,9 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       }`}
     >
       <img
-        src={refereeCharacter}
-        alt="CallReview"
-        className="w-32 h-32 object-contain animate-fade-in"
+        src={underTheHoodLogo.url}
+        alt="Under The Hood"
+        className="w-48 h-48 object-contain animate-fade-in"
       />
     </div>
   );

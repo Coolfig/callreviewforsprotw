@@ -77,7 +77,7 @@ const RulebookYear = () => {
 
   return (
     <>
-      <title>{title} | CallReview</title>
+      <title>{title} | Under The Hood</title>
       <meta name="description" content={metaDesc} />
       <link rel="canonical" href={`/rulebooks/${league.key}/${year}`} />
       <script type="application/ld+json">{JSON.stringify(structuredData)}</script>

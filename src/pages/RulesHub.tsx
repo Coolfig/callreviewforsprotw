@@ -66,11 +66,11 @@ const FEATURES = [
   { icon: <Zap className="w-4 h-4" />, title: "What changed", desc: "Plain-English breakdown of every rule change with the previous rule text for comparison." },
   { icon: <TrendingUp className="w-4 h-4" />, title: "Real-world impact", desc: "How each rule change affected gameplay, officiating patterns, and controversial outcomes." },
   { icon: <FileText className="w-4 h-4" />, title: "Source citations", desc: "Optional source field links each change to official league publications and rule books." },
-  { icon: <Users className="w-4 h-4" />, title: "Linked to reviews", desc: "Related controversial calls from the CallReview feed are cross-referenced on every year page." },
+  { icon: <Users className="w-4 h-4" />, title: "Linked to reviews", desc: "Related controversial calls from the Under The Hood feed are cross-referenced on every year page." },
 ];
 
 const RulesHub = () => {
-  const title = "Sports Rule Changes & Interpretations (2000–2026) | CallReview";
+  const title = "Sports Rule Changes & Interpretations (2000–2026) | Under The Hood";
   const metaDesc =
     "Browse NFL, NBA, NHL, and MLB rule changes and officiating interpretations from 2000 to 2026. Understand what changed each season and how it shaped famous controversial calls.";
 
@@ -99,7 +99,7 @@ const RulesHub = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium mb-1">
-                  CallReview Database
+                  Under The Hood Database
                 </p>
                 <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
                   Sports Rule Changes<br className="hidden sm:block" />

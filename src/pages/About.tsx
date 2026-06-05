@@ -9,7 +9,7 @@ const About = () => {
       <main className="pt-[184px] pb-16">
         <div className="container mx-auto px-6 max-w-3xl">
           <div className="mb-12">
-            <h1 className="text-3xl font-bold mb-4">About CallReview</h1>
+            <h1 className="text-3xl font-bold mb-4">About Under The Hood</h1>
             <p className="text-muted-foreground text-lg leading-relaxed">
               We're building the platform where fans review plays like officials — with evidence, not emotion.
             </p>
