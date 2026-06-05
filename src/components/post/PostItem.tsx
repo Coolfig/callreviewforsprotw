@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, MessageCircle, Trash2, Share, Send, Search, X, Loader2 } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Share, Send, Search, X, Loader2, Bookmark } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +31,7 @@ interface Reply {
   user_id: string;
   username: string;
   avatar_url: string | null;
+  bookmarked_by_me?: boolean;
 }
 
 const renderContent = (text: string) => {
@@ -136,6 +137,17 @@ const PostItem = ({
         .in("user_id", userIds);
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
+      let myBookmarks = new Set<string>();
+      if (user) {
+        const replyIds = repliesData.map(r => r.id);
+        const { data: bms } = await supabase
+          .from("post_reply_bookmarks")
+          .select("reply_id")
+          .eq("user_id", user.id)
+          .in("reply_id", replyIds);
+        myBookmarks = new Set(bms?.map(b => b.reply_id) || []);
+      }
+
       setReplies(repliesData.map(r => ({
         id: r.id,
         content: r.content,
@@ -143,11 +155,25 @@ const PostItem = ({
         user_id: r.user_id,
         username: profileMap.get(r.user_id)?.username || "Unknown",
         avatar_url: profileMap.get(r.user_id)?.avatar_url || null,
+        bookmarked_by_me: myBookmarks.has(r.id),
       })));
     } else {
       setReplies([]);
     }
     setLoadingReplies(false);
+  };
+
+  const toggleReplyBookmark = async (replyId: string) => {
+    if (!user) { toast({ title: "Sign in to save comments" }); return; }
+    const reply = replies.find(r => r.id === replyId);
+    const isBookmarked = reply?.bookmarked_by_me;
+    setReplies(prev => prev.map(r => r.id === replyId ? { ...r, bookmarked_by_me: !isBookmarked } : r));
+    if (isBookmarked) {
+      await supabase.from("post_reply_bookmarks").delete().eq("user_id", user.id).eq("reply_id", replyId);
+    } else {
+      await supabase.from("post_reply_bookmarks").insert({ user_id: user.id, reply_id: replyId });
+      toast({ title: "Comment saved to your vault" });
+    }
   };
 
   const toggleReplies = () => {
@@ -233,7 +259,7 @@ const PostItem = ({
   const isDirectVideo = video_url && !youtubeEmbed && (video_url.match(/\.(mp4|webm|mov)$/i) || video_url.startsWith("blob:"));
 
   return (
-    <div className="bg-card rounded-xl border border-border/50 overflow-hidden mb-3 hover:border-border transition-colors">
+    <div id={`post-${id}`} className="bg-card rounded-xl border border-border/50 overflow-hidden mb-3 hover:border-border transition-colors">
       {/* Author bar */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-2">
         <Link to={`/profile/${username}`}>
@@ -423,11 +449,20 @@ const PostItem = ({
                     </div>
                     <div className="text-sm mt-0.5 whitespace-pre-wrap">{renderReplyContent(reply.content)}</div>
                   </div>
-                  {user?.id === reply.user_id && (
-                    <button onClick={() => handleDeleteReply(reply.id)} className="p-1 rounded-full text-muted-foreground hover:text-destructive transition-colors shrink-0 self-start" title="Delete reply">
-                      <Trash2 className="w-3 h-3" />
+                  <div className="flex items-center gap-1 shrink-0 self-start">
+                    <button
+                      onClick={() => toggleReplyBookmark(reply.id)}
+                      className={`p-1 rounded-full transition-colors ${reply.bookmarked_by_me ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                      title={reply.bookmarked_by_me ? "Remove from vault" : "Save to vault"}
+                    >
+                      <Bookmark className={`w-3 h-3 ${reply.bookmarked_by_me ? "fill-current" : ""}`} />
                     </button>
-                  )}
+                    {user?.id === reply.user_id && (
+                      <button onClick={() => handleDeleteReply(reply.id)} className="p-1 rounded-full text-muted-foreground hover:text-destructive transition-colors" title="Delete reply">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             )}

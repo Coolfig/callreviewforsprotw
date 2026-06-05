@@ -113,6 +113,29 @@ const FeedSection = () => {
     return () => observer.disconnect();
   }, [loadMore]);
 
+  // Auto-expand and scroll to a play from ?play=ID query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const playId = params.get("play");
+    if (!playId) return;
+    const idx = filtered.findIndex(v => v.id === playId);
+    if (idx < 0) return;
+    if (idx >= visibleCount) setVisibleCount(idx + 1);
+    setExpandedPlayId(playId);
+    setTimeout(() => {
+      const el = document.getElementById(`play-${playId}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      const commentHash = window.location.hash;
+      if (commentHash.startsWith("#comment-")) {
+        setTimeout(() => {
+          const c = document.getElementById(commentHash.slice(1));
+          if (c) { c.scrollIntoView({ behavior: "smooth", block: "center" }); c.classList.add("ring-2","ring-primary"); setTimeout(() => c.classList.remove("ring-2","ring-primary"), 2000); }
+        }, 500);
+      }
+    }, 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <section id="feed" className="py-10 bg-background min-h-screen">
       <div className="container mx-auto px-4 max-w-7xl">

@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Loader2, MessageSquare } from "lucide-react";
+import { Bookmark, Loader2, MessageSquare, Users } from "lucide-react";
 import PlayCard from "@/components/play/PlayCard";
 import { sportsVideos } from "@/data/sportsVideos";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,18 +20,51 @@ interface BookmarkedComment {
   avatar_url: string | null;
 }
 
+interface BookmarkedReply {
+  id: string;
+  content: string;
+  post_id: string;
+  created_at: string;
+  username: string;
+  avatar_url: string | null;
+}
+
+// Parse [gif]URL[/gif] segments and inline @mentions; render text + <img> for gifs.
+const renderRichContent = (text: string) => {
+  const gifRegex = /\[gif\](.*?)\[\/gif\]/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+  while ((match = gifRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={key++}>{text.slice(lastIndex, match.index)}</span>);
+    }
+    parts.push(
+      <img key={key++} src={match[1]} alt="GIF" className="rounded-lg max-h-48 mt-2 border border-border/30" />
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push(<span key={key++}>{text.slice(lastIndex)}</span>);
+  return parts;
+};
+
 const Bookmarks = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [bookmarkedComments, setBookmarkedComments] = useState<BookmarkedComment[]>([]);
+  const [bookmarkedReplies, setBookmarkedReplies] = useState<BookmarkedReply[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBookmarks = useCallback(async () => {
     if (!user) { setLoading(false); return; }
+
+    // Play bookmarks
     const { data } = await supabase.from("bookmarks").select("play_id").eq("user_id", user.id).order("created_at", { ascending: false });
     setBookmarkedIds(data?.map(b => b.play_id) || []);
 
+    // Play comment bookmarks
     const { data: cb } = await supabase
       .from("comment_bookmarks")
       .select("comment_id, created_at")
@@ -50,12 +83,37 @@ const Bookmarks = () => {
         const p = pMap.get(c.user_id);
         return { id: c.id, content: c.content, play_id: c.play_id, created_at: c.created_at, username: p?.username || "Unknown", avatar_url: p?.avatar_url || null };
       });
-      // preserve bookmark order
       mapped.sort((a, b) => commentIds.indexOf(a.id) - commentIds.indexOf(b.id));
       setBookmarkedComments(mapped);
     } else {
       setBookmarkedComments([]);
     }
+
+    // Community reply bookmarks
+    const { data: rb } = await supabase
+      .from("post_reply_bookmarks")
+      .select("reply_id, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    const replyIds = rb?.map(r => r.reply_id) || [];
+    if (replyIds.length) {
+      const { data: replies } = await supabase
+        .from("post_replies")
+        .select("id, content, post_id, created_at, user_id")
+        .in("id", replyIds);
+      const userIds = [...new Set(replies?.map(r => r.user_id) || [])];
+      const { data: profiles } = await supabase.from("profiles").select("user_id, username, avatar_url").in("user_id", userIds);
+      const pMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      const mapped: BookmarkedReply[] = (replies || []).map(r => {
+        const p = pMap.get(r.user_id);
+        return { id: r.id, content: r.content, post_id: r.post_id, created_at: r.created_at, username: p?.username || "Unknown", avatar_url: p?.avatar_url || null };
+      });
+      mapped.sort((a, b) => replyIds.indexOf(a.id) - replyIds.indexOf(b.id));
+      setBookmarkedReplies(mapped);
+    } else {
+      setBookmarkedReplies([]);
+    }
+
     setLoading(false);
   }, [user]);
 
@@ -92,6 +150,7 @@ const Bookmarks = () => {
               <TabsList className="mb-6">
                 <TabsTrigger value="plays">Plays ({bookmarkedVideos.length})</TabsTrigger>
                 <TabsTrigger value="comments">Comments ({bookmarkedComments.length})</TabsTrigger>
+                <TabsTrigger value="community">Community ({bookmarkedReplies.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="plays">
@@ -136,7 +195,7 @@ const Bookmarks = () => {
                     {bookmarkedComments.map(c => (
                       <Link
                         key={c.id}
-                        to={`/?play=${c.play_id}`}
+                        to={`/?play=${c.play_id}#comment-${c.id}`}
                         className="block p-4 rounded-xl border border-border bg-card hover:border-primary/50 transition-colors"
                       >
                         <div className="flex items-start gap-3">
@@ -146,7 +205,42 @@ const Bookmarks = () => {
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold">{c.username}</p>
-                            <p className="text-sm text-foreground/90 mt-1 line-clamp-3 whitespace-pre-wrap">{c.content}</p>
+                            <div className="text-sm text-foreground/90 mt-1 whitespace-pre-wrap break-words">
+                              {renderRichContent(c.content)}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="community">
+                {bookmarkedReplies.length === 0 ? (
+                  <div className="text-center py-16 text-muted-foreground">
+                    <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                    <p className="font-semibold text-foreground">No saved community comments</p>
+                    <p className="text-sm mt-1">Save replies from the Community page to keep them here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {bookmarkedReplies.map(r => (
+                      <Link
+                        key={r.id}
+                        to={`/community#post-${r.post_id}`}
+                        className="block p-4 rounded-xl border border-border bg-card hover:border-primary/50 transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={r.avatar_url || undefined} />
+                            <AvatarFallback>{r.username[0]?.toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold">{r.username}</p>
+                            <div className="text-sm text-foreground/90 mt-1 whitespace-pre-wrap break-words">
+                              {renderRichContent(r.content)}
+                            </div>
                           </div>
                         </div>
                       </Link>

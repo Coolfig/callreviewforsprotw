@@ -78,6 +78,21 @@ const PostFeed = ({ keywords = [] }: { keywords?: string[] }) => {
     return () => { supabase.removeChannel(channel); };
   }, [fetchPosts]);
 
+  // Scroll to a post when arriving with #post-ID (e.g. from Vault)
+  useEffect(() => {
+    if (loading) return;
+    const hash = window.location.hash;
+    if (!hash.startsWith("#post-")) return;
+    setTimeout(() => {
+      const el = document.getElementById(hash.slice(1));
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        el.classList.add("ring-2", "ring-primary");
+        setTimeout(() => el.classList.remove("ring-2", "ring-primary"), 2000);
+      }
+    }, 200);
+  }, [loading]);
+
   return (
     <div>
       <div className="bg-card rounded-xl border border-border/50 mb-4 overflow-hidden">
