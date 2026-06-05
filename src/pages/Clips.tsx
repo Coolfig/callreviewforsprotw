@@ -182,7 +182,14 @@ export default function Clips() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 className="text-2xl font-bold text-foreground mb-6">Sports Clips</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-foreground">Sports Clips</h1>
+          <a href="/reels">
+            <Button variant="secondary" size="sm" className="gap-2">
+              <Play className="h-4 w-4" /> Reels View
+            </Button>
+          </a>
+        </div>
 
         {/* Filters */}
         <div className="space-y-3 mb-6">
