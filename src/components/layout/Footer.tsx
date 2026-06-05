@@ -1,5 +1,5 @@
-import { Scale } from "lucide-react";
 import { Link } from "react-router-dom";
+import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
 
 const Footer = () => {
   return (
@@ -9,12 +9,9 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Scale className="w-5 h-5 text-primary" />
+              <div className="w-14 h-14 rounded-lg overflow-hidden bg-background flex items-center justify-center">
+                <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-14 h-14 object-contain" />
               </div>
-              <span className="text-lg font-bold tracking-tight uppercase">
-                Under The <span className="text-primary">Hood</span>
-              </span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Empowering fans with transparent, evidence-based sports officiating analysis.

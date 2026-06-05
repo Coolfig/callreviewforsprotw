@@ -19,7 +19,7 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       <img
         src={underTheHoodLogo.url}
         alt="Under The Hood"
-        className="w-48 h-48 object-contain animate-fade-in"
+        className="w-72 h-72 object-contain animate-fade-in"
       />
     </div>
   );

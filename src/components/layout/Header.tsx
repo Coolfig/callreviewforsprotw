@@ -53,12 +53,9 @@ const Header = () => {
             }}
             className="flex items-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-lg overflow-hidden bg-background flex items-center justify-center group-hover:opacity-90 transition-opacity">
-              <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-10 h-10 object-contain" />
+            <div className="w-14 h-14 rounded-lg overflow-hidden bg-background flex items-center justify-center group-hover:opacity-90 transition-opacity">
+              <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-14 h-14 object-contain" />
             </div>
-            <span className="text-lg font-bold tracking-tight uppercase">
-              Under The <span className="text-primary">Hood</span>
-            </span>
           </button>
 
           {/* Desktop Nav */}
