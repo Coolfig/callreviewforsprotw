@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import ShareDialog from "./ShareDialog";
 import { useCelebration } from "@/components/celebration/CelebrationProvider";
+import { formatFullDate } from "@/lib/utils/formatFullDate";
 
 interface PostItemProps {
   id: string;
@@ -105,13 +106,7 @@ const PostItem = ({
   const [gifLoading, setGifLoading] = useState(false);
   const [selectedGifUrl, setSelectedGifUrl] = useState<string | null>(null);
 
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    return d.toLocaleString("en-US", {
-      month: "short", day: "numeric", year: "numeric",
-      hour: "numeric", minute: "2-digit",
-    });
-  };
+  const formatDate = (date: string) => formatFullDate(date);
 
   const { celebrate } = useCelebration();
 

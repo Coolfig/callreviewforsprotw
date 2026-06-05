@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import EmojiPicker, { Theme, EmojiClickData, EmojiStyle } from "emoji-picker-react";
-import { timeAgo } from "@/lib/utils/timeAgo";
+import { formatFullDate } from "@/lib/utils/formatFullDate";
 import type { CommentData } from "@/types/comments";
 
 interface CommentCardProps {
@@ -78,7 +78,7 @@ const CommentCard = ({ comment, isReply = false, onLike, onDislike, onBookmark, 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
             <Link to={`/profile/${comment.username}`} className="font-semibold text-sm hover:underline">{comment.username}</Link>
-            <span className="text-xs text-muted-foreground">{timeAgo(comment.created_at)}</span>
+            <span className="text-xs text-muted-foreground">{formatFullDate(comment.created_at)}</span>
           </div>
 
           {(comment.rule_reference || comment.timestamp_reference) && (

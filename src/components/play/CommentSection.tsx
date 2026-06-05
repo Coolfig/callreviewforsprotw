@@ -5,6 +5,7 @@ import { useComments } from "@/hooks/useComments";
 import CommentComposer from "./CommentComposer";
 import CommentCard from "./CommentCard";
 import type { SortMode } from "@/types/comments";
+import { useCelebration } from "@/components/celebration/CelebrationProvider";
 
 const CommentSection = ({ playId }: { playId: string }) => {
   const {
@@ -12,6 +13,12 @@ const CommentSection = ({ playId }: { playId: string }) => {
     handleLike, handleDislike, handleBookmark, handlePost, handleReply, handleDelete,
   } = useComments(playId);
   const [sortMode, setSortMode] = useState<SortMode>("top");
+  const { celebrate } = useCelebration();
+  const handlePostWithCelebration = async (...args: Parameters<typeof handlePost>) => {
+    const ok = await handlePost(...args);
+    if (ok) celebrate("post");
+    return ok;
+  };
 
   useEffect(() => { fetchComments(0); }, [fetchComments]);
 
@@ -40,7 +47,7 @@ const CommentSection = ({ playId }: { playId: string }) => {
         </select>
       </div>
 
-      <CommentComposer onPost={handlePost} />
+      <CommentComposer onPost={handlePostWithCelebration} />
 
       <div className="px-5 py-4 space-y-6">
         {loading ? (
