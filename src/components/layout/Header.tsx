@@ -40,7 +40,7 @@ const Header = () => {
   return (
     <header className="fixed top-[96px] left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <button
             onClick={() => {
@@ -53,9 +53,7 @@ const Header = () => {
             }}
             className="flex items-center gap-2 group"
           >
-            <div className="w-14 h-14 rounded-lg overflow-hidden bg-background flex items-center justify-center group-hover:opacity-90 transition-opacity">
-              <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-14 h-14 object-contain" />
-            </div>
+            <img src={underTheHoodLogo.url} alt="Under The Hood" className="h-15 w-auto object-contain group-hover:opacity-90 transition-opacity" style={{ height: "60px" }} />
           </button>
 
           {/* Desktop Nav */}
