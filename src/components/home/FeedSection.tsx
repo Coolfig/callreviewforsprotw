@@ -54,6 +54,7 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
+  const [ready, setReady] = useState(false);
   const containerId = `short-player-${video.id}`;
 
   useEffect(() => {
@@ -73,6 +74,9 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
           end: youtube.end,
           mute: 1,
         },
+        events: {
+          onReady: () => setReady(true),
+        },
       });
     });
     return () => {
@@ -86,8 +90,9 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
   }, [containerId, youtube?.id, youtube?.start, youtube?.end]);
 
   useEffect(() => {
-    if (!youtube || !playerRef.current) return;
+    if (!youtube || !ready) return;
     const player = playerRef.current;
+    if (!player) return;
     if (active) {
       try {
         muted ? player.mute() : player.unMute();
@@ -105,14 +110,17 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
       }, 300);
     } else {
       try {
+        player.mute();
         player.pauseVideo();
+        player.stopVideo?.();
       } catch {}
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [active, muted, onEnded, youtube]);
+  }, [active, muted, onEnded, youtube, ready]);
+
 
   const tweetId = video.videoSource === "twitter" ? getTwitterId(video.embedUrl) : "";
   const rules = video.ruleData?.rules ?? [];
@@ -239,25 +247,6 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
           </div>
         </aside>
 
-        {/* Far right: Action rail */}
-        <div className="hidden flex-col items-center gap-4 pb-6 lg:flex">
-          <ActionButton icon={<ThumbsUp className="h-5 w-5" />} label="Like" />
-          <ActionButton icon={<ThumbsDown className="h-5 w-5" />} label="Missed" />
-          <ActionButton icon={<MessageCircle className="h-5 w-5" />} label={`${video.commentCount}`} />
-          <ActionButton icon={<Share2 className="h-5 w-5" />} label="Share" onClick={() => navigator.clipboard?.writeText(`${window.location.origin}/#${video.id}`)} />
-          {youtube && (
-            <ActionButton
-              icon={<Repeat2 className="h-5 w-5" />}
-              label="Replay"
-              onClick={() => {
-                try {
-                  playerRef.current?.seekTo(youtube.start, true);
-                  playerRef.current?.playVideo();
-                } catch {}
-              }}
-            />
-          )}
-        </div>
       </div>
     </section>
   );
