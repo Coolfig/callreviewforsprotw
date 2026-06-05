@@ -247,25 +247,6 @@ function ShortsCard({ video, active, muted, onEnded }: { video: SportVideo; acti
           </div>
         </aside>
 
-        {/* Far right: Action rail */}
-        <div className="hidden flex-col items-center gap-4 pb-6 lg:flex">
-          <ActionButton icon={<ThumbsUp className="h-5 w-5" />} label="Like" />
-          <ActionButton icon={<ThumbsDown className="h-5 w-5" />} label="Missed" />
-          <ActionButton icon={<MessageCircle className="h-5 w-5" />} label={`${video.commentCount}`} />
-          <ActionButton icon={<Share2 className="h-5 w-5" />} label="Share" onClick={() => navigator.clipboard?.writeText(`${window.location.origin}/#${video.id}`)} />
-          {youtube && (
-            <ActionButton
-              icon={<Repeat2 className="h-5 w-5" />}
-              label="Replay"
-              onClick={() => {
-                try {
-                  playerRef.current?.seekTo(youtube.start, true);
-                  playerRef.current?.playVideo();
-                } catch {}
-              }}
-            />
-          )}
-        </div>
       </div>
     </section>
   );
