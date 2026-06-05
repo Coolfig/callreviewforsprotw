@@ -256,12 +256,26 @@ const FeedSection = () => {
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
+  const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
 
   useEffect(() => {
-    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setFullscreen(false); };
-    window.addEventListener("keydown", onEsc);
-    return () => window.removeEventListener("keydown", onEsc);
-  }, []);
+    let cancelled = false;
+    const ids = videos.map((v) => v.id);
+    if (ids.length === 0) return;
+    (async () => {
+      const [votesRes, commentsRes] = await Promise.all([
+        supabase.from("play_votes").select("play_id").in("play_id", ids),
+        supabase.from("comments").select("play_id").in("play_id", ids),
+      ]);
+      if (cancelled) return;
+      const map: Record<string, { votes: number; comments: number }> = {};
+      ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
+      (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
+      (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
+      setCounts(map);
+    })();
+    return () => { cancelled = true; };
+  }, [videos]);
 
   const scrollByCard = useCallback((direction: 1 | -1) => {
     const root = scrollerRef.current;
