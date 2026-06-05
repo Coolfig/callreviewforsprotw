@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, MessageCircle, Repeat2, Share2, ThumbsDown, ThumbsUp, Volume2, VolumeX } from "lucide-react";
+import { Link } from "react-router-dom";
+import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Repeat2, Share2, Smile, ThumbsDown, ThumbsUp, Users, Volume2, VolumeX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { sportsVideos, type SportVideo } from "@/data/sportsVideos";
 
 const ytReadyPromise: { current: Promise<void> | null } = { current: null };
