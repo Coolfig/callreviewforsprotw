@@ -31,6 +31,7 @@ interface Reply {
   user_id: string;
   username: string;
   avatar_url: string | null;
+  bookmarked_by_me?: boolean;
 }
 
 const renderContent = (text: string) => {
