@@ -177,7 +177,7 @@ function ShortsCard({ video, active, muted, fullscreen, onEnded }: { video: Spor
         )}
 
         {/* Center: Player */}
-        <div className="relative h-full aspect-[9/16] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div className={`relative overflow-hidden border border-border bg-card shadow-2xl ${fullscreen ? "h-full w-full rounded-none" : "h-full aspect-[9/16] rounded-2xl"}`}>
           {youtube && active ? (
             <div id={containerId} className="absolute inset-0 h-full w-full" />
           ) : youtube ? (
