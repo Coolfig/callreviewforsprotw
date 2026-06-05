@@ -6,12 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Volume2, VolumeX, ChevronUp, ChevronDown, Loader2, Film } from "lucide-react";
 
-declare global {
-  interface Window {
-    YT: any;
-    onYouTubeIframeAPIReady: () => void;
-  }
-}
 
 const ytReadyPromise: { current: Promise<void> | null } = { current: null };
 function loadYT(): Promise<void> {
