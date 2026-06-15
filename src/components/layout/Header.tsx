@@ -38,9 +38,9 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-[96px] left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header className="fixed top-[72px] left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-10">
           {/* Logo */}
           <button
             onClick={() => {
