@@ -257,12 +257,17 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
 }
 
 const FeedSection = () => {
-  const videos = useMemo(() => sportsVideos.filter((video) => video.embedUrl), []);
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
+  const videos = useMemo(() => sportsVideos.filter((video) => video.embedUrl && !unavailableIds.has(video.id)), [unavailableIds]);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
+
+  const handleUnavailable = useCallback((id: string) => {
+    setUnavailableIds((prev) => new Set(prev).add(id));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
