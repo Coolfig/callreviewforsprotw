@@ -219,14 +219,14 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-foreground">What's Your Call?</h3>
               <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                <Users className="h-3 w-3" /> {voteCount.toLocaleString()} votes
+                <Users className="h-3 w-3" /> {voteCounts.total.toLocaleString()} votes
               </div>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-1.5">
               {[
-                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const },
-                { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const },
-                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const },
+                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const, count: voteCounts.correct },
+                { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const, count: voteCounts.missed },
+                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const, count: voteCounts.unclear },
               ].map((opt) => (
                 <button
                   key={opt.label}
@@ -247,10 +247,11 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
                       onVoteSaved?.(video.id);
                     }
                   }}
-                  className="flex flex-col items-center gap-1 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="flex flex-col items-center gap-0.5 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   {opt.icon}
                   {opt.label}
+                  <span className="text-[10px] font-normal text-muted-foreground">{opt.count.toLocaleString()}</span>
                 </button>
               ))}
             </div>
