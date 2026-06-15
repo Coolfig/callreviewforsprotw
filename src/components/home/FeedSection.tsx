@@ -346,6 +346,7 @@ const FeedSection = () => {
             voteCount={counts[video.id]?.votes ?? 0}
             commentCount={counts[video.id]?.comments ?? 0}
             onEnded={() => scrollByCard(1)}
+            onUnavailable={handleUnavailable}
           />
         ))}
       </div>
