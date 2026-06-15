@@ -40,7 +40,7 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void }) {
+function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void }) {
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
@@ -66,6 +66,12 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
         },
         events: {
           onReady: () => setReady(true),
+          onError: (event: any) => {
+            const code = event?.data;
+            if (code === 2 || code === 5 || code === 100 || code === 101 || code === 150) {
+              onUnavailable?.(video.id);
+            }
+          },
         },
       });
     });
@@ -77,7 +83,7 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
       } catch {}
       playerRef.current = null;
     };
-  }, [active, containerId, youtube?.id, youtube?.start, youtube?.end]);
+  }, [active, containerId, youtube?.id, youtube?.start, youtube?.end, video.id, onUnavailable]);
 
   useEffect(() => {
     if (!youtube || !ready) return;
