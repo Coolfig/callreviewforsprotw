@@ -41,7 +41,8 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void }) {
+function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable, onVoteSaved }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void; onVoteSaved?: (id: string) => void }) {
+  const navigate = useNavigate();
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
@@ -234,13 +235,17 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
                     const { data: { user } } = await supabase.auth.getUser();
                     if (!user) {
                       toast.error("Sign in to vote");
+                      navigate(`/auth?redirect=${encodeURIComponent(`${window.location.pathname}${window.location.hash || "#feed"}`)}`);
                       return;
                     }
                     const { error } = await supabase
                       .from("play_votes")
                       .upsert({ user_id: user.id, play_id: video.id, vote: opt.vote }, { onConflict: "user_id,play_id" });
-                    if (error) toast.error("Vote failed");
-                    else toast.success(`Voted: ${opt.label}`);
+                    if (error) toast.error(error.message || "Vote failed");
+                    else {
+                      toast.success(`Voted: ${opt.label}`);
+                      onVoteSaved?.(video.id);
+                    }
                   }}
                   className="flex flex-col items-center gap-1 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
@@ -278,6 +283,19 @@ const FeedSection = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
 
+  const refreshCounts = useCallback(async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const [votesRes, commentsRes] = await Promise.all([
+      supabase.from("play_votes").select("play_id").in("play_id", ids),
+      supabase.from("comments").select("play_id").in("play_id", ids),
+    ]);
+    const map: Record<string, { votes: number; comments: number }> = {};
+    ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
+    (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
+    (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
+    setCounts((current) => ({ ...current, ...map }));
+  }, []);
+
   const handleUnavailable = useCallback((id: string) => {
     setUnavailableIds((prev) => new Set(prev).add(id));
   }, []);
@@ -287,19 +305,11 @@ const FeedSection = () => {
     const ids = videos.map((v) => v.id);
     if (ids.length === 0) return;
     (async () => {
-      const [votesRes, commentsRes] = await Promise.all([
-        supabase.from("play_votes").select("play_id").in("play_id", ids),
-        supabase.from("comments").select("play_id").in("play_id", ids),
-      ]);
       if (cancelled) return;
-      const map: Record<string, { votes: number; comments: number }> = {};
-      ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
-      (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
-      (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
-      setCounts(map);
+      refreshCounts(ids);
     })();
     return () => { cancelled = true; };
-  }, [videos]);
+  }, [videos, refreshCounts]);
 
   const scrollByCard = useCallback((direction: 1 | -1) => {
     const root = scrollerRef.current;
@@ -360,6 +370,7 @@ const FeedSection = () => {
             commentCount={counts[video.id]?.comments ?? 0}
             onEnded={() => scrollByCard(1)}
             onUnavailable={handleUnavailable}
+            onVoteSaved={(id) => refreshCounts([id])}
           />
         ))}
       </div>

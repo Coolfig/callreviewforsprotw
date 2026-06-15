@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Scale, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ type AuthMode = "login" | "signup" | "forgot-password" | "forgot-username";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [mode, setMode] = useState<AuthMode>("login");
   const [loading, setLoading] = useState(false);
@@ -26,8 +27,8 @@ const Auth = () => {
   const [emailForUsername, setEmailForUsername] = useState("");
 
   useEffect(() => {
-    if (user) navigate("/");
-  }, [user, navigate]);
+    if (user) navigate(searchParams.get("redirect") || "/");
+  }, [user, navigate, searchParams]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +111,7 @@ const Auth = () => {
     if (error) {
       toast({ title: error.message, variant: "destructive" });
     } else {
-      navigate("/");
+      navigate(searchParams.get("redirect") || "/");
     }
   };
 
@@ -159,7 +160,7 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/auth?redirect=${encodeURIComponent(searchParams.get("redirect") || "/")}`,
     });
     if (error) {
       toast({ title: "Google sign-in failed", description: String(error), variant: "destructive" });
@@ -168,7 +169,7 @@ const Auth = () => {
 
   const handleAppleSignIn = async () => {
     const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/auth?redirect=${encodeURIComponent(searchParams.get("redirect") || "/")}`,
     });
     if (error) {
       toast({ title: "Apple sign-in failed", description: String(error), variant: "destructive" });
