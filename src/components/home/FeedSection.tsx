@@ -223,24 +223,36 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
             </div>
             <div className="mt-2 grid grid-cols-3 gap-1.5">
               {[
-                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct" },
-                { icon: <X className="h-3.5 w-3.5" />, label: "Missed" },
-                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear" },
+                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const },
+                { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const },
+                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const },
               ].map((opt) => (
-                <Link
+                <button
                   key={opt.label}
-                  to={`/play/${video.id}`}
+                  type="button"
+                  onClick={async () => {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) {
+                      toast.error("Sign in to vote");
+                      return;
+                    }
+                    const { error } = await supabase
+                      .from("play_votes")
+                      .upsert({ user_id: user.id, play_id: video.id, vote: opt.vote }, { onConflict: "user_id,play_id" });
+                    if (error) toast.error("Vote failed");
+                    else toast.success(`Voted: ${opt.label}`);
+                  }}
                   className="flex flex-col items-center gap-1 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   {opt.icon}
                   {opt.label}
-                </Link>
+                </button>
               ))}
             </div>
           </div>
 
           <Link
-            to={`/play/${video.id}#discussion`}
+            to={`/feed#play-${video.id}`}
             className="flex items-center justify-between rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary"
           >
             <div className="flex items-center gap-2 text-xs font-bold text-foreground">
