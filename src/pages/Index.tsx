@@ -18,7 +18,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <Header />
-      <main className="pt-[96px]">
+      <main className="pt-[72px]">
         <HeroSection />
         <TopThisWeek />
         <FeedSection />
