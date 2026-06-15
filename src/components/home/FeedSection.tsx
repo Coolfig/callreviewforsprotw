@@ -41,7 +41,7 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable, onVoteSaved }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void; onVoteSaved?: (id: string) => void }) {
+function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount, onEnded, onUnavailable, onVoteSaved }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCounts: { correct: number; missed: number; unclear: number; total: number }; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void; onVoteSaved?: (id: string) => void }) {
   const navigate = useNavigate();
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
