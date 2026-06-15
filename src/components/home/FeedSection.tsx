@@ -40,7 +40,7 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void }) {
+function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void }) {
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
@@ -66,6 +66,12 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
         },
         events: {
           onReady: () => setReady(true),
+          onError: (event: any) => {
+            const code = event?.data;
+            if (code === 2 || code === 5 || code === 100 || code === 101 || code === 150) {
+              onUnavailable?.(video.id);
+            }
+          },
         },
       });
     });
@@ -77,7 +83,7 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
       } catch {}
       playerRef.current = null;
     };
-  }, [active, containerId, youtube?.id, youtube?.start, youtube?.end]);
+  }, [active, containerId, youtube?.id, youtube?.start, youtube?.end, video.id, onUnavailable]);
 
   useEffect(() => {
     if (!youtube || !ready) return;
@@ -251,12 +257,17 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
 }
 
 const FeedSection = () => {
-  const videos = useMemo(() => sportsVideos.filter((video) => video.embedUrl), []);
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
+  const videos = useMemo(() => sportsVideos.filter((video) => video.embedUrl && !unavailableIds.has(video.id)), [unavailableIds]);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
+
+  const handleUnavailable = useCallback((id: string) => {
+    setUnavailableIds((prev) => new Set(prev).add(id));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -335,6 +346,7 @@ const FeedSection = () => {
             voteCount={counts[video.id]?.votes ?? 0}
             commentCount={counts[video.id]?.comments ?? 0}
             onEnded={() => scrollByCard(1)}
+            onUnavailable={handleUnavailable}
           />
         ))}
       </div>
