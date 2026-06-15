@@ -282,17 +282,23 @@ const FeedSection = () => {
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
-  const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
+  const [counts, setCounts] = useState<Record<string, { correct: number; missed: number; unclear: number; total: number; comments: number }>>({});
 
   const refreshCounts = useCallback(async (ids: string[]) => {
     if (ids.length === 0) return;
     const [votesRes, commentsRes] = await Promise.all([
-      supabase.from("play_votes").select("play_id").in("play_id", ids),
+      supabase.from("play_votes").select("play_id,vote").in("play_id", ids),
       supabase.from("comments").select("play_id").in("play_id", ids),
     ]);
-    const map: Record<string, { votes: number; comments: number }> = {};
-    ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
-    (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
+    const map: Record<string, { correct: number; missed: number; unclear: number; total: number; comments: number }> = {};
+    ids.forEach((id) => (map[id] = { correct: 0, missed: 0, unclear: 0, total: 0, comments: 0 }));
+    (votesRes.data ?? []).forEach((r: any) => {
+      if (!map[r.play_id]) return;
+      map[r.play_id].total += 1;
+      if (r.vote === "correct") map[r.play_id].correct += 1;
+      else if (r.vote === "missed") map[r.play_id].missed += 1;
+      else if (r.vote === "unclear") map[r.play_id].unclear += 1;
+    });
     (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
     setCounts((current) => ({ ...current, ...map }));
   }, []);
