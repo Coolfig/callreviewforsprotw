@@ -53,7 +53,7 @@ const Header = () => {
             }}
             className="flex items-center gap-2 group"
           >
-            <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-auto object-contain group-hover:opacity-90 transition-opacity" style={{ height: "40px" }} />
+            <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-auto object-contain group-hover:opacity-90 transition-opacity" style={{ height: "28px" }} />
           </button>
 
           {/* Desktop Nav */}
