@@ -373,7 +373,7 @@ const FeedSection = () => {
             active={activeId === video.id}
             muted={muted}
             fullscreen={fullscreen}
-            voteCount={counts[video.id]?.votes ?? 0}
+            voteCounts={counts[video.id] ?? { correct: 0, missed: 0, unclear: 0, total: 0 }}
             commentCount={counts[video.id]?.comments ?? 0}
             onEnded={() => scrollByCard(1)}
             onUnavailable={handleUnavailable}
