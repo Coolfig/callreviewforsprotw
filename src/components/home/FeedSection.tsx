@@ -283,6 +283,19 @@ const FeedSection = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
 
+  const refreshCounts = useCallback(async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const [votesRes, commentsRes] = await Promise.all([
+      supabase.from("play_votes").select("play_id").in("play_id", ids),
+      supabase.from("comments").select("play_id").in("play_id", ids),
+    ]);
+    const map: Record<string, { votes: number; comments: number }> = {};
+    ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
+    (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
+    (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
+    setCounts((current) => ({ ...current, ...map }));
+  }, []);
+
   const handleUnavailable = useCallback((id: string) => {
     setUnavailableIds((prev) => new Set(prev).add(id));
   }, []);
@@ -292,19 +305,11 @@ const FeedSection = () => {
     const ids = videos.map((v) => v.id);
     if (ids.length === 0) return;
     (async () => {
-      const [votesRes, commentsRes] = await Promise.all([
-        supabase.from("play_votes").select("play_id").in("play_id", ids),
-        supabase.from("comments").select("play_id").in("play_id", ids),
-      ]);
       if (cancelled) return;
-      const map: Record<string, { votes: number; comments: number }> = {};
-      ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
-      (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
-      (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
-      setCounts(map);
+      refreshCounts(ids);
     })();
     return () => { cancelled = true; };
-  }, [videos]);
+  }, [videos, refreshCounts]);
 
   const scrollByCard = useCallback((direction: 1 | -1) => {
     const root = scrollerRef.current;
@@ -365,6 +370,7 @@ const FeedSection = () => {
             commentCount={counts[video.id]?.comments ?? 0}
             onEnded={() => scrollByCard(1)}
             onUnavailable={handleUnavailable}
+            onVoteSaved={(id) => refreshCounts([id])}
           />
         ))}
       </div>
