@@ -84,7 +84,7 @@ const RulebookYear = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-[184px] pb-20">
+        <main className="pt-[144px] pb-20">
           <div className="container mx-auto px-6 max-w-6xl">
 
             {/* Breadcrumb */}
