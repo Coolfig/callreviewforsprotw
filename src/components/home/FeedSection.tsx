@@ -41,7 +41,8 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void }) {
+function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable, onVoteSaved }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void; onVoteSaved?: (id: string) => void }) {
+  const navigate = useNavigate();
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
@@ -234,13 +235,17 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
                     const { data: { user } } = await supabase.auth.getUser();
                     if (!user) {
                       toast.error("Sign in to vote");
+                      navigate(`/auth?redirect=${encodeURIComponent(`${window.location.pathname}${window.location.hash || "#feed"}`)}`);
                       return;
                     }
                     const { error } = await supabase
                       .from("play_votes")
                       .upsert({ user_id: user.id, play_id: video.id, vote: opt.vote }, { onConflict: "user_id,play_id" });
-                    if (error) toast.error("Vote failed");
-                    else toast.success(`Voted: ${opt.label}`);
+                    if (error) toast.error(error.message || "Vote failed");
+                    else {
+                      toast.success(`Voted: ${opt.label}`);
+                      onVoteSaved?.(video.id);
+                    }
                   }}
                   className="flex flex-col items-center gap-1 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
