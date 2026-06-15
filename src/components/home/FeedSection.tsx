@@ -41,7 +41,7 @@ function getTwitterId(url?: string) {
   return url?.match(/status\/(\d+)/)?.[1] || "";
 }
 
-function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount, onEnded, onUnavailable, onVoteSaved }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCount: number; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void; onVoteSaved?: (id: string) => void }) {
+function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount, onEnded, onUnavailable, onVoteSaved }: { video: SportVideo; active: boolean; muted: boolean; fullscreen: boolean; voteCounts: { correct: number; missed: number; unclear: number; total: number }; commentCount: number; onEnded: () => void; onUnavailable?: (id: string) => void; onVoteSaved?: (id: string) => void }) {
   const navigate = useNavigate();
   const youtube = parseYouTube(video.embedUrl);
   const playerRef = useRef<any>(null);
@@ -219,14 +219,14 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-foreground">What's Your Call?</h3>
               <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                <Users className="h-3 w-3" /> {voteCount.toLocaleString()} votes
+                <Users className="h-3 w-3" /> {voteCounts.total.toLocaleString()} votes
               </div>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-1.5">
               {[
-                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const },
-                { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const },
-                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const },
+                { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const, count: voteCounts.correct },
+                { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const, count: voteCounts.missed },
+                { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const, count: voteCounts.unclear },
               ].map((opt) => (
                 <button
                   key={opt.label}
@@ -247,10 +247,11 @@ function ShortsCard({ video, active, muted, fullscreen, voteCount, commentCount,
                       onVoteSaved?.(video.id);
                     }
                   }}
-                  className="flex flex-col items-center gap-1 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="flex flex-col items-center gap-0.5 rounded-md border border-border bg-background/40 py-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   {opt.icon}
                   {opt.label}
+                  <span className="text-[10px] font-normal text-muted-foreground">{opt.count.toLocaleString()}</span>
                 </button>
               ))}
             </div>
@@ -281,17 +282,23 @@ const FeedSection = () => {
   const [activeId, setActiveId] = useState(videos[0]?.id ?? null);
   const [muted, setMuted] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
-  const [counts, setCounts] = useState<Record<string, { votes: number; comments: number }>>({});
+  const [counts, setCounts] = useState<Record<string, { correct: number; missed: number; unclear: number; total: number; comments: number }>>({});
 
   const refreshCounts = useCallback(async (ids: string[]) => {
     if (ids.length === 0) return;
     const [votesRes, commentsRes] = await Promise.all([
-      supabase.from("play_votes").select("play_id").in("play_id", ids),
+      supabase.from("play_votes").select("play_id,vote").in("play_id", ids),
       supabase.from("comments").select("play_id").in("play_id", ids),
     ]);
-    const map: Record<string, { votes: number; comments: number }> = {};
-    ids.forEach((id) => (map[id] = { votes: 0, comments: 0 }));
-    (votesRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].votes += 1; });
+    const map: Record<string, { correct: number; missed: number; unclear: number; total: number; comments: number }> = {};
+    ids.forEach((id) => (map[id] = { correct: 0, missed: 0, unclear: 0, total: 0, comments: 0 }));
+    (votesRes.data ?? []).forEach((r: any) => {
+      if (!map[r.play_id]) return;
+      map[r.play_id].total += 1;
+      if (r.vote === "correct") map[r.play_id].correct += 1;
+      else if (r.vote === "missed") map[r.play_id].missed += 1;
+      else if (r.vote === "unclear") map[r.play_id].unclear += 1;
+    });
     (commentsRes.data ?? []).forEach((r: any) => { if (map[r.play_id]) map[r.play_id].comments += 1; });
     setCounts((current) => ({ ...current, ...map }));
   }, []);
@@ -366,7 +373,7 @@ const FeedSection = () => {
             active={activeId === video.id}
             muted={muted}
             fullscreen={fullscreen}
-            voteCount={counts[video.id]?.votes ?? 0}
+            voteCounts={counts[video.id] ?? { correct: 0, missed: 0, unclear: 0, total: 0 }}
             commentCount={counts[video.id]?.comments ?? 0}
             onEnded={() => scrollByCard(1)}
             onUnavailable={handleUnavailable}
