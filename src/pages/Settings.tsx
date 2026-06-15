@@ -68,7 +68,7 @@ const Settings = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-[160px] text-center">
+        <main className="pt-[120px] text-center">
           <p className="text-muted-foreground">Please sign in to access settings.</p>
           <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
         </main>

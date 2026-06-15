@@ -141,15 +141,15 @@ const LiveScoresTicker = () => {
 
   return (
     <>
-      <div className="fixed top-12 left-0 right-0 z-[55] bg-black border-b border-border">
-        <div className="flex items-center h-12">
+      <div className="fixed top-8 left-0 right-0 z-[55] bg-black border-b border-border">
+        <div className="flex items-center h-10">
           {/* League selector */}
           <div className="flex items-center gap-0 border-r border-border shrink-0">
             {LEAGUES.map((l) => (
               <button
                 key={l}
                 onClick={() => { setActiveLeague(l); setSelectedGame(null); }}
-                className={`px-3 h-12 text-xs font-bold transition-colors ${
+                className={`px-3 h-10 text-xs font-bold transition-colors ${
                   activeLeague === l
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
@@ -161,7 +161,7 @@ const LiveScoresTicker = () => {
           </div>
 
           {/* Scroll left */}
-          <button onClick={() => scroll("left")} className="shrink-0 px-1 h-12 text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => scroll("left")} className="shrink-0 px-1 h-10 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
 
@@ -176,7 +176,7 @@ const LiveScoresTicker = () => {
                 <button
                   key={game.id}
                   onClick={() => setSelectedGame(selectedGame?.id === game.id ? null : game)}
-                  className={`shrink-0 flex flex-col items-center justify-center px-5 h-12 border-r border-border/50 hover:bg-secondary/30 transition-colors min-w-[160px] ${
+                  className={`shrink-0 flex flex-col items-center justify-center px-5 h-10 border-r border-border/50 hover:bg-secondary/30 transition-colors min-w-[160px] ${
                     selectedGame?.id === game.id ? "bg-secondary/50" : ""
                   }`}
                 >
@@ -214,7 +214,7 @@ const LiveScoresTicker = () => {
           </div>
 
           {/* Scroll right */}
-          <button onClick={() => scroll("right")} className="shrink-0 px-1 h-12 text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => scroll("right")} className="shrink-0 px-1 h-10 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

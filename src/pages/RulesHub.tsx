@@ -90,7 +90,7 @@ const RulesHub = () => {
       <div className="min-h-screen bg-background">
         <Header />
 
-        <main className="pt-[184px] pb-24">
+        <main className="pt-[144px] pb-24">
           {/* ── Hero ─────────────────────────────────────────────────────── */}
           <section className="container mx-auto px-6 max-w-5xl mb-20">
             <div className="flex items-start gap-4 mb-6">
