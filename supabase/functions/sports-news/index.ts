@@ -17,20 +17,22 @@ const LEAGUES: { key: string; label: string; emoji: string; path: string }[] = [
 
 async function fetchLeague(league: typeof LEAGUES[number]) {
   try {
-    const res = await fetch(
-      `https://site.web.api.espn.com/apis/site/v2/sports/${league.path}/news?limit=4`,
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-          Accept: "application/json, text/plain, */*",
-          "Accept-Language": "en-US,en;q=0.9",
-          Referer: "https://www.espn.com/",
-          Origin: "https://www.espn.com",
-        },
-      }
-    );
-    if (!res.ok) return [];
+    const res = await fetch(`https://site.web.api.espn.com/apis/site/v2/sports/${league.path}/news?limit=4`, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        Accept: "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        Referer: "https://www.espn.com/",
+        Origin: "https://www.espn.com",
+      },
+    });
+    const contentType = res.headers.get("content-type") || "";
+    if (!res.ok || !contentType.includes("application/json")) {
+      await res.body?.cancel();
+      console.error("news provider response", league.key, res.status, contentType);
+      return [];
+    }
     const data = await res.json();
     const articles = Array.isArray(data?.articles) ? data.articles : [];
     return articles.slice(0, 3).map((a: any) => {
