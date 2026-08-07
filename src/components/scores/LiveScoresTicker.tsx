@@ -77,6 +77,17 @@ function parseGames(data: any, league: string): Game[] {
     } as Game;
   }).filter(Boolean) as Game[];
 }
+function isToday(game: Game): boolean {
+  const d = new Date(game.date);
+  if (isNaN(d.getTime())) return false;
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
+
 
 const LiveScoresTicker = () => {
   const [activeLeague, setActiveLeague] = useState("nba");
@@ -95,7 +106,9 @@ const LiveScoresTicker = () => {
         headers: { Authorization: `Bearer ${anonKey}`, apikey: anonKey },
       });
       const json = await res.json();
-      const parsed = parseGames(json, league);
+      // Only keep games actually happening today — ESPN returns future
+      // preseason slates during the offseason.
+      const parsed = parseGames(json, league).filter(isToday);
       // Sort: live games first, then pre-game, then final
       parsed.sort((a, b) => {
         const order = (g: Game) => g.status.type.state === "in" ? 0 : g.status.type.state === "pre" ? 1 : 2;
