@@ -18,11 +18,15 @@ const LEAGUES: { key: string; label: string; emoji: string; path: string }[] = [
 async function fetchLeague(league: typeof LEAGUES[number]) {
   try {
     const res = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/${league.path}/news?limit=4`,
+      `https://site.web.api.espn.com/apis/site/v2/sports/${league.path}/news?limit=4`,
       {
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; SportsApp/1.0)",
-          Accept: "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+          Accept: "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.9",
+          Referer: "https://www.espn.com/",
+          Origin: "https://www.espn.com",
         },
       }
     );

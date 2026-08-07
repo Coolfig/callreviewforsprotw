@@ -27,10 +27,7 @@ async function fetchWithRetry(url: string, retries = 3, delayMs = 500): Promise<
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; SportsApp/1.0)',
-          'Accept': 'application/json',
-        },
+        headers: BROWSER_HEADERS,
       });
       return res;
     } catch (err) {
