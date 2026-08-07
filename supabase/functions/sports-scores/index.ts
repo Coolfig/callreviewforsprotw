@@ -29,7 +29,10 @@ async function fetchWithRetry(url: string, retries = 3, delayMs = 500): Promise<
       const res = await fetch(url, {
         headers: BROWSER_HEADERS,
       });
-      return res;
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) return res;
+      await res.body?.cancel();
+      throw new Error(`Sports provider returned ${res.status} ${contentType || 'without a content type'}`);
     } catch (err) {
       console.error(`Fetch attempt ${i + 1} failed for ${url}:`, err);
       if (i === retries - 1) throw err;
