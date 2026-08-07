@@ -77,6 +77,17 @@ function parseGames(data: any, league: string): Game[] {
     } as Game;
   }).filter(Boolean) as Game[];
 }
+function isToday(game: Game): boolean {
+  const d = new Date(game.date);
+  if (isNaN(d.getTime())) return false;
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
+
 
 const LiveScoresTicker = () => {
   const [activeLeague, setActiveLeague] = useState("nba");
