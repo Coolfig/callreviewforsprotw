@@ -5,7 +5,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
+const ESPN_BASE = 'https://site.web.api.espn.com/apis/site/v2/sports';
+
+const BROWSER_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Referer': 'https://www.espn.com/',
+  'Origin': 'https://www.espn.com',
+};
 
 const SPORT_MAP: Record<string, string> = {
   nfl: 'football/nfl',
@@ -18,10 +27,7 @@ async function fetchWithRetry(url: string, retries = 3, delayMs = 500): Promise<
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; SportsApp/1.0)',
-          'Accept': 'application/json',
-        },
+        headers: BROWSER_HEADERS,
       });
       return res;
     } catch (err) {
