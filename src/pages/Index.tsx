@@ -6,24 +6,39 @@ import TopThisWeek from "@/components/home/TopThisWeek";
 import LeaderboardPreview from "@/components/home/LeaderboardPreview";
 import SubmitCTA from "@/components/home/SubmitCTA";
 import FeedSection from "@/components/home/FeedSection";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import SplashScreen from "@/components/SplashScreen";
 
 const Index = () => {
+  const isMobile = useIsMobile();
   const [showSplash, setShowSplash] = useState(true);
 
   const handleSplashComplete = useCallback(() => setShowSplash(false), []);
 
   return (
     <div className="min-h-screen bg-background">
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      {/* Splash is desktop-only: mobile visitors land straight in the debate feed */}
+      {!isMobile && showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <Header />
       <main className="pt-[72px]">
-        <HeroSection />
-        <TopThisWeek />
-        <FeedSection />
-        <LeaderboardPreview />
-        <SubmitCTA />
+        {isMobile ? (
+          <>
+            <FeedSection />
+            <HeroSection />
+            <TopThisWeek />
+            <LeaderboardPreview />
+            <SubmitCTA />
+          </>
+        ) : (
+          <>
+            <HeroSection />
+            <TopThisWeek />
+            <FeedSection />
+            <LeaderboardPreview />
+            <SubmitCTA />
+          </>
+        )}
       </main>
       <Footer />
     </div>

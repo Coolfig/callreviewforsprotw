@@ -1,9 +1,52 @@
-import { Send, Flame, Play, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Send, Flame, CheckCircle2, XCircle, HelpCircle, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { sportsVideos } from "@/data/sportsVideos";
+
+const VOTE_OPTIONS = [
+  { label: "Correct", vote: "correct", icon: CheckCircle2 },
+  { label: "Missed", vote: "missed", icon: XCircle },
+  { label: "Unclear", vote: "unclear", icon: HelpCircle },
+] as const;
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const featured = sportsVideos[0];
+  const topCalls = sportsVideos.slice(0, 4);
+  const [counts, setCounts] = useState<Record<string, number>>({ correct: 0, missed: 0, unclear: 0, total: 0 });
+
+  const loadCounts = async () => {
+    if (!featured) return;
+    const { data } = await supabase.from("play_votes").select("vote").eq("play_id", featured.id);
+    const next: Record<string, number> = { correct: 0, missed: 0, unclear: 0, total: 0 };
+    (data ?? []).forEach((r: any) => {
+      next[r.vote] = (next[r.vote] || 0) + 1;
+      next.total += 1;
+    });
+    setCounts(next);
+  };
+
+  useEffect(() => { loadCounts(); /* eslint-disable-next-line */ }, []);
+
+  const castVote = async (vote: string, label: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Sign in to vote");
+      navigate(`/auth?redirect=${encodeURIComponent("/#feed")}`);
+      return;
+    }
+    const { error } = await supabase
+      .from("play_votes")
+      .upsert({ user_id: user.id, play_id: featured.id, vote }, { onConflict: "user_id,play_id" });
+    if (error) toast.error(error.message || "Vote failed");
+    else {
+      toast.success(`Voted: ${label}`);
+      loadCounts();
+    }
+  };
 
   const scrollToFeed = () => {
     const el = document.getElementById("feed");
@@ -11,112 +54,102 @@ const HeroSection = () => {
     else navigate("/feed");
   };
 
-
   return (
-    <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 bg-black">
-      {/* Stadium gradient backdrop */}
+    <section className="relative overflow-hidden bg-black">
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-
-      {/* Sports field — diagonal stripes + center line + halo */}
       <div
-        className="absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage: `repeating-linear-gradient(115deg, hsl(var(--foreground)) 0 2px, transparent 2px 90px)`,
-        }}
+        className="absolute inset-0 opacity-[0.07]"
+        style={{ backgroundImage: `repeating-linear-gradient(115deg, hsl(var(--foreground)) 0 2px, transparent 2px 90px)` }}
       />
-      {/* Center circle (basketball/soccer) */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full border-[3px] border-foreground/[0.07]" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border-2 border-foreground/[0.05]" />
-      {/* Field side hash marks */}
-      <div
-        className="absolute inset-y-0 left-0 w-1 opacity-30"
-        style={{ background: `repeating-linear-gradient(to bottom, hsl(var(--primary)) 0 14px, transparent 14px 40px)` }}
-      />
-      <div
-        className="absolute inset-y-0 right-0 w-1 opacity-30"
-        style={{ background: `repeating-linear-gradient(to bottom, hsl(var(--info)) 0 14px, transparent 14px 40px)` }}
-      />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[320px] bg-accent/10 rounded-full blur-[140px]" />
 
-      {/* Stadium light sweeps */}
-      <div className="absolute -top-40 left-1/4 w-[600px] h-[900px] bg-gradient-to-b from-primary/30 via-primary/5 to-transparent blur-3xl stadium-sweep origin-top" />
-      <div
-        className="absolute -top-40 right-1/4 w-[600px] h-[900px] bg-gradient-to-b from-info/25 via-info/5 to-transparent blur-3xl stadium-sweep origin-top"
-        style={{ animationDelay: "-4s" }}
-      />
-
-      {/* Yellow accent glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1100px] h-[450px] bg-accent/10 rounded-full blur-[140px]" />
-
-
-      <div className="container mx-auto px-6 relative z-10 pt-12">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge row */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/40">
-              <Flame className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-bold text-primary uppercase tracking-widest">The Sports Court</span>
+      <div className="container relative z-10 mx-auto px-5 py-8 md:py-12">
+        <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_1fr]">
+          {/* Left: identity + actions */}
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1">
+              <Flame className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[11px] font-bold uppercase tracking-widest text-primary">The Sports Court</span>
             </div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/15 border border-accent/40">
-              <Zap className="w-3.5 h-3.5 text-accent" />
-              <span className="text-xs font-bold text-accent uppercase tracking-widest">Live Now</span>
+
+            <h1 className="mb-3 text-4xl font-black leading-[0.95] tracking-tighter md:text-6xl">
+              <span className="block text-foreground">YOU MAKE</span>
+              <span className="block bg-gradient-to-r from-primary via-accent to-info bg-clip-text text-transparent">
+                THE CALL.
+              </span>
+            </h1>
+
+            <p className="mb-6 max-w-xl text-base font-medium text-muted-foreground md:text-lg">
+              Under Review is where fans settle blown calls, hot takes, and sports debates.
+            </p>
+
+            <div className="mb-6 flex flex-wrap gap-3">
+              <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToFeed}>
+                <Send className="mr-2 h-4 w-4" />
+                Submit a Call
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 border-2 border-accent/60 px-6 font-extrabold uppercase tracking-wider text-accent hover:bg-accent hover:text-accent-foreground"
+                onClick={() => document.getElementById("top-week")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Browse Top Calls
+              </Button>
+            </div>
+
+            {/* Top calls quick list */}
+            <div className="flex flex-wrap gap-2">
+              {topCalls.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => navigate(`/feed#play-${v.id}`)}
+                  className="max-w-[220px] truncate rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  {v.league} · {v.title}
+                </button>
+              ))}
             </div>
           </div>
 
+          {/* Right: instant vote card */}
+          {featured && (
+            <div className="rounded-2xl border border-border bg-card/80 p-5 backdrop-blur">
+              <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
+              </div>
+              <h2 className="mb-1 text-lg font-extrabold leading-snug text-foreground">{featured.title}</h2>
+              <p className="mb-4 line-clamp-2 text-xs text-muted-foreground">{featured.description}</p>
 
-          {/* Headline */}
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 animate-slide-up leading-[0.9]">
-            <span className="block text-foreground">YOU MAKE</span>
-            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-info drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
-              THE CALL.
-            </span>
-          </h1>
+              <div className="grid grid-cols-3 gap-2">
+                {VOTE_OPTIONS.map((opt) => {
+                  const Icon = opt.icon;
+                  return (
+                    <button
+                      key={opt.vote}
+                      onClick={() => castVote(opt.vote, opt.label)}
+                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-background/50 py-3 text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary"
+                    >
+                      <Icon className="h-4 w-4" />
+                      {opt.label}
+                      <span className="text-[10px] font-normal text-muted-foreground">
+                        {(counts[opt.vote] || 0).toLocaleString()}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Subheadline */}
-          <p
-            className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 animate-slide-up font-medium"
-            style={{ animationDelay: "0.1s" }}
-          >
-            The arena where fans review the most controversial plays in sports —
-            <span className="text-foreground font-semibold"> vote, debate, and settle it with the rulebook.</span>
-          </p>
-
-          {/* CTA */}
-          <div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14 animate-slide-up"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <Button
-              size="lg"
-              className="text-base px-10 h-16 font-extrabold uppercase tracking-wider shadow-[0_10px_40px_-8px_hsl(var(--primary)/0.7)] hover:shadow-[0_15px_50px_-8px_hsl(var(--primary)/0.9)] hover:-translate-y-1 transition-all"
-              onClick={scrollToFeed}
-            >
-              <Play className="w-5 h-5 mr-2 fill-current" />
-              Vote Now
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="text-base px-10 h-16 font-extrabold uppercase tracking-wider border-2 border-accent/60 text-accent hover:bg-accent hover:text-accent-foreground transition-all"
-              onClick={scrollToFeed}
-            >
-              <Send className="w-5 h-5 mr-2" />
-              Submit a Call
-            </Button>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in"
-        style={{ animationDelay: "0.6s" }}
-      >
-        <span className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">
-          Drop the puck
-        </span>
-        <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1">
-          <div className="w-1.5 h-2.5 rounded-full bg-primary animate-bounce" />
+              <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" /> {counts.total.toLocaleString()} votes
+                </span>
+                <button onClick={scrollToFeed} className="flex items-center gap-1 font-semibold text-primary">
+                  Open the debate <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
