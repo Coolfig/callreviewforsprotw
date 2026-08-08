@@ -162,7 +162,7 @@ const HeroSection = () => {
                 Read more <ArrowRight className="h-3 w-3" />
               </button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div id="hero-vote-buttons" className="grid grid-cols-3 gap-2 scroll-mt-24">
                 {VOTE_OPTIONS.map((opt) => {
                   const Icon = opt.icon;
                   return (
