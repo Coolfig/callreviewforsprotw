@@ -60,7 +60,7 @@ const HeroSection = () => {
     const target = buttons ?? document.getElementById("hero-vote");
     if (target) {
       const rect = target.getBoundingClientRect();
-      const top = window.scrollY + rect.top - Math.max(80, (window.innerHeight - rect.height) / 2);
+      const top = window.scrollY + rect.top - Math.max(80, (window.innerHeight - rect.height) / 2) + 50;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     }
     setHighlightVote(true);
