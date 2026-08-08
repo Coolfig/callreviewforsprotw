@@ -147,6 +147,9 @@ const LiveScoresTicker = () => {
     }
     // In progress
     const periodLabel = `${ordinal(s.period)}`;
+    // Baseball has no game clock — show inning only
+    if (activeLeague === "mlb") return periodLabel;
+    if (!s.displayClock || /^0?0:00$/.test(s.displayClock)) return periodLabel;
     return `${s.displayClock} - ${periodLabel}`;
   };
 

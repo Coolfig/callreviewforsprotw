@@ -69,7 +69,7 @@ const GameDetail = ({ game, onClose }: GameDetailProps) => {
           <div className="text-center shrink-0">
             <div className={`text-xs font-bold ${isLive ? "text-green-500" : "text-muted-foreground"}`}>
               {isLive && <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1 animate-pulse" />}
-              {isFinal ? "Final" : game.status.type.state === "pre" ? game.status.type.description : `${game.status.displayClock}`}
+              {isFinal ? "Final" : game.status.type.state === "pre" ? game.status.type.description : (!game.status.displayClock || /^0?0:00$/.test(game.status.displayClock) ? ordinal(game.status.period) : game.status.displayClock)}
             </div>
             {isLive && <p className="text-[10px] text-muted-foreground mt-0.5">{ordinal(game.status.period)}</p>}
             {game.broadcast && <p className="text-[10px] text-muted-foreground mt-0.5">{game.broadcast}</p>}
