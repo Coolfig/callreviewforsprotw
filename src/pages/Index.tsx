@@ -12,9 +12,15 @@ import SplashScreen from "@/components/SplashScreen";
 
 const Index = () => {
   const isMobile = useIsMobile();
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("ur_splash_seen") !== "1";
+  });
 
-  const handleSplashComplete = useCallback(() => setShowSplash(false), []);
+  const handleSplashComplete = useCallback(() => {
+    sessionStorage.setItem("ur_splash_seen", "1");
+    setShowSplash(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
