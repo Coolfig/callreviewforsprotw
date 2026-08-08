@@ -57,6 +57,8 @@ const HeroSection = () => {
 
   const scrollToVote = () => {
     document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightVote(true);
+    window.setTimeout(() => setHighlightVote(false), 2200);
   };
 
   const MIN_VOTES_FOR_PCT = 10;
