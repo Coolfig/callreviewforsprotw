@@ -4,6 +4,9 @@ import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, Maximize2, Message
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import CommentSection from "@/components/play/CommentSection";
+
 import { sportsVideos, type SportVideo } from "@/data/sportsVideos";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
