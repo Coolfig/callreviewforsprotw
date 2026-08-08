@@ -16,6 +16,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const featured = sportsVideos[0];
   const topCalls = sportsVideos.slice(0, 4);
+  const [highlightVote, setHighlightVote] = useState(false);
   const [counts, setCounts] = useState<Record<string, number>>({ correct: 0, missed: 0, unclear: 0, total: 0 });
 
   const loadCounts = async () => {
