@@ -191,7 +191,7 @@ const Auth = () => {
           </Link>
           <h1 className="text-2xl font-bold mt-4">
             {mode === "login" && "Welcome back"}
-            {mode === "signup" && "Join Under The Hood"}
+            {mode === "signup" && "Join Under Review"}
             {mode === "forgot-password" && "Reset password"}
             {mode === "forgot-username" && "Forgot username"}
           </h1>

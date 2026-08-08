@@ -92,7 +92,7 @@ const SearchPage = () => {
           ) : (
             <div className="text-center py-16 text-muted-foreground">
               <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p className="font-semibold text-foreground">Search Under The Hood</p>
+              <p className="font-semibold text-foreground">Search Under Review</p>
               <p className="text-sm mt-1">Find plays, teams, rules, and more</p>
             </div>
           )}

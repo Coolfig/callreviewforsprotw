@@ -218,8 +218,8 @@ const Settings = () => {
                 <p className="text-sm text-muted-foreground mb-8">Get help with your account and learn about the platform.</p>
                 <div className="space-y-4">
                   <div className="p-5 rounded-xl border border-border">
-                    <p className="text-sm font-semibold">About Under The Hood</p>
-                    <p className="text-xs text-muted-foreground mt-1">Under The Hood is a platform for evidence-based sports analysis, where fans review controversial plays using official league rules.</p>
+                    <p className="text-sm font-semibold">About Under Review</p>
+                    <p className="text-xs text-muted-foreground mt-1">Under Review is a platform for evidence-based sports analysis, where fans review controversial plays using official league rules.</p>
                   </div>
                   <div className="p-5 rounded-xl border border-border">
                     <p className="text-sm font-semibold">Contact Support</p>

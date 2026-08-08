@@ -37,7 +37,7 @@ const RulebookLeague = () => {
 
   return (
     <>
-      <title>{title} | Under The Hood</title>
+      <title>{title} | Under Review</title>
       <meta name="description" content={metaDesc} />
       <link rel="canonical" href={`/rulebooks/${league.key}`} />
       <script type="application/ld+json">{JSON.stringify({
