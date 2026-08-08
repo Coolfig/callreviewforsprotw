@@ -27,7 +27,7 @@ const Index = () => {
       {/* Splash is desktop-only: mobile visitors land straight in the debate feed */}
       {!isMobile && showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <Header />
-      <main className="pt-[72px]">
+      <main className="pt-[40px] md:pt-[72px]">
         {isMobile ? (
           <>
             <HeroSection />
