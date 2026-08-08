@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Send, Flame, CheckCircle2, XCircle, HelpCircle, Users, ArrowRight } from "lucide-react";
+import { Send, Flame, CheckCircle2, XCircle, HelpCircle, Users, ArrowRight, Vote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -122,7 +122,7 @@ const HeroSection = () => {
 
           {/* Right: instant vote card */}
           {featured && (
-            <div className="rounded-2xl border border-border bg-card/80 p-5 backdrop-blur">
+            <div id="hero-vote" className="order-first rounded-2xl border border-border bg-card/80 p-5 backdrop-blur lg:order-none">
               <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
               </div>
@@ -140,9 +140,9 @@ const HeroSection = () => {
                     >
                       <Icon className="h-4 w-4" />
                       {opt.label}
-                      <span className="text-[10px] font-normal text-muted-foreground">
-                        {(counts[opt.vote] || 0).toLocaleString()}
-                      </span>
+                      {hasVotes && (
+                        <span className="text-[10px] font-normal text-muted-foreground">{pct(opt.vote)}%</span>
+                      )}
                     </button>
                   );
                 })}
@@ -150,7 +150,8 @@ const HeroSection = () => {
 
               <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {counts.total.toLocaleString()} votes
+                  <Users className="h-3 w-3" />
+                  {hasVotes ? `${counts.total.toLocaleString()} votes` : "Be the first to call it"}
                 </span>
                 <button onClick={scrollToFeed} className="flex items-center gap-1 font-semibold text-primary">
                   Open the debate <ArrowRight className="h-3 w-3" />
