@@ -115,29 +115,46 @@ const HeroSection = () => {
               </Button>
             </div>
 
-            {/* Top calls quick list */}
+            {/* Top calls quick list — trimmed to 2 + "More calls" on mobile */}
             <div className="flex flex-wrap gap-2">
-              {topCalls.map((v) => (
+              {topCalls.map((v, i) => (
                 <button
                   key={v.id}
                   onClick={() => navigate(`/feed#play-${v.id}`)}
-                  className="max-w-[220px] truncate rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  className={`max-w-[220px] truncate rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary ${i > 1 ? "hidden md:inline-block" : ""}`}
                 >
                   {v.league} · {v.title}
                 </button>
               ))}
+              <button
+                onClick={scrollToFeed}
+                className="rounded-full border border-primary/50 bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary md:hidden"
+              >
+                More calls
+              </button>
             </div>
           </div>
 
           {/* Right: instant vote card */}
           {featured && (
-            <div id="hero-vote" className="w-full min-w-0 rounded-2xl border border-border bg-card/80 p-4 backdrop-blur sm:p-5">
+            <div
+              id="hero-vote"
+              className={`w-full min-w-0 rounded-2xl border bg-card/80 p-4 backdrop-blur transition-all duration-300 sm:p-5 ${
+                highlightVote ? "border-primary ring-2 ring-primary/60" : "border-border"
+              }`}
+            >
 
               <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
               </div>
               <h2 className="mb-1 text-lg font-extrabold leading-snug text-foreground">{featured.title}</h2>
-              <p className="mb-4 line-clamp-2 text-xs text-muted-foreground">{featured.description}</p>
+              <p className="line-clamp-2 text-xs text-muted-foreground">{featured.description}</p>
+              <button
+                onClick={scrollToFeed}
+                className="mb-4 mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+              >
+                Read more <ArrowRight className="h-3 w-3" />
+              </button>
 
               <div className="grid grid-cols-3 gap-2">
                 {VOTE_OPTIONS.map((opt) => {
@@ -146,8 +163,11 @@ const HeroSection = () => {
                     <button
                       key={opt.vote}
                       onClick={() => castVote(opt.vote, opt.label)}
-                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-background/50 py-3 text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary"
+                      className={`flex flex-col items-center gap-1 rounded-lg border bg-background/50 py-3 text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary ${
+                        highlightVote ? "animate-pulse border-primary text-primary" : "border-border"
+                      }`}
                     >
+
                       <Icon className="h-4 w-4" />
                       {opt.label}
                       {hasVotes && (
