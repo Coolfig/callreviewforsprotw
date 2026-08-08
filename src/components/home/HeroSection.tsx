@@ -70,8 +70,8 @@ const HeroSection = () => {
       />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[320px] bg-accent/10 rounded-full blur-[140px]" />
 
-      <div className="container relative z-10 mx-auto px-5 py-8 md:py-12">
-        <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_1fr]">
+      <div className="container relative z-10 mx-auto px-5 py-6 md:py-12">
+        <div className="grid items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
           {/* Left: identity + actions */}
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1">
