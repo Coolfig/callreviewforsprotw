@@ -54,6 +54,13 @@ const HeroSection = () => {
     else navigate("/feed");
   };
 
+  const scrollToVote = () => {
+    document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const hasVotes = counts.total > 0;
+  const pct = (v: string) => (hasVotes ? Math.round(((counts[v] || 0) / counts.total) * 100) : 0);
+
   return (
     <section className="relative overflow-hidden bg-black">
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />

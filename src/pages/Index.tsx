@@ -24,8 +24,8 @@ const Index = () => {
       <main className="pt-[72px]">
         {isMobile ? (
           <>
-            <FeedSection />
             <HeroSection />
+            <FeedSection />
             <TopThisWeek />
             <LeaderboardPreview />
             <SubmitCTA />
