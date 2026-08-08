@@ -44,8 +44,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <LiveTicker />
-          <LiveScoresTicker />
+          {/* Tickers are desktop-only: keeps the mobile first screen light */}
+          <div className="hidden md:block">
+            <LiveTicker />
+            <LiveScoresTicker />
+          </div>
           <OnboardingModal />
           <Routes>
             <Route path="/" element={<Index />} />
