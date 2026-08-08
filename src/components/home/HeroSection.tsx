@@ -60,7 +60,7 @@ const HeroSection = () => {
     const target = buttons ?? document.getElementById("hero-vote");
     if (target) {
       const rect = target.getBoundingClientRect();
-      const top = window.scrollY + rect.top - Math.max(80, (window.innerHeight - rect.height) / 2);
+      const top = window.scrollY + rect.top - Math.max(80, (window.innerHeight - rect.height) / 2) + 50;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     }
     setHighlightVote(true);
@@ -127,9 +127,11 @@ const HeroSection = () => {
                 <button
                   key={v.id}
                   onClick={() => navigate(`/feed#play-${v.id}`)}
-                  className={`basis-[calc(50%-0.25rem)] truncate rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-center text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary md:basis-auto md:max-w-[220px] md:text-left ${i > 1 ? "hidden md:inline-block" : ""}`}
+                  className={`basis-[calc(50%-0.25rem)] rounded-2xl border border-border/70 bg-card/60 px-3 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors hover:border-primary hover:text-primary md:basis-auto md:max-w-[220px] md:truncate md:rounded-full md:py-1.5 md:text-left ${i > 1 ? "hidden md:inline-block" : ""}`}
                 >
-                  {v.league} · {v.title}
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-primary md:hidden">{v.league}</span>
+                  <span className="line-clamp-2 md:hidden">{v.title}</span>
+                  <span className="hidden md:inline">{v.league} · {v.title}</span>
                 </button>
               ))}
               <button
