@@ -58,7 +58,8 @@ const HeroSection = () => {
     document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const hasVotes = counts.total > 0;
+  const MIN_VOTES_FOR_PCT = 10;
+  const hasVotes = counts.total >= MIN_VOTES_FOR_PCT;
   const pct = (v: string) => (hasVotes ? Math.round(((counts[v] || 0) / counts.total) * 100) : 0);
 
   return (
