@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Send, Flame, CheckCircle2, XCircle, HelpCircle, Users, ArrowRight } from "lucide-react";
+import { Send, Flame, CheckCircle2, XCircle, HelpCircle, Users, ArrowRight, Vote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -54,6 +54,13 @@ const HeroSection = () => {
     else navigate("/feed");
   };
 
+  const scrollToVote = () => {
+    document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const hasVotes = counts.total > 0;
+  const pct = (v: string) => (hasVotes ? Math.round(((counts[v] || 0) / counts.total) * 100) : 0);
+
   return (
     <section className="relative overflow-hidden bg-black">
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
@@ -63,8 +70,8 @@ const HeroSection = () => {
       />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[320px] bg-accent/10 rounded-full blur-[140px]" />
 
-      <div className="container relative z-10 mx-auto px-5 py-8 md:py-12">
-        <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_1fr]">
+      <div className="container relative z-10 mx-auto px-5 py-6 md:py-12">
+        <div className="grid items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
           {/* Left: identity + actions */}
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1">
@@ -84,17 +91,18 @@ const HeroSection = () => {
             </p>
 
             <div className="mb-6 flex flex-wrap gap-3">
-              <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToFeed}>
-                <Send className="mr-2 h-4 w-4" />
-                Submit a Call
+              <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToVote}>
+                <Vote className="mr-2 h-4 w-4" />
+                Vote Now
               </Button>
               <Button
                 variant="outline"
                 size="lg"
                 className="h-12 border-2 border-accent/60 px-6 font-extrabold uppercase tracking-wider text-accent hover:bg-accent hover:text-accent-foreground"
-                onClick={() => document.getElementById("top-week")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={scrollToFeed}
               >
-                Browse Top Calls
+                <Send className="mr-2 h-4 w-4" />
+                Submit a Call
               </Button>
             </div>
 
@@ -114,7 +122,7 @@ const HeroSection = () => {
 
           {/* Right: instant vote card */}
           {featured && (
-            <div className="rounded-2xl border border-border bg-card/80 p-5 backdrop-blur">
+            <div id="hero-vote" className="order-first rounded-2xl border border-border bg-card/80 p-5 backdrop-blur lg:order-none">
               <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
               </div>
@@ -132,9 +140,9 @@ const HeroSection = () => {
                     >
                       <Icon className="h-4 w-4" />
                       {opt.label}
-                      <span className="text-[10px] font-normal text-muted-foreground">
-                        {(counts[opt.vote] || 0).toLocaleString()}
-                      </span>
+                      {hasVotes && (
+                        <span className="text-[10px] font-normal text-muted-foreground">{pct(opt.vote)}%</span>
+                      )}
                     </button>
                   );
                 })}
@@ -142,7 +150,8 @@ const HeroSection = () => {
 
               <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {counts.total.toLocaleString()} votes
+                  <Users className="h-3 w-3" />
+                  {hasVotes ? `${counts.total.toLocaleString()} votes` : "Be the first to call it"}
                 </span>
                 <button onClick={scrollToFeed} className="flex items-center gap-1 font-semibold text-primary">
                   Open the debate <ArrowRight className="h-3 w-3" />
