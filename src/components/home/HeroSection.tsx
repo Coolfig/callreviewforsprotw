@@ -56,7 +56,13 @@ const HeroSection = () => {
   };
 
   const scrollToVote = () => {
-    document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const buttons = document.getElementById("hero-vote-buttons");
+    const target = buttons ?? document.getElementById("hero-vote");
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      const top = window.scrollY + rect.top - Math.max(80, (window.innerHeight - rect.height) / 2);
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
     setHighlightVote(true);
     window.setTimeout(() => setHighlightVote(false), 2200);
   };
