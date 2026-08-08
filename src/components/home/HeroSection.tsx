@@ -87,9 +87,14 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="mb-6 max-w-xl text-base font-medium text-muted-foreground md:text-lg">
+            <p className="mb-2 max-w-xl text-base font-medium text-muted-foreground md:text-lg">
               Under Review is where fans settle blown calls, hot takes, and sports debates.
             </p>
+
+            <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-accent">
+              Vote on legendary blown calls across NFL, NBA, MLB &amp; NHL
+            </p>
+
 
             <div className="mb-6 flex flex-wrap gap-3">
               <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToVote}>
@@ -123,7 +128,8 @@ const HeroSection = () => {
 
           {/* Right: instant vote card */}
           {featured && (
-            <div id="hero-vote" className="order-first rounded-2xl border border-border bg-card/80 p-5 backdrop-blur lg:order-none">
+            <div id="hero-vote" className="w-full min-w-0 rounded-2xl border border-border bg-card/80 p-4 backdrop-blur sm:p-5">
+
               <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
               </div>
