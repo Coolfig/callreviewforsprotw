@@ -71,8 +71,8 @@ const HeroSection = () => {
       />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[320px] bg-accent/10 rounded-full blur-[140px]" />
 
-      <div className="container relative z-10 mx-auto px-5 py-6 md:py-12">
-        <div className="grid items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
+      <div className="container relative z-10 mx-auto max-w-full px-4 py-6 md:px-5 md:py-12">
+        <div className="grid min-w-0 items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
           {/* Left: identity + actions */}
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1">
@@ -158,7 +158,11 @@ const HeroSection = () => {
               <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Users className="h-3 w-3" />
-                  {hasVotes ? `${counts.total.toLocaleString()} votes` : "Be the first to call it"}
+                  {hasVotes
+                    ? `${counts.total.toLocaleString()} votes`
+                    : counts.total > 0
+                      ? "Voting open — results show soon"
+                      : "Be the first to call it"}
                 </span>
                 <button onClick={scrollToFeed} className="flex items-center gap-1 font-semibold text-primary">
                   Open the debate <ArrowRight className="h-3 w-3" />
