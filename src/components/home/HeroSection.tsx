@@ -91,17 +91,18 @@ const HeroSection = () => {
             </p>
 
             <div className="mb-6 flex flex-wrap gap-3">
-              <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToFeed}>
-                <Send className="mr-2 h-4 w-4" />
-                Submit a Call
+              <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToVote}>
+                <Vote className="mr-2 h-4 w-4" />
+                Vote Now
               </Button>
               <Button
                 variant="outline"
                 size="lg"
                 className="h-12 border-2 border-accent/60 px-6 font-extrabold uppercase tracking-wider text-accent hover:bg-accent hover:text-accent-foreground"
-                onClick={() => document.getElementById("top-week")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={scrollToFeed}
               >
-                Browse Top Calls
+                <Send className="mr-2 h-4 w-4" />
+                Submit a Call
               </Button>
             </div>
 
