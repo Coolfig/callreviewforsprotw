@@ -4,6 +4,9 @@ import { BookOpen, Check, ChevronDown, ChevronUp, HelpCircle, Maximize2, Message
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import CommentSection from "@/components/play/CommentSection";
+
 import { sportsVideos, type SportVideo } from "@/data/sportsVideos";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -257,16 +260,27 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
             </div>
           </div>
 
-          <Link
-            to={`/feed#play-${video.id}`}
-            className="flex items-center justify-between rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary"
-          >
-            <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-              <MessageCircle className="h-4 w-4 text-primary" /> Discussion
-              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{commentCount.toLocaleString()}</span>
-            </div>
-            <span className="text-[11px] font-semibold text-primary">Open →</span>
-          </Link>
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-primary"
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                  <MessageCircle className="h-4 w-4 text-primary" /> Discussion
+                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{commentCount.toLocaleString()}</span>
+                </div>
+                <span className="text-[11px] font-semibold text-primary">Open →</span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
+              <SheetHeader className="mb-4">
+                <SheetTitle className="text-left text-base">{video.title}</SheetTitle>
+              </SheetHeader>
+              <CommentSection playId={video.id} />
+            </SheetContent>
+          </Sheet>
+
         </aside>
         )}
 
