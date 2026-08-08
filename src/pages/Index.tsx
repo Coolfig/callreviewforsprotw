@@ -31,8 +31,9 @@ const Index = () => {
         {isMobile ? (
           <>
             <HeroSection />
-            <FeedSection />
+            {/* One native Under Review section before any social embeds */}
             <TopThisWeek />
+            <FeedSection />
             <LeaderboardPreview />
             <SubmitCTA />
           </>

@@ -56,7 +56,13 @@ const HeroSection = () => {
   };
 
   const scrollToVote = () => {
-    document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const buttons = document.getElementById("hero-vote-buttons");
+    const target = buttons ?? document.getElementById("hero-vote");
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      const top = window.scrollY + rect.top - Math.max(80, (window.innerHeight - rect.height) / 2);
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
     setHighlightVote(true);
     window.setTimeout(() => setHighlightVote(false), 2200);
   };
@@ -116,19 +122,19 @@ const HeroSection = () => {
             </div>
 
             {/* Top calls quick list — trimmed to 2 + "More calls" on mobile */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center justify-start gap-2">
               {topCalls.map((v, i) => (
                 <button
                   key={v.id}
                   onClick={() => navigate(`/feed#play-${v.id}`)}
-                  className={`max-w-[220px] truncate rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary ${i > 1 ? "hidden md:inline-block" : ""}`}
+                  className={`basis-[calc(50%-0.25rem)] truncate rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-center text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary md:basis-auto md:max-w-[220px] md:text-left ${i > 1 ? "hidden md:inline-block" : ""}`}
                 >
                   {v.league} · {v.title}
                 </button>
               ))}
               <button
                 onClick={scrollToFeed}
-                className="rounded-full border border-primary/50 bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary md:hidden"
+                className="basis-[calc(50%-0.25rem)] rounded-full border border-primary/50 bg-primary/10 px-3 py-1.5 text-center text-[11px] font-bold text-primary md:hidden"
               >
                 More calls
               </button>
@@ -156,7 +162,7 @@ const HeroSection = () => {
                 Read more <ArrowRight className="h-3 w-3" />
               </button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div id="hero-vote-buttons" className="grid grid-cols-3 gap-2 scroll-mt-24">
                 {VOTE_OPTIONS.map((opt) => {
                   const Icon = opt.icon;
                   return (
