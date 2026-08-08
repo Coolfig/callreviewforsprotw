@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { supabase } from "@/integrations/supabase/client";
-import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
+import underReviewLogo from "@/assets/under-review-logo.png.asset.json";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,7 +53,7 @@ const Header = () => {
             }}
             className="flex items-center gap-2 group -my-2"
           >
-            <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-auto object-contain group-hover:opacity-90 transition-opacity" style={{ height: "48px" }} />
+            <img src={underReviewLogo.url} alt="Under Review" className="w-auto object-contain group-hover:opacity-90 transition-opacity" style={{ height: "48px" }} />
           </button>
 
           {/* Desktop Nav */}

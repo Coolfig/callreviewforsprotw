@@ -9,7 +9,7 @@ const RulebookHub = () => {
   return (
     <>
       {/* SEO */}
-      <title>Sports Rulebook Archive (2000–2026) | NFL, NBA, NHL, MLB | Under The Hood</title>
+      <title>Sports Rulebook Archive (2000–2026) | NFL, NBA, NHL, MLB | Under Review</title>
       <meta name="description" content="Browse official NFL, NBA, NHL, and MLB rulebooks from 2000 to 2026. Official links, key rule changes by year, and notable controversial calls analyzed." />
       <link rel="canonical" href="/rulebooks" />
       <script type="application/ld+json">{JSON.stringify({

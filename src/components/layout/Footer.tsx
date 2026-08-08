@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import underTheHoodLogo from "@/assets/under-the-hood-logo.png.asset.json";
+import underReviewLogo from "@/assets/under-review-logo.png.asset.json";
 
 const Footer = () => {
   return (
@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-14 h-14 rounded-lg overflow-hidden bg-background flex items-center justify-center">
-                <img src={underTheHoodLogo.url} alt="Under The Hood" className="w-14 h-14 object-contain" />
+                <img src={underReviewLogo.url} alt="Under Review" className="w-14 h-14 object-contain" />
               </div>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -52,7 +52,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2025 Under The Hood. All rights reserved.
+            © 2025 Under Review. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Not affiliated with NFL, NBA, MLB, or NHL.
