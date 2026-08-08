@@ -5,21 +5,21 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setFadeOut(true), 1500);
-    const done = setTimeout(onComplete, 2000);
+    const timer = setTimeout(() => setFadeOut(true), 500);
+    const done = setTimeout(onComplete, 850);
     return () => { clearTimeout(timer); clearTimeout(done); };
   }, [onComplete]);
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-background flex items-center justify-center transition-opacity duration-500 ${
+      className={`pointer-events-none fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300 ${
         fadeOut ? "opacity-0" : "opacity-100"
       }`}
     >
       <img
         src={underReviewLogo.url}
         alt="Under Review"
-        className="w-72 h-72 object-contain animate-fade-in"
+        className="w-56 h-56 object-contain animate-fade-in"
       />
     </div>
   );

@@ -58,7 +58,8 @@ const HeroSection = () => {
     document.getElementById("hero-vote")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const hasVotes = counts.total > 0;
+  const MIN_VOTES_FOR_PCT = 10;
+  const hasVotes = counts.total >= MIN_VOTES_FOR_PCT;
   const pct = (v: string) => (hasVotes ? Math.round(((counts[v] || 0) / counts.total) * 100) : 0);
 
   return (
@@ -70,8 +71,8 @@ const HeroSection = () => {
       />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[320px] bg-accent/10 rounded-full blur-[140px]" />
 
-      <div className="container relative z-10 mx-auto px-5 py-6 md:py-12">
-        <div className="grid items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
+      <div className="container relative z-10 mx-auto max-w-full px-4 py-6 md:px-5 md:py-12">
+        <div className="grid min-w-0 items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
           {/* Left: identity + actions */}
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1">
@@ -86,9 +87,14 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="mb-6 max-w-xl text-base font-medium text-muted-foreground md:text-lg">
+            <p className="mb-2 max-w-xl text-base font-medium text-muted-foreground md:text-lg">
               Under Review is where fans settle blown calls, hot takes, and sports debates.
             </p>
+
+            <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-accent">
+              Vote on legendary blown calls across NFL, NBA, MLB &amp; NHL
+            </p>
+
 
             <div className="mb-6 flex flex-wrap gap-3">
               <Button size="lg" className="h-12 px-6 font-extrabold uppercase tracking-wider" onClick={scrollToVote}>
@@ -122,7 +128,8 @@ const HeroSection = () => {
 
           {/* Right: instant vote card */}
           {featured && (
-            <div id="hero-vote" className="order-first rounded-2xl border border-border bg-card/80 p-5 backdrop-blur lg:order-none">
+            <div id="hero-vote" className="w-full min-w-0 rounded-2xl border border-border bg-card/80 p-4 backdrop-blur sm:p-5">
+
               <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
               </div>
@@ -151,7 +158,11 @@ const HeroSection = () => {
               <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Users className="h-3 w-3" />
-                  {hasVotes ? `${counts.total.toLocaleString()} votes` : "Be the first to call it"}
+                  {hasVotes
+                    ? `${counts.total.toLocaleString()} votes`
+                    : counts.total > 0
+                      ? "Voting open — results show soon"
+                      : "Be the first to call it"}
                 </span>
                 <button onClick={scrollToFeed} className="flex items-center gap-1 font-semibold text-primary">
                   Open the debate <ArrowRight className="h-3 w-3" />
