@@ -145,64 +145,8 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right: instant vote card */}
-          {featured && (
-            <div
-              id="hero-vote"
-              className={`w-full min-w-0 rounded-2xl border bg-card/80 p-4 backdrop-blur transition-all duration-300 sm:p-5 ${
-                highlightVote ? "border-primary ring-2 ring-primary/60" : "border-border"
-              }`}
-            >
 
-              <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                <span className="h-2 w-2 rounded-full bg-primary" /> Today's call · {featured.league}
-              </div>
-              <h2 className="mb-1 text-lg font-extrabold leading-snug text-foreground">{featured.title}</h2>
-              <p className="line-clamp-2 text-xs text-muted-foreground">{featured.description}</p>
-              <button
-                onClick={scrollToFeed}
-                className="mb-4 mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
-              >
-                Read more <ArrowRight className="h-3 w-3" />
-              </button>
 
-              <div id="hero-vote-buttons" className="grid grid-cols-3 gap-2 scroll-mt-24">
-                {VOTE_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
-                  return (
-                    <button
-                      key={opt.vote}
-                      onClick={() => castVote(opt.vote, opt.label)}
-                      className={`flex flex-col items-center gap-1 rounded-lg border bg-background/50 py-3 text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary ${
-                        highlightVote ? "animate-pulse border-primary text-primary" : "border-border"
-                      }`}
-                    >
-
-                      <Icon className="h-4 w-4" />
-                      {opt.label}
-                      {hasVotes && (
-                        <span className="text-[10px] font-normal text-muted-foreground">{pct(opt.vote)}%</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {hasVotes
-                    ? `${counts.total.toLocaleString()} votes`
-                    : counts.total > 0
-                      ? "Voting open — results show soon"
-                      : "Be the first to call it"}
-                </span>
-                <button onClick={scrollToFeed} className="flex items-center gap-1 font-semibold text-primary">
-                  Open the debate <ArrowRight className="h-3 w-3" />
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </section>
