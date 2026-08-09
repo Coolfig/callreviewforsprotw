@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import Seo from "@/components/seo/Seo";
 
 interface Rule {
   id: string;
@@ -68,6 +69,7 @@ const Rulebook = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title='Sports Rulebook Explained | Under Review' description="Look up the official NFL, NBA, MLB, and NHL rules behind the game's most disputed calls, in plain language with real examples." path="/rulebook" jsonLd={{ "@context": "https://schema.org", "@type": "CollectionPage", name: 'Sports Rulebook Explained | Under Review'.replace(/\|.*$/, "").trim(), description: "Look up the official NFL, NBA, MLB, and NHL rules behind the game's most disputed calls, in plain language with real examples.", url: "https://undereview.com/rulebook" }} />
       <Header />
       <main className="pt-[144px] pb-16">
         <div className="container mx-auto px-6 max-w-4xl">

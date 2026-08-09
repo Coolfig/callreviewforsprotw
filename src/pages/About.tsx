@@ -1,10 +1,12 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Scale, BookOpen, Users, Shield } from "lucide-react";
+import Seo from "@/components/seo/Seo";
 
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Seo title='About Under Review — The Sports Court for Blown Calls' description='Under Review is where fans review plays like officials: watch the clip, check the rule, and vote on whether the call was right.' path="/about" />
       <Header />
       <main className="pt-[144px] pb-16">
         <div className="container mx-auto px-6 max-w-3xl">

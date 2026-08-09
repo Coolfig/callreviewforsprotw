@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import Seo from "@/components/seo/Seo";
 
 type Row = {
   user_id: string;
@@ -181,6 +182,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title='Leaderboard — Top Fans & Analysts | Under Review' description='See who wins the most arguments. Points from posts, likes, and accurate calls decide the Under Review rankings and prize pool.' path="/leaderboard" />
       <Header />
       <main className="pt-[144px] pb-16">
         <div className="container mx-auto px-6 max-w-5xl">
