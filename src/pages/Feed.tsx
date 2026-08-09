@@ -11,6 +11,7 @@ const Feed = () => {
       <LiveScoresTicker />
       <Header />
       <main className="pt-[120px]">
+        <h1 className="sr-only">Debate feed: watch the play, read the rule, vote on the call</h1>
         <FeedSection />
       </main>
       <Footer />
