@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { LEAGUES, LEAGUE_KEYS, LEAGUE_EMOJIS, YEARS } from "@/data/rulebookArchive";
 import SafeExternalLink from "@/components/SafeExternalLink";
+import Seo from "@/components/seo/Seo";
 
 const RulebookHub = () => {
   return (
