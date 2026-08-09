@@ -73,22 +73,22 @@ const Header = () => {
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/search")}>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/search")} aria-label="Search">
               <Search className="w-5 h-5" />
             </Button>
 
             {user && (
               <>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/bookmarks")}>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/bookmarks")} aria-label="Bookmarks">
                   <Bookmark className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/messages")}>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/messages")} aria-label="Messages">
                   <MessageSquare className="w-5 h-5" />
                 </Button>
 
                 {/* Notifications bell */}
                 <div className="relative">
-                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setShowNotifications(!showNotifications)}>
+                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setShowNotifications(!showNotifications)} aria-label="Notifications">
                     <Bell className="w-5 h-5" />
                     {unreadCount > 0 && (
                       <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
@@ -130,7 +130,7 @@ const Header = () => {
                   )}
                 </div>
 
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/settings")}>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/settings")} aria-label="Settings">
                   <Settings className="w-4 h-4" />
                 </Button>
 
@@ -143,7 +143,7 @@ const Header = () => {
                   </Avatar>
                   <span className="text-sm font-medium text-foreground">{username || "User"}</span>
                 </button>
-                <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out" className="text-muted-foreground hover:text-foreground">
                   <LogOut className="w-4 h-4" />
                 </Button>
               </>

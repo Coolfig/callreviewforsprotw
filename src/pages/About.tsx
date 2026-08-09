@@ -43,7 +43,7 @@ const About = () => {
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">{title}</h3>
+                  <h2 className="font-semibold mb-1 text-base">{title}</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
                 </div>
               </div>

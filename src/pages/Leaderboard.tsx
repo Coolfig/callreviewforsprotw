@@ -216,10 +216,12 @@ const Leaderboard = () => {
           </div>
 
           {/* Prize Pool */}
+          <h2 className="text-xl font-bold mb-3">Prize Pool</h2>
           <PrizePool />
 
 
 
+          <h2 className="text-xl font-bold mt-10 mb-3">Rankings</h2>
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
           ) : rows.length === 0 ? (
