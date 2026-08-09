@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/layout/Header";
+import Seo from "@/components/seo/Seo";
 import Footer from "@/components/layout/Footer";
 
 const LEAGUES = ["nba", "nfl", "mlb", "nhl"];

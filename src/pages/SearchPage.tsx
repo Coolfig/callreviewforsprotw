@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
+import Seo from "@/components/seo/Seo";
 import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
