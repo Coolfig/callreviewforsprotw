@@ -22,10 +22,11 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-sm mb-4">Platform</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Browse Plays</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Rulebook Library</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Leaderboard</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Submit a Play</a></li>
+              <li><Link to="/calls" className="hover:text-foreground transition-colors">Calls Archive</Link></li>
+              <li><Link to="/rulebooks" className="hover:text-foreground transition-colors">Rulebook Library</Link></li>
+              <li><Link to="/leaderboard" className="hover:text-foreground transition-colors">Leaderboard</Link></li>
+              <li><Link to="/trending" className="hover:text-foreground transition-colors">Trending Calls</Link></li>
+
             </ul>
           </div>
 
