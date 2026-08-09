@@ -56,17 +56,17 @@ const HeroSection = () => {
   };
 
   const scrollToVote = () => {
-    const card = document.getElementById("hero-vote");
-    const target = card ?? document.getElementById("hero-vote-buttons");
-    if (target) {
-      const rect = target.getBoundingClientRect();
-      // Center the whole vote card in the viewport
-      const top = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+    const feed = document.getElementById("feed");
+    if (feed) {
+      const top = window.scrollY + feed.getBoundingClientRect().top;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    } else {
+      navigate("/feed");
     }
     setHighlightVote(true);
     window.setTimeout(() => setHighlightVote(false), 2200);
   };
+
 
 
   const MIN_VOTES_FOR_PCT = 10;

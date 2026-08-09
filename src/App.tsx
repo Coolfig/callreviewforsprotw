@@ -16,6 +16,7 @@ import RulesHub from "./pages/RulesHub";
 import RulesLeague from "./pages/RulesLeague";
 import RulesYear from "./pages/RulesYear";
 import Leaderboard from "./pages/Leaderboard";
+import Trending from "./pages/Trending";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
 import AdminClipper from "./pages/AdminClipper";
@@ -60,7 +61,9 @@ const App = () => (
             <Route path="/rules" element={<RulesHub />} />
             <Route path="/rules/:league" element={<RulesLeague />} />
             <Route path="/rules/:league/:year" element={<RulesYear />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
+           <Route path="/trending" element={<Trending />} />
+           <Route path="/leaderboard" element={<Leaderboard />} />
+
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />

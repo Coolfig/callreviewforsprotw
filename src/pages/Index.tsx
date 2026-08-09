@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
-import TopThisWeek from "@/components/home/TopThisWeek";
+
 import LeaderboardPreview from "@/components/home/LeaderboardPreview";
 import SubmitCTA from "@/components/home/SubmitCTA";
 import FeedSection from "@/components/home/FeedSection";
@@ -28,25 +28,12 @@ const Index = () => {
       {!isMobile && showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <Header />
       <main className="pt-[40px] md:pt-[72px]">
-        {isMobile ? (
-          <>
-            <HeroSection />
-            {/* One native Under Review section before any social embeds */}
-            <TopThisWeek />
-            <FeedSection />
-            <LeaderboardPreview />
-            <SubmitCTA />
-          </>
-        ) : (
-          <>
-            <HeroSection />
-            <TopThisWeek />
-            <FeedSection />
-            <LeaderboardPreview />
-            <SubmitCTA />
-          </>
-        )}
+        <HeroSection />
+        <FeedSection />
+        <LeaderboardPreview />
+        <SubmitCTA />
       </main>
+
       <Footer />
     </div>
   );
