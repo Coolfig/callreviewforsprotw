@@ -142,6 +142,63 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
   const rules = video.ruleData?.rules ?? [];
   const season = video.ruleData?.season;
 
+  const castVote = async (vote: "correct" | "missed" | "unclear", label: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Sign in to vote");
+      navigate(`/auth?redirect=${encodeURIComponent(`${window.location.pathname}${window.location.hash || "#feed"}`)}`);
+      return;
+    }
+    const { error } = await supabase
+      .from("play_votes")
+      .upsert({ user_id: user.id, play_id: video.id, vote }, { onConflict: "user_id,play_id" });
+    if (error) toast.error(error.message || "Vote failed");
+    else {
+      toast.success(`Voted: ${label}`);
+      onVoteSaved?.(video.id);
+    }
+  };
+
+  const voteOptions = [
+    { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const, count: voteCounts.correct },
+    { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const, count: voteCounts.missed },
+    { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const, count: voteCounts.unclear },
+  ];
+
+  const rulesPanel = (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <BookOpen className="h-5 w-5" />
+        </div>
+        <div>
+          <div className="text-sm font-bold text-foreground">Official Rulebook</div>
+          <div className="text-xs text-muted-foreground">{video.league} {season ?? ""}</div>
+        </div>
+      </div>
+      <div>
+        <div className="text-sm font-semibold text-foreground">Rule Explanation</div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {video.ruleData?.ruleExplanation?.plainEnglishSummary ?? video.ruleData?.keyInterpretation ?? "No explanation available for this play yet."}
+        </p>
+      </div>
+      <div className="space-y-2">
+        <div className="text-sm font-semibold text-foreground">Official Rule Text</div>
+        {rules.length === 0 ? (
+          <p className="text-xs text-muted-foreground">No rule citation provided.</p>
+        ) : (
+          rules.map((r, i) => (
+            <div key={i} className="text-xs text-muted-foreground">
+              <div className="font-semibold text-foreground">Rule {r.ruleNumber} · {r.ruleTitle}</div>
+              <p className="mt-1 leading-relaxed">{r.ruleText}</p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+
   return (
     <section data-short-id={video.id} className={`flex snap-start items-center justify-center ${fullscreen ? "h-screen px-0 py-0" : "h-[calc(100vh-104px)] px-4 py-6"}`}>
       <div className={`flex items-stretch justify-center gap-4 ${fullscreen ? "h-full w-full max-h-none" : "h-full max-h-[760px]"}`}>
@@ -212,7 +269,55 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
             </div>
             <h2 className="line-clamp-2 text-lg font-bold text-foreground">{video.title}</h2>
             <p className="line-clamp-2 text-sm text-muted-foreground">{video.teams} · {video.gameContext}</p>
+
+            {/* Mobile controls: vote + rules + discussion */}
+            <div className="space-y-2 lg:hidden">
+              <div className="grid grid-cols-3 gap-1.5">
+                {voteOptions.map((opt) => (
+                  <button
+                    key={opt.label}
+                    type="button"
+                    onClick={() => castVote(opt.vote, opt.label)}
+                    className="flex flex-col items-center gap-0.5 rounded-md border border-border bg-background/70 py-2 text-[11px] font-semibold text-foreground transition-colors active:border-primary"
+                  >
+                    {opt.icon}
+                    {opt.label}
+                    <span className="text-[10px] font-normal text-muted-foreground">{opt.count.toLocaleString()}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button type="button" className="flex items-center justify-center gap-1.5 rounded-md border border-border bg-background/70 py-2 text-[11px] font-bold text-foreground">
+                      <BookOpen className="h-3.5 w-3.5 text-primary" /> Rule
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
+                    <SheetHeader className="mb-4">
+                      <SheetTitle className="text-left text-base">Rule Explanation</SheetTitle>
+                    </SheetHeader>
+                    {rulesPanel}
+                  </SheetContent>
+                </Sheet>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button type="button" className="flex items-center justify-center gap-1.5 rounded-md border border-border bg-background/70 py-2 text-[11px] font-bold text-foreground">
+                      <MessageCircle className="h-3.5 w-3.5 text-primary" /> Comments
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{commentCount.toLocaleString()}</span>
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+                    <SheetHeader className="mb-4">
+                      <SheetTitle className="text-left text-base">{video.title}</SheetTitle>
+                    </SheetHeader>
+                    <CommentSection playId={video.id} />
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
           </div>
+
         </div>
 
         {/* Right: What's Your Call + Discussion (condensed) */}
