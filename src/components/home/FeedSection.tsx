@@ -142,6 +142,63 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
   const rules = video.ruleData?.rules ?? [];
   const season = video.ruleData?.season;
 
+  const castVote = async (vote: "correct" | "missed" | "unclear", label: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Sign in to vote");
+      navigate(`/auth?redirect=${encodeURIComponent(`${window.location.pathname}${window.location.hash || "#feed"}`)}`);
+      return;
+    }
+    const { error } = await supabase
+      .from("play_votes")
+      .upsert({ user_id: user.id, play_id: video.id, vote }, { onConflict: "user_id,play_id" });
+    if (error) toast.error(error.message || "Vote failed");
+    else {
+      toast.success(`Voted: ${label}`);
+      onVoteSaved?.(video.id);
+    }
+  };
+
+  const voteOptions = [
+    { icon: <Check className="h-3.5 w-3.5" />, label: "Correct", vote: "correct" as const, count: voteCounts.correct },
+    { icon: <X className="h-3.5 w-3.5" />, label: "Missed", vote: "missed" as const, count: voteCounts.missed },
+    { icon: <HelpCircle className="h-3.5 w-3.5" />, label: "Unclear", vote: "unclear" as const, count: voteCounts.unclear },
+  ];
+
+  const rulesPanel = (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <BookOpen className="h-5 w-5" />
+        </div>
+        <div>
+          <div className="text-sm font-bold text-foreground">Official Rulebook</div>
+          <div className="text-xs text-muted-foreground">{video.league} {season ?? ""}</div>
+        </div>
+      </div>
+      <div>
+        <div className="text-sm font-semibold text-foreground">Rule Explanation</div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {video.ruleData?.ruleExplanation?.plainEnglishSummary ?? video.ruleData?.keyInterpretation ?? "No explanation available for this play yet."}
+        </p>
+      </div>
+      <div className="space-y-2">
+        <div className="text-sm font-semibold text-foreground">Official Rule Text</div>
+        {rules.length === 0 ? (
+          <p className="text-xs text-muted-foreground">No rule citation provided.</p>
+        ) : (
+          rules.map((r, i) => (
+            <div key={i} className="text-xs text-muted-foreground">
+              <div className="font-semibold text-foreground">Rule {r.ruleNumber} · {r.ruleTitle}</div>
+              <p className="mt-1 leading-relaxed">{r.ruleText}</p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+
   return (
     <section data-short-id={video.id} className={`flex snap-start items-center justify-center ${fullscreen ? "h-screen px-0 py-0" : "h-[calc(100vh-104px)] px-4 py-6"}`}>
       <div className={`flex items-stretch justify-center gap-4 ${fullscreen ? "h-full w-full max-h-none" : "h-full max-h-[760px]"}`}>
