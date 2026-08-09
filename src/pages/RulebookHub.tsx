@@ -4,21 +4,24 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { LEAGUES, LEAGUE_KEYS, LEAGUE_EMOJIS, YEARS } from "@/data/rulebookArchive";
 import SafeExternalLink from "@/components/SafeExternalLink";
+import Seo from "@/components/seo/Seo";
 
 const RulebookHub = () => {
   return (
     <>
-      {/* SEO */}
-      <title>Sports Rulebook Archive (2000–2026) | NFL, NBA, NHL, MLB | Under Review</title>
-      <meta name="description" content="Browse official NFL, NBA, NHL, and MLB rulebooks from 2000 to 2026. Official links, key rule changes by year, and notable controversial calls analyzed." />
-      <link rel="canonical" href="/rulebooks" />
-      <script type="application/ld+json">{JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": "Sports Rulebook Archive 2000–2026",
-        "description": "Official NFL, NBA, NHL, and MLB rulebook links from 2000 to 2026.",
-        "url": "https://callreviewforsprotw.lovable.app/rulebooks",
-      })}</script>
+      <Seo
+        title="Sports Rulebook Archive 2000–2026 | Under Review"
+        description="Official NFL, NBA, NHL, and MLB rulebooks from 2000 to 2026, with key rule changes by year and the calls they explain."
+        path="/rulebooks"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Sports Rulebook Archive 2000–2026",
+          description: "Official NFL, NBA, NHL, and MLB rulebook links from 2000 to 2026.",
+          url: "https://undereview.com/rulebooks",
+        }}
+      />
+
 
       <div className="min-h-screen bg-background">
         <Header />

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Scale, ChevronRight, Zap, FileText, TrendingUp, Users } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Seo from "@/components/seo/Seo";
 
 // ── League config ─────────────────────────────────────────────────────────────
 const LEAGUES = [
@@ -70,22 +71,24 @@ const FEATURES = [
 ];
 
 const RulesHub = () => {
-  const title = "Sports Rule Changes & Interpretations (2000–2026) | Under Review";
+  const title = "Sports Rule Changes 2000–2026 | Under Review";
   const metaDesc =
-    "Browse NFL, NBA, NHL, and MLB rule changes and officiating interpretations from 2000 to 2026. Understand what changed each season and how it shaped famous controversial calls.";
+    "NFL, NBA, NHL, and MLB rule changes and officiating interpretations from 2000 to 2026, and how each one shaped famous calls.";
 
   return (
     <>
-      <title>{title}</title>
-      <meta name="description" content={metaDesc} />
-      <link rel="canonical" href="/rules" />
-      <script type="application/ld+json">{JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: "Sports Rule Changes & Interpretations (2000–2026)",
-        description: metaDesc,
-        url: "/rules",
-      })}</script>
+      <Seo
+        title={title}
+        description={metaDesc}
+        path="/rules"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Sports Rule Changes 2000–2026",
+          description: metaDesc,
+          url: "https://undereview.com/rules",
+        }}
+      />
 
       <div className="min-h-screen bg-background">
         <Header />

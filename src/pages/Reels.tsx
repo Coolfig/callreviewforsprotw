@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllClips } from "@/lib/api/clips";
 import Header from "@/components/layout/Header";
+import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -291,8 +292,14 @@ export default function Reels() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo
+        title="Reels — Controversial Call Clips | Under Review"
+        description="Swipe through short clips of the most disputed sports calls, one play at a time, and react as you scroll."
+        path="/reels"
+      />
       <Header />
       <main className="relative flex-1">
+        <h1 className="sr-only">Controversial call reels</h1>
         {isLoading ? (
           <div className="flex justify-center items-center h-[calc(100vh-104px)]">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

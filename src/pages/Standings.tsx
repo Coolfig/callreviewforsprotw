@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/layout/Header";
+import Seo from "@/components/seo/Seo";
 import Footer from "@/components/layout/Footer";
 
 const LEAGUES = ["nba", "nfl", "mlb", "nhl"];
@@ -66,6 +67,11 @@ const Standings = () => {
 
   return (
     <div className="min-h-screen bg-background pt-[120px]">
+      <Seo
+        title={`${LEAGUE_LABELS[league] || league.toUpperCase()} Standings 2025-26 | Under Review`}
+        description={`Live ${LEAGUE_LABELS[league] || league.toUpperCase()} standings: records, win percentage, games behind, streaks, and last-ten form for every team.`}
+        path={`/standings/${league}`}
+      />
       <Header />
       <main className="container mx-auto max-w-6xl px-4 py-8">
         <h1 className="text-2xl font-bold text-foreground mb-6">
