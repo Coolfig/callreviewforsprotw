@@ -1,10 +1,12 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Scale, BookOpen, Users, Shield } from "lucide-react";
+import Seo from "@/components/seo/Seo";
 
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Seo title='About Under Review — The Sports Court for Blown Calls' description='Under Review is where fans review plays like officials: watch the clip, check the rule, and vote on whether the call was right.' path="/about" />
       <Header />
       <main className="pt-[144px] pb-16">
         <div className="container mx-auto px-6 max-w-3xl">
@@ -43,7 +45,7 @@ const About = () => {
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">{title}</h3>
+                  <h2 className="font-semibold mb-1 text-base">{title}</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
                 </div>
               </div>

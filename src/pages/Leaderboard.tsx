@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import Seo from "@/components/seo/Seo";
 
 type Row = {
   user_id: string;
@@ -181,6 +182,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title='Leaderboard — Top Fans & Analysts | Under Review' description='See who wins the most arguments. Points from posts, likes, and accurate calls decide the Under Review rankings and prize pool.' path="/leaderboard" />
       <Header />
       <main className="pt-[144px] pb-16">
         <div className="container mx-auto px-6 max-w-5xl">
@@ -216,10 +218,12 @@ const Leaderboard = () => {
           </div>
 
           {/* Prize Pool */}
+          <h2 className="text-xl font-bold mb-3">Prize Pool</h2>
           <PrizePool />
 
 
 
+          <h2 className="text-xl font-bold mt-10 mb-3">Rankings</h2>
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
           ) : rows.length === 0 ? (
