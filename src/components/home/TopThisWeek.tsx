@@ -1,5 +1,6 @@
 import { Trophy, Flame, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { sportsVideos } from "@/data/sportsVideos";
 import refereeCharacter from "@/assets/referee-character.png";
 
@@ -12,11 +13,14 @@ const LEAGUE_DOT: Record<string, string> = {
 
 const TopThisWeek = () => {
   const top = sportsVideos.slice(0, 3);
+  const navigate = useNavigate();
 
   const jumpTo = (id: string) => {
     const el = document.getElementById(`play-${id}`);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    else navigate(`/feed#play-${id}`);
   };
+
 
   return (
     <section id="top-week" className="py-20 bg-background relative overflow-hidden">

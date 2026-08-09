@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
-import TopThisWeek from "@/components/home/TopThisWeek";
+
 import LeaderboardPreview from "@/components/home/LeaderboardPreview";
 import SubmitCTA from "@/components/home/SubmitCTA";
 import FeedSection from "@/components/home/FeedSection";
