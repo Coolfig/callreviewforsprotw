@@ -28,9 +28,15 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Search Controversial Plays | Under Review"
+        description="Search NFL, NBA, MLB, and NHL plays by team, rule, or keyword to find the call you want to debate."
+        path="/search"
+      />
       <Header />
       <main className="pt-[120px] pb-16">
         <div className="max-w-3xl mx-auto px-4">
+          <h1 className="text-2xl font-bold mb-4">Search controversial plays</h1>
           <div className="relative mb-6">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input

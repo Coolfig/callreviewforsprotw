@@ -66,6 +66,11 @@ const Standings = () => {
 
   return (
     <div className="min-h-screen bg-background pt-[120px]">
+      <Seo
+        title={`${LEAGUE_LABELS[league] || league.toUpperCase()} Standings 2025-26 | Under Review`}
+        description={`Live ${LEAGUE_LABELS[league] || league.toUpperCase()} standings: records, win percentage, games behind, streaks, and last-ten form for every team.`}
+        path={`/standings/${league}`}
+      />
       <Header />
       <main className="container mx-auto max-w-6xl px-4 py-8">
         <h1 className="text-2xl font-bold text-foreground mb-6">
