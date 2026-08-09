@@ -269,7 +269,55 @@ function ShortsCard({ video, active, muted, fullscreen, voteCounts, commentCount
             </div>
             <h2 className="line-clamp-2 text-lg font-bold text-foreground">{video.title}</h2>
             <p className="line-clamp-2 text-sm text-muted-foreground">{video.teams} · {video.gameContext}</p>
+
+            {/* Mobile controls: vote + rules + discussion */}
+            <div className="space-y-2 lg:hidden">
+              <div className="grid grid-cols-3 gap-1.5">
+                {voteOptions.map((opt) => (
+                  <button
+                    key={opt.label}
+                    type="button"
+                    onClick={() => castVote(opt.vote, opt.label)}
+                    className="flex flex-col items-center gap-0.5 rounded-md border border-border bg-background/70 py-2 text-[11px] font-semibold text-foreground transition-colors active:border-primary"
+                  >
+                    {opt.icon}
+                    {opt.label}
+                    <span className="text-[10px] font-normal text-muted-foreground">{opt.count.toLocaleString()}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button type="button" className="flex items-center justify-center gap-1.5 rounded-md border border-border bg-background/70 py-2 text-[11px] font-bold text-foreground">
+                      <BookOpen className="h-3.5 w-3.5 text-primary" /> Rule
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
+                    <SheetHeader className="mb-4">
+                      <SheetTitle className="text-left text-base">Rule Explanation</SheetTitle>
+                    </SheetHeader>
+                    {rulesPanel}
+                  </SheetContent>
+                </Sheet>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button type="button" className="flex items-center justify-center gap-1.5 rounded-md border border-border bg-background/70 py-2 text-[11px] font-bold text-foreground">
+                      <MessageCircle className="h-3.5 w-3.5 text-primary" /> Comments
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{commentCount.toLocaleString()}</span>
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+                    <SheetHeader className="mb-4">
+                      <SheetTitle className="text-left text-base">{video.title}</SheetTitle>
+                    </SheetHeader>
+                    <CommentSection playId={video.id} />
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
           </div>
+
         </div>
 
         {/* Right: What's Your Call + Discussion (condensed) */}
