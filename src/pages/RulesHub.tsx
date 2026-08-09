@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Scale, ChevronRight, Zap, FileText, TrendingUp, Users } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Seo from "@/components/seo/Seo";
 
 // ── League config ─────────────────────────────────────────────────────────────
 const LEAGUES = [
