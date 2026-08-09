@@ -2,6 +2,11 @@
 
 import { writeFileSync } from "fs";
 import { resolve } from "path";
+import { sportsVideos } from "../src/data/sportsVideos";
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+}
 
 const BASE_URL = "https://undereview.com";
 
@@ -23,6 +28,13 @@ const entries: SitemapEntry[] = [
   { path: "/reels", changefreq: "daily", priority: "0.6" },
   { path: "/community", changefreq: "daily", priority: "0.6" },
   { path: "/about", changefreq: "monthly", priority: "0.5" },
+  { path: "/calls", changefreq: "daily", priority: "0.9" },
+  // One indexable page per controversial call
+  ...sportsVideos.map((v) => ({
+    path: `/call/${slugify(v.title)}-${v.id}`,
+    changefreq: "weekly" as const,
+    priority: "0.7",
+  })),
 ];
 
 function generateSitemap(list: SitemapEntry[]) {
