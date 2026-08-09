@@ -16,6 +16,7 @@ import RulesHub from "./pages/RulesHub";
 import RulesLeague from "./pages/RulesLeague";
 import RulesYear from "./pages/RulesYear";
 import Leaderboard from "./pages/Leaderboard";
+import Trending from "./pages/Trending";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
 import AdminClipper from "./pages/AdminClipper";
