@@ -28,25 +28,12 @@ const Index = () => {
       {!isMobile && showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <Header />
       <main className="pt-[40px] md:pt-[72px]">
-        {isMobile ? (
-          <>
-            <HeroSection />
-            {/* One native Under Review section before any social embeds */}
-            <TopThisWeek />
-            <FeedSection />
-            <LeaderboardPreview />
-            <SubmitCTA />
-          </>
-        ) : (
-          <>
-            <HeroSection />
-            <TopThisWeek />
-            <FeedSection />
-            <LeaderboardPreview />
-            <SubmitCTA />
-          </>
-        )}
+        <HeroSection />
+        <FeedSection />
+        <LeaderboardPreview />
+        <SubmitCTA />
       </main>
+
       <Footer />
     </div>
   );

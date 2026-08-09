@@ -26,11 +26,13 @@ const Header = () => {
 
   const navLinks = [
     { name: "Feed", href: "/feed" },
+    { name: "Trending", href: "/trending" },
     { name: "Community", href: "/community" },
     { name: "Rules", href: "/rules" },
     { name: "Leaderboard", href: "/leaderboard" },
     { name: "About", href: "/about" },
   ];
+
 
   const handleSignOut = async () => {
     await signOut();
